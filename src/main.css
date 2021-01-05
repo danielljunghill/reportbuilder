@@ -1,0 +1,53 @@
+.koncept.koncept
+{
+    /* display: flex;
+    flex-direction: column; */
+    margin-left: 20px;
+}
+
+.selected
+{
+    background-color: gray;
+}
+
+
+.report
+{
+    display: flex;
+    flex-direction: column;
+
+}
+
+.page
+{
+    flex-grow: inherit;
+    border: 1px black;
+    border-style: solid;
+    padding: 10px
+}
+
+.headers
+{
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    order: 3
+}
+
+
+.header
+ {
+    padding: 10px;
+    background-color:white;
+    border: 1px solid black;
+    margin-top: -1px;
+
+    
+ }
+
+ .header.selected
+ {
+     color: greenyellow;
+     border-top: transparent;
+
+ }
