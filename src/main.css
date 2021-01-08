@@ -1,21 +1,21 @@
-.koncept.koncept
+
+body, html, .report-wrapper
 {
-    /* display: flex;
-    flex-direction: column; */
-    margin-left: 20px;
+    height: 100%;
 }
 
-.selected
+.report-wrapper
 {
-    background-color: gray;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
 }
-
 
 .report
 {
     display: flex;
     flex-direction: column;
-
+    height: 100%
 }
 
 .page
@@ -23,7 +23,13 @@
     flex-grow: inherit;
     border: 1px black;
     border-style: solid;
-    padding: 10px
+    padding: 10px;
+    height: 400px
+}
+
+.selected
+{
+    background-color: gray;
 }
 
 .headers
@@ -34,20 +40,67 @@
     order: 3
 }
 
-
 .header
  {
     padding: 10px;
     background-color:white;
     border: 1px solid black;
-    margin-top: -1px;
-
-    
+    margin-top: -1px;   
  }
 
  .header.selected
  {
      color: greenyellow;
      border-top: transparent;
-
  }
+
+ .koncept.koncept
+{
+    /* display: flex;
+    flex-direction: column; */
+    margin-left: 20px;
+}
+
+.abstract-details
+{
+    display: flex;
+    flex-direction: row;
+}
+
+.abstract-details-space
+{
+    width: 50px;
+}
+
+.value-details
+{
+    display: flex;
+    flex-direction: row;
+}
+
+.value-details label
+{
+    align-self: flex-end;
+}
+
+.value-details-space
+{
+    width: 50px;
+}
+
+.value-details-input
+{
+    border: gray solid 1px;
+    padding:3px
+}
+
+
+
+
+
+
+
+
+
+
+

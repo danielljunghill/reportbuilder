@@ -14,11 +14,15 @@ import Msg as Msg exposing (..)
 
 valueKonceptDetails: ValueKoncept -> Html Msg 
 valueKonceptDetails (ValueKoncept ki) =
+ let
+    lbl: Html Msg
+    lbl = label [] [ text ki.name ] 
+ in
   div (joinAttributes [ class "value-details", onClickStopPropagation (Select ki)] (getSelection ki))
       [ 
-          div [ class "value-details-label"] [ text ki.name ],
+          lbl ,
           div [ class "value-details-space"] [],
-          div [ class "value-details-input"] [ button [] [ text "input" ] ]
+          div [ class "value-details-input"] [  text "input"  ]
       ]
 
 

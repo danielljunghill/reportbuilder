@@ -45,12 +45,8 @@ view : Model.Report -> Html Msg
 view report =
     div [ class "report-wrapper"]
       [
-        div [] [View.toHtml report],
-        div []
-        [
-          div []
-          [ konceptButton report,  pageButton]
-        ] 
+        View.toHtml report,
+        div [] [ konceptButton report,  pageButton]
       ]
   
   

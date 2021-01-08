@@ -1,5 +1,5 @@
 module Section.Model exposing (..)
-import Koncept.Model as Koncept exposing (..)
+import Koncept.Model exposing (..)
 
 type Id = Id String
 idValue: Id -> String

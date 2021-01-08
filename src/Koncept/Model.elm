@@ -1,6 +1,7 @@
 module Koncept.Model exposing (..)
 
 import List
+
 -- import Html.Attributes exposing (selected)
 
 type alias Id = String
@@ -23,6 +24,7 @@ vkToKi (ValueKoncept ki) = ki
 type Koncept   = 
    Value ValueKoncept
    | Koncepts (AbstractKoncept , List Koncept)
+
 
 konceptToKi: Koncept -> KI
 konceptToKi koncept =
@@ -110,7 +112,7 @@ select ki = mapInfo (selectSingleKoncept ki)
 
 
 
-
+  
 -- type InsertKoncept = InsertKoncept Koncept
 -- type ParentKoncept = ParentKoncept Koncept
 -- insert: Koncept -> ParentKoncept -> InsertKoncept -> Koncept

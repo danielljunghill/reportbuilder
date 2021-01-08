@@ -4556,39 +4556,26 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
-var $author$project$Page$Model$addSection = F2(
-	function (section, page) {
+var $author$project$Page$Model$addKoncepts = F2(
+	function (koncepts, page) {
 		return _Utils_update(
 			page,
 			{
-				sections: A2(
-					$elm$core$List$append,
-					page.sections,
-					_List_fromArray(
-						[section]))
+				koncepts: A2($elm$core$List$append, page.koncepts, koncepts)
 			});
 	});
-var $author$project$Page$Model$create = F5(
-	function (sections, selected, id, name, description) {
-		return {description: description, id: id, name: name, sections: sections, selected: selected};
-	});
-var $author$project$Page$Model$new = $author$project$Page$Model$create(_List_Nil);
-var $author$project$Section$Model$Id = function (a) {
-	return {$: 'Id', a: a};
-};
 var $elm$core$Basics$False = {$: 'False'};
-var $author$project$Section$Model$create = F4(
-	function (id, name, description, koncepts) {
-		return {description: description, id: id, isSelected: false, koncepts: koncepts, name: name};
-	});
-var $author$project$Koncept$Model$ParentKoncept = function (a) {
-	return {$: 'ParentKoncept', a: a};
-};
 var $author$project$Koncept$Model$Value = function (a) {
 	return {$: 'Value', a: a};
 };
 var $author$project$Koncept$Model$ValueKoncept = function (a) {
 	return {$: 'ValueKoncept', a: a};
+};
+var $author$project$Report$Mock$k1 = $author$project$Koncept$Model$Value(
+	$author$project$Koncept$Model$ValueKoncept(
+		{id: 'Z1', name: 'Intäkter', selected: false}));
+var $author$project$Koncept$Model$ParentKoncept = function (a) {
+	return {$: 'ParentKoncept', a: a};
 };
 var $author$project$Koncept$Model$AbstractKoncept = function (a) {
 	return {$: 'AbstractKoncept', a: a};
@@ -4620,15 +4607,27 @@ var $author$project$Koncept$Model$add = F2(
 							[koncept]))));
 		}
 	});
-var $author$project$Report$Mock$k1 = $author$project$Koncept$Model$Value(
-	$author$project$Koncept$Model$ValueKoncept(
-		{id: 'Z1', name: 'Intäkter', selected: false}));
 var $author$project$Report$Mock$k3 = A2(
 	$author$project$Koncept$Model$add,
 	$author$project$Koncept$Model$ParentKoncept($author$project$Report$Mock$k1),
 	$author$project$Koncept$Model$Value(
 		$author$project$Koncept$Model$ValueKoncept(
 			{id: 'Z12', name: 'Intäkter per år', selected: false})));
+var $author$project$Page$Model$create = F5(
+	function (koncepts, selected, id, name, description) {
+		return {description: description, id: id, koncepts: koncepts, name: name, selected: selected};
+	});
+var $author$project$Page$Model$new = $author$project$Page$Model$create(_List_Nil);
+var $author$project$Report$Mock$page1 = A2(
+	$author$project$Page$Model$addKoncepts,
+	_List_fromArray(
+		[$author$project$Report$Mock$k1, $author$project$Report$Mock$k3]),
+	A4(
+		$author$project$Page$Model$new,
+		true,
+		$author$project$Page$Model$Id('Page1'),
+		'Page1',
+		'Page1'));
 var $author$project$Report$Mock$k2 = $author$project$Koncept$Model$Value(
 	$author$project$Koncept$Model$ValueKoncept(
 		{id: 'Z2', name: 'Utgifter', selected: false}));
@@ -4638,28 +4637,16 @@ var $author$project$Report$Mock$k4 = A2(
 	$author$project$Koncept$Model$Value(
 		$author$project$Koncept$Model$ValueKoncept(
 			{id: 'Z22', name: 'Utgifter per år', selected: false})));
-var $author$project$Report$Mock$section = A4(
-	$author$project$Section$Model$create,
-	$author$project$Section$Model$Id('section1'),
-	'Section1',
-	'Section1',
+var $author$project$Report$Mock$page2 = A2(
+	$author$project$Page$Model$addKoncepts,
 	_List_fromArray(
-		[$author$project$Report$Mock$k3, $author$project$Report$Mock$k4]));
-var $author$project$Report$Mock$page1 = A2(
-	$author$project$Page$Model$addSection,
-	$author$project$Report$Mock$section,
+		[$author$project$Report$Mock$k2, $author$project$Report$Mock$k4]),
 	A4(
 		$author$project$Page$Model$new,
-		true,
-		$author$project$Page$Model$Id('Page1'),
-		'Page1',
-		'Page1'));
-var $author$project$Report$Mock$page2 = A4(
-	$author$project$Page$Model$new,
-	false,
-	$author$project$Page$Model$Id('Page2'),
-	'Page2',
-	'Page2');
+		false,
+		$author$project$Page$Model$Id('Page2'),
+		'Page2',
+		'Page2'));
 var $author$project$Report$Mock$report = A2(
 	$author$project$Report$Model$addPage,
 	$author$project$Report$Mock$page2,
@@ -5579,8 +5566,16 @@ var $author$project$Koncept$View$divAbstractKoncept = F2(
 					]),
 				htmls));
 	});
+var $elm$html$Html$label = _VirtualDom_node('label');
 var $author$project$Koncept$View$valueKonceptDetails = function (_v0) {
 	var ki = _v0.a;
+	var lbl = A2(
+		$elm$html$Html$label,
+		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$text(ki.name)
+			]));
 	return A2(
 		$elm$html$Html$div,
 		A2(
@@ -5594,16 +5589,7 @@ var $author$project$Koncept$View$valueKonceptDetails = function (_v0) {
 			$author$project$Koncept$View$getSelection(ki)),
 		_List_fromArray(
 			[
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('value-details-label')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text(ki.name)
-					])),
+				lbl,
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
@@ -5619,13 +5605,7 @@ var $author$project$Koncept$View$valueKonceptDetails = function (_v0) {
 					]),
 				_List_fromArray(
 					[
-						A2(
-						$elm$html$Html$button,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text('input')
-							]))
+						$elm$html$Html$text('input')
 					]))
 			]));
 };
@@ -5657,28 +5637,15 @@ var $author$project$Koncept$View$divKoncept = function (koncept) {
 	}
 };
 var $author$project$Koncept$View$toHtml = $author$project$Koncept$View$divKoncept;
-var $author$project$Section$View$toHtml = function (section) {
-	var koncepts = A2($elm$core$List$map, $author$project$Koncept$View$toHtml, section.koncepts);
-	return A2(
-		$elm$html$Html$div,
-		A2(
-			$elm$core$List$append,
-			_List_fromArray(
-				[
-					$elm$html$Html$Attributes$class('section')
-				]),
-			$author$project$Html$Custom$Classes$selected(section.isSelected)),
-		koncepts);
-};
 var $author$project$Page$View$toHtml = function (page) {
-	var sections = A2($elm$core$List$map, $author$project$Section$View$toHtml, page.sections);
+	var koncepts = A2($elm$core$List$map, $author$project$Koncept$View$toHtml, page.koncepts);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
 				$elm$html$Html$Attributes$class('page')
 			]),
-		sections);
+		koncepts);
 };
 var $author$project$Report$View$toHtml = function (report) {
 	var pages = A2(
@@ -5731,26 +5698,14 @@ var $author$project$Main$view = function (report) {
 			]),
 		_List_fromArray(
 			[
+				$author$project$Report$View$toHtml(report),
 				A2(
 				$elm$html$Html$div,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$author$project$Report$View$toHtml(report)
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$author$project$Main$konceptButton(report),
-								$author$project$Main$pageButton
-							]))
+						$author$project$Main$konceptButton(report),
+						$author$project$Main$pageButton
 					]))
 			]));
 };

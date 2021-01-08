@@ -14,4 +14,4 @@ noPropapagation eventId msg =
 
 onClickStopPropagation:Msg -> Attribute Msg
 onClickStopPropagation  =
-    (\msg -> noPropapagation "click" msg)
+    (\msg -> noPropapagation "click" msg)   

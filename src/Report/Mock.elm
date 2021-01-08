@@ -22,12 +22,12 @@ section = Sections.create (Sections.Id "section1") "Section1" "Section1" [k3 , k
 page1: Pages.Page
 page1 = 
     Pages.new True (Pages.Id "Page1") "Page1" "Page1"
-    |> addSection section
+    |> addKoncepts [ k1, k3]
 
 page2: Pages.Page
 page2 = 
     Pages.new False (Pages.Id "Page2") "Page2" "Page2"
-  
+    |> addKoncepts [ k2, k4]
 
 report: Reports.Report
 report  =

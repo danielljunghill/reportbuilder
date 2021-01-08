@@ -1,5 +1,5 @@
 module Page.Model exposing (..)
-import Section.Model as Section exposing (..)
+import Koncept.Model as Koncepts exposing (..)
 import Html.Attributes exposing (selected)
 
 
@@ -11,17 +11,17 @@ type alias Page = {
     name: String,
     id: Id,
     description: String,
-    sections: List Section,
+    koncepts: List Koncept,
     selected: Bool
     }
 
-create:  List Section -> Bool -> Id -> String -> String ->  Page
-create sections selected  id name description    =
+create:  List Koncept -> Bool -> Id -> String -> String ->  Page
+create koncepts selected  id name description    =
     {
         name = name,
         id = id,
         description = description,
-        sections = sections,
+        koncepts = koncepts,
         selected = selected
     }
 
@@ -41,9 +41,15 @@ init: Id -> String -> String -> Page
 init = new True
 
     
-addSection: Section -> Page -> Page
-addSection section page  =
-  { page | sections = [ section ] |> List.append page.sections }  
+addKoncept: Koncept -> Page -> Page
+addKoncept koncept page  =
+  { page | koncepts = [ koncept ] |> List.append page.koncepts }  
+
+addKoncepts: List Koncept -> Page -> Page
+addKoncepts koncepts page  =
+  { page | koncepts =  koncepts |> List.append page.koncepts }  
+
+
 
 
 
