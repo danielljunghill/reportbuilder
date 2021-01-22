@@ -1,5 +1,5 @@
 module Koncept.Model exposing (..)
-
+import Koncept.Cube exposing (..)
 import List
 
 -- import Html.Attributes exposing (selected)
@@ -21,9 +21,12 @@ akToKi (AbstractKoncept ki) = ki
 vkToKi: ValueKoncept -> KI
 vkToKi (ValueKoncept ki) = ki
 
+
+
 type Koncept   = 
    Value ValueKoncept
    | Koncepts (AbstractKoncept , List Koncept)
+
 
 
 konceptToKi: Koncept -> KI
@@ -42,6 +45,8 @@ add (ParentKoncept parent) koncept =
         Koncepts (AbstractKoncept ki, [ koncept ])
     Koncepts (ki,kl) ->
         Koncepts (ki , List.append kl [ koncept ])
+
+       
 
 copy: Maybe Koncept -> Koncept ->  Maybe Koncept
 copy parent state   =
@@ -108,6 +113,19 @@ selectSingleKoncept info =
 
 select: KonceptInformation -> Koncept -> Maybe Koncept
 select ki = mapInfo (selectSingleKoncept ki) 
+
+
+type alias DimensionalValue =
+  {
+        koncept: ValueKoncept
+      , dimensions: List HyperDimension
+  }
+
+type DimensionalKoncept =
+    Cube (HyperCube, List Koncept)
+    |  Abstract (AbstractKoncept, List DimensionalKoncept)
+    |  SingleValue ValueKoncept
+
 
 
 

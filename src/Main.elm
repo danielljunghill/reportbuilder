@@ -7,6 +7,7 @@ import Msg as Msg exposing (..)
 import Report.Model as Model exposing (..)
 import Report.View as View exposing (..)
 import Report.Mock as Mock exposing (report)
+import Koncepts.Model exposing (..)
 
 main : Program () Model.Report Msg
 main =
