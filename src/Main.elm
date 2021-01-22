@@ -9,7 +9,7 @@ import Report.View as View exposing (..)
 import Report.Mock as Mock exposing (report)
 import Koncepts.Model exposing (..)
 import Koncepts.Koncept exposing (..)
-
+import Result exposing (..)
 main : Program () Model.Report Msg
 main =
   Browser.sandbox { init = init, update = update, view = view }

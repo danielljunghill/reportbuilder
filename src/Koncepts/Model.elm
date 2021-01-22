@@ -70,8 +70,8 @@ type alias AbstractKoncept =
     }
 
 type DimensionalKoncept =
-    DimensionaAbstract  (AbstractKoncept, List DimensionalKoncept) 
-    | DimensionaValue ValueKoncept
+    DimensionalAbstract  (AbstractKoncept, List DimensionalKoncept) 
+    | DimensionalValue ValueKoncept
 
 type Koncept =
     Cube  (HyperCube, List DimensionalKoncept)
