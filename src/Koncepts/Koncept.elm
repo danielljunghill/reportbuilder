@@ -2,6 +2,7 @@ module Koncepts.Koncept exposing (..)
 import Koncepts.Model exposing (..)
 import Id exposing (..)
 import ResultExtension exposing (..)
+import Result
 
 
 createValue: String -> ValueKoncept   
@@ -72,6 +73,7 @@ addCube hc p =
 
 type ParentKoncept =  ParentKoncept Koncept
 
+
 add: Koncept -> ParentKoncept -> Result String Koncept
 add koncept (ParentKoncept parent) =
         case parent of
@@ -81,8 +83,34 @@ add koncept (ParentKoncept parent) =
 
 map:(Koncept -> Result String Koncept) -> Result String Koncept -> Result String Koncept
 map f m =
-        let 
-                innerMap 
+   let 
+      innerMap: Result String (Maybe Koncept) -> Result String Koncept -> Result String (Maybe Koncept)
+      innerMap parent koncept = 
+         let 
+            addKoncept: Koncept -> Result String (Maybe Koncept)
+            addKoncept k =
+               case k of
+                  Abstract (ak,koncepts) -> Err "Not implemented"
+                  Value vk -> Err "Not implemented"
+                  Cube (hc,koncepts) -> Err "Not implemented"
+         in
+            Result.andThen addKoncept koncept
+   in
+      let
+         parent:  Result String (Maybe Koncept)
+         parent = Result.Err "adlsadsndl"
+      in
+
+         innerMap parent m
+         |> Result.map (\v -> 
+            case v of 
+             Just vi -> Ok vi 
+             Nothing -> Err "Empty result")
+         |> ResultExtension.foldOne
+
+
+
+
 
 --     let map (f: Koncept -> Result<_,_>) koncept =
 --         let rec map' parent koncept  =
