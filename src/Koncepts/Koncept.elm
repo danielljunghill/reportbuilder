@@ -76,124 +76,133 @@ addCube hc p =
 
 type ParentKoncept =  ParentKoncept Koncept
 
-
 add: Koncept -> ParentKoncept -> Result String Koncept
 add koncept (ParentKoncept parent) =
-      case parent of
-      Abstract (ak, koncepts) ->  (ak , koncepts ++ [ koncept]) |> Abstract |> Ok
-      Cube _  -> Err "Only dimensional koncepts kan be added to a HyperCube"
-      Value _  -> Err "Value cannot act as parent for koncept"
+   case parent of
+   Abstract (ak, koncepts) ->  (ak , koncepts ++ [ koncept]) |> Abstract |> Ok
+   Cube _  -> Err "Only dimensional koncepts kan be added to a HyperCube"
+   Value _  -> Err "Value cannot act as parent for koncept"
 
-    
-addMaybe: Maybe Koncept -> ParentKoncept -> Result String Koncept
-addMaybe child parent =
-   case child of
-      Just koncept ->
-         add koncept parent
-      Nothing -> 
-         let
-            pk: Koncept
-            (ParentKoncept pk) = parent
-         in
-            Ok pk
-
-maybeAddKoncept:Maybe Koncept -> Result String (Maybe Koncept) -> Result String (Maybe Koncept)
-maybeAddKoncept child parent =
-   let
-      f: Maybe Koncept -> Result String (Maybe Koncept)
-      f pk =
-         case pk of
-            Just p -> 
-               addMaybe child (p |> ParentKoncept) 
+maybeAdd:Maybe Koncept -> Maybe ParentKoncept -> Result String (Maybe Koncept)
+maybeAdd koncept parent  =
+   case parent of
+      Nothing -> koncept |> Ok
+      Just (ParentKoncept pk) -> 
+         case koncept of
+            Just child -> 
+               pk
+               |> ParentKoncept
+               |> add child
                |> Result.map Just
-            Nothing -> 
-                case child of
-                Just ck -> ck |> Just |> Ok
-                Nothing -> Ok Nothing
+            Nothing ->  
+               pk |> Just |> Ok
+
+andThenMaybeAdd: Result String (Maybe ParentKoncept) -> Maybe Koncept -> Result String (Maybe Koncept)
+andThenMaybeAdd parent koncept =
+   Result.andThen (maybeAdd koncept) parent
+
+mapToParent: Result String (Maybe Koncept) -> Result String (Maybe ParentKoncept)
+mapToParent m =
+   m |> Result.map (\r -> r |> Maybe.map ParentKoncept)
+parentAsKoncept: Result String (Maybe ParentKoncept) -> Result String (Maybe Koncept)
+parentAsKoncept parent  =
+        parent |> Result.map (\r -> r |> Maybe.map (\ (ParentKoncept k) -> k))
+
+recursivefold: (Koncept -> Result String (Maybe Koncept)) ->  Result String (Maybe ParentKoncept) ->  Result String (Maybe Koncept) ->   Result String (Maybe ParentKoncept)
+recursivefold f p k  =
+   let 
+      fmap: Result String (Maybe ParentKoncept) -> Maybe Koncept -> Result String (Maybe ParentKoncept)
+      fmap parent koncept =
+         case koncept of
+            Just ki ->
+               case ki of
+                  Abstract (ak, koncepts) ->
+                     let 
+                        newKoncept: Result String (Maybe ParentKoncept)
+                        newKoncept = (ak, []) |> Abstract |> ParentKoncept |> Just |> Ok
+                        accKoncept:Result String (Maybe Koncept)   
+                        accKoncept = 
+                           koncepts 
+                           |> List.map f 
+                           |> List.foldl (\a b -> recursivefold f b a) newKoncept 
+                           |> parentAsKoncept
+                     in
+                        accKoncept |> Result.andThen (andThenMaybeAdd parent)  
+                        |> mapToParent                   
+                  Value (_) -> 
+                     let
+                        newKoncept: Result String (Maybe Koncept)  
+                        newKoncept = f ki
+                     in
+                        Result.andThen (andThenMaybeAdd parent) newKoncept
+                        |> mapToParent
+                  Cube (_)->
+                     let
+                        newKoncept:Result String (Maybe Koncept)
+                        newKoncept = f ki 
+                     in
+                        Result.andThen (andThenMaybeAdd parent) newKoncept
+                        |> mapToParent
+            Nothing -> parent
    in
-         Result.andThen f parent
+      Result.andThen (fmap p) k
+
+-- let map f m =
+
+-- recursiveMap f (Ok None) (m |> Result.map Some)
+-- |> parentAsKoncept
+-- |> Result.map (fun v -> match v with | Some vi -> Ok vi | None -> Error "Empty result from map")
+-- |> Result.join
+
+   -- |> Result.map (fun v -> match v with | Some vi -> Ok vi | None -> Error "Empty result from map")
+      
 
 
-   --  let maybeAddKoncept child  (parent: Result<Koncept option, string>) =
-   --    let f = fun pk -> 
-   --       match pk with
-   --       | Some pk -> 
-   --           maybeAddKoncept' child (pk |> ParentKoncept) 
-   --           |> Result.map Some
-   --       | None -> 
-   --          match child with
-   --          | Some ck -> ck |> Some |> Ok
-   --          | None -> Ok None
-   --    Result.bind f parent
 
- 
+
+
    --  let map (f: Koncept -> Result<_,_>) koncept =
-   --      let rec map' (parent: Result<Koncept option, string>) koncept  =
+   --      let rec map' parent koncept  =
    --          let fmap koncept =
    --              match koncept with
    --              | Koncept.AbstractKoncept (ak, koncepts) ->
    --                  let newKoncept = (ak, []) |> Koncept.AbstractKoncept |> Some |> Ok
    --                  let accKoncept = koncepts |> List.map f |> List.fold map' newKoncept 
-   --                  accKoncept
-   --                  |> Result.bind (fun child ->  maybeAddKoncept child parent)
-   --              | Koncept.ValueKoncept _ -> 
-   --                  maybeAddKoncept (koncept |> Some) parent
-   --              | Koncept.Cube _ ->
-   --                  f koncept 
-   --                  |> Result.map  Some
-   --                  |> Result.bind (fun child ->  maybeAddKoncept child parent)
+   --                  let fn1 parent acc =
+   --                      let fn2 acc p =
+   --                          match p with
+   --                          | None -> acc |> Ok
+   --                          | Some parentKoncept -> 
+   --                              match acc with
+   --                              | Some childKoncept -> 
+   --                                  parentKoncept
+   --                                  |> ParentKoncept 
+   --                                  |> add childKoncept
+   --                              | None ->  parentKoncept |> Ok
+   --                              |> Result.map Some
+   --                      Result.bind (fn2 acc) parent
+   --                  accKoncept |> Result.bind (fn1 parent)
+   --              | Koncept.ValueKoncept vk -> 
+   --                  let fn parent =
+   --                      match parent with
+   --                      | Some p -> ValueKoncept.addToKoncept vk p
+   --                      | None ->  vk |> Koncept.ValueKoncept |> Ok
+   --                      |> Result.map Some
+   --                  parent |> Result.bind fn
+   --              | Koncept.Cube (hc,koncepts)->
+   --                  let newKoncept = f koncept
+   --                  let fn (parent: Koncept option) =
+   --                      match parent with
+   --                          | Some p -> 
+   --                              let f koncept = add koncept (ParentKoncept p) 
+   --                              Result.bind f newKoncept
+   --                          | None -> newKoncept 
+   --                      |> Result.map Some
+   --                  Result.bind fn parent
    --          Result.bind fmap koncept
    --      map' (Ok None) koncept
    --      |> Result.map (fun v -> match v with | Some vi -> Ok vi | None -> Error "Empty result from map")
    --      |> Result.join
-
-
-
-
-
-
---     let map (f: Koncept -> Result<_,_>) koncept =
---         let rec map' parent koncept  =
---             let fmap koncept =
---                 match koncept with
---                 | Koncept.AbstractKoncept (ak, koncepts) ->
---                     let newKoncept = (ak, []) |> Koncept.AbstractKoncept |> Some |> Ok
---                     let accKoncept = koncepts |> List.map f |> List.fold map' newKoncept 
---                     let fn1 parent acc =
---                         let fn2 acc p =
---                             match p with
---                             | None -> acc |> Ok
---                             | Some parentKoncept -> 
---                                 match acc with
---                                 | Some childKoncept -> 
---                                     parentKoncept
---                                     |> ParentKoncept 
---                                     |> add childKoncept
---                                 | None ->  parentKoncept |> Ok
---                                 |> Result.map Some
---                         Result.bind (fn2 acc) parent
---                     accKoncept |> Result.bind (fn1 parent)
---                 | Koncept.ValueKoncept vk -> 
---                     let fn parent =
---                         match parent with
---                         | Some p -> ValueKoncept.addToKoncept vk p
---                         | None ->  vk |> Koncept.ValueKoncept |> Ok
---                         |> Result.map Some
---                     parent |> Result.bind fn
---                 | Koncept.Cube (hc,koncepts)->
---                     let newKoncept = f koncept
---                     let fn (parent: Koncept option) =
---                         match parent with
---                             | Some p -> 
---                                 let f koncept = add koncept (ParentKoncept p) 
---                                 Result.bind f newKoncept
---                             | None -> newKoncept 
---                         |> Result.map Some
---                     Result.bind fn parent
---             Result.bind fmap koncept
---         map' (Ok None) koncept
---         |> Result.map (fun v -> match v with | Some vi -> Ok vi | None -> Error "Empty result from map")
---         |> Result.join
 
 
 -- module Koncept =
