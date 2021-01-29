@@ -3,6 +3,9 @@ import Koncepts.Model exposing (..)
 import Id exposing (..)
 import ResultExtension exposing (..)
 import Result
+import List
+import Result
+import Result
 
 
 createValue: String -> ValueKoncept   
@@ -76,37 +79,74 @@ type ParentKoncept =  ParentKoncept Koncept
 
 add: Koncept -> ParentKoncept -> Result String Koncept
 add koncept (ParentKoncept parent) =
-        case parent of
-         Abstract (ak, koncepts) ->  (ak , koncepts ++ [ koncept]) |> Abstract |> Ok
-         Cube _  -> Err "Only dimensional koncepts kan be added to a HyperCube"
-         Value _  -> Err "Value cannot act as parent for koncept"
+      case parent of
+      Abstract (ak, koncepts) ->  (ak , koncepts ++ [ koncept]) |> Abstract |> Ok
+      Cube _  -> Err "Only dimensional koncepts kan be added to a HyperCube"
+      Value _  -> Err "Value cannot act as parent for koncept"
 
-map:(Koncept -> Result String Koncept) -> Result String Koncept -> Result String Koncept
-map f m =
-   let 
-      innerMap: Result String (Maybe Koncept) -> Result String Koncept -> Result String (Maybe Koncept)
-      innerMap parent koncept = 
-         let 
-            addKoncept: Koncept -> Result String (Maybe Koncept)
-            addKoncept k =
-               case k of
-                  Abstract (ak,koncepts) -> Err "Not implemented"
-                  Value vk -> Err "Not implemented"
-                  Cube (hc,koncepts) -> Err "Not implemented"
+    
+addMaybe: Maybe Koncept -> ParentKoncept -> Result String Koncept
+addMaybe child parent =
+   case child of
+      Just koncept ->
+         add koncept parent
+      Nothing -> 
+         let
+            pk: Koncept
+            (ParentKoncept pk) = parent
          in
-            Result.andThen addKoncept koncept
-   in
-      let
-         parent:  Result String (Maybe Koncept)
-         parent = Result.Err "adlsadsndl"
-      in
+            Ok pk
 
-         innerMap parent m
-         |> Result.map (\v -> 
-            case v of 
-             Just vi -> Ok vi 
-             Nothing -> Err "Empty result")
-         |> ResultExtension.foldOne
+maybeAddKoncept:Maybe Koncept -> Result String (Maybe Koncept) -> Result String (Maybe Koncept)
+maybeAddKoncept child parent =
+   let
+      f: Maybe Koncept -> Result String (Maybe Koncept)
+      f pk =
+         case pk of
+            Just p -> 
+               addMaybe child (p |> ParentKoncept) 
+               |> Result.map Just
+            Nothing -> 
+                case child of
+                Just ck -> ck |> Just |> Ok
+                Nothing -> Ok Nothing
+   in
+         Result.andThen f parent
+
+
+   --  let maybeAddKoncept child  (parent: Result<Koncept option, string>) =
+   --    let f = fun pk -> 
+   --       match pk with
+   --       | Some pk -> 
+   --           maybeAddKoncept' child (pk |> ParentKoncept) 
+   --           |> Result.map Some
+   --       | None -> 
+   --          match child with
+   --          | Some ck -> ck |> Some |> Ok
+   --          | None -> Ok None
+   --    Result.bind f parent
+
+ 
+   --  let map (f: Koncept -> Result<_,_>) koncept =
+   --      let rec map' (parent: Result<Koncept option, string>) koncept  =
+   --          let fmap koncept =
+   --              match koncept with
+   --              | Koncept.AbstractKoncept (ak, koncepts) ->
+   --                  let newKoncept = (ak, []) |> Koncept.AbstractKoncept |> Some |> Ok
+   --                  let accKoncept = koncepts |> List.map f |> List.fold map' newKoncept 
+   --                  accKoncept
+   --                  |> Result.bind (fun child ->  maybeAddKoncept child parent)
+   --              | Koncept.ValueKoncept _ -> 
+   --                  maybeAddKoncept (koncept |> Some) parent
+   --              | Koncept.Cube _ ->
+   --                  f koncept 
+   --                  |> Result.map  Some
+   --                  |> Result.bind (fun child ->  maybeAddKoncept child parent)
+   --          Result.bind fmap koncept
+   --      map' (Ok None) koncept
+   --      |> Result.map (fun v -> match v with | Some vi -> Ok vi | None -> Error "Empty result from map")
+   --      |> Result.join
+
 
 
 
