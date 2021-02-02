@@ -1,6 +1,5 @@
 module Report.Mock exposing (..)
 import Koncept.Model exposing (..)
-import Section.Model as Sections exposing (..)
 import Page.Model as Pages exposing (..)
 import Report.Model as Reports exposing (..)
 
@@ -16,8 +15,7 @@ k3 = add (ParentKoncept k1) ({ name = "Intäkter per år", selected = False, id 
 k4:Koncept
 k4 = add (ParentKoncept k2) ({ name = "Utgifter per år", selected = False, id = "Z22"}  |> ValueKoncept |> Value)
 
-section: Sections.Section
-section = Sections.create (Sections.Id "section1") "Section1" "Section1" [k3 , k4]
+
 
 page1: Pages.Page
 page1 = 
