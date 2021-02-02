@@ -52,14 +52,7 @@ type alias HyperCube =
         ,   id: HyperCubeId
     }
 
-type DimensionalAbstractKonceptId = DimensionalAbstractKonceptId  Id
-type DimensionalAbstractKonceptName = DimensionalAbstractKonceptName String
 
-type alias DimensionalAbstractKoncept =
-    {
-            id : DimensionalAbstractKonceptId
-        ,   name: DimensionalAbstractKonceptName
-    }
 
 type AbstractKonceptName = AbstractKonceptName String
 type AbstractKonceptId = AbstractKonceptId Id
@@ -77,3 +70,20 @@ type Koncept =
     Cube  (HyperCube, List DimensionalKoncept)
     | Abstract  (AbstractKoncept, List Koncept)
     | Value ValueKoncept
+
+
+createValueKoncept: String -> ValueKoncept   
+createValueKoncept name  =
+        {
+                id = Id.create() |> ValueKonceptId 
+            ,   name = name |> ValueKonceptName }
+
+createAbstractKoncept: String -> AbstractKoncept
+createAbstractKoncept name =  
+        {
+                id = Id.create() |> AbstractKonceptId 
+                , name = AbstractKonceptName name                      
+        } 
+
+
+         

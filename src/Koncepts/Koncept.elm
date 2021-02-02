@@ -1,18 +1,13 @@
 module Koncepts.Koncept exposing (..)
-import Koncepts.Model exposing (..)
+import Koncepts.Model as Model exposing (..)
 import Id exposing (..)
 import ResultExtension exposing (..)
 import Result
 import List
-import Result
-import Result
 
 
-createValue: String -> ValueKoncept   
-createValue name  =
-        {
-                id = Id.create() |> ValueKonceptId 
-            ,   name = name |> ValueKonceptName }
+createValue: String -> Koncept   
+createValue = createValueKoncept >> Value
 
 addValue : ValueKoncept -> Koncept -> Result String Koncept
 addValue k p =
@@ -27,14 +22,18 @@ addValue k p =
                         |> Result.Ok
                 Value _ ->  Result.Err  "ValueKoncept koncept cannot be added to a ValueKoncept"   
 
+addToDimensionalKoncept:  ValueKoncept -> DimensionalKoncept -> Result String DimensionalKoncept
+addToDimensionalKoncept vk parent = 
+   case parent of
+      DimensionalAbstract (ak, d) -> (ak, d ++ [ (vk |> DimensionalValue) ]) |> DimensionalAbstract|> Ok
+      DimensionalValue _ -> Err "A Value koncept cannot be added to a dimensional value"
 
-createAbstract: String -> AbstractKoncept
+
+
+createAbstract: String -> Koncept
 createAbstract name =
-        {
-                id = Id.create() |> AbstractKonceptId 
-                , name = AbstractKonceptName name                      
-        }       
-
+        (createAbstractKoncept name, []) |> Abstract
+    
 addAbstract: AbstractKoncept -> Koncept -> Result String Koncept
 addAbstract k p =
         case p of
@@ -46,7 +45,7 @@ addAbstract k p =
                 (ak, koncepts ++ [ Abstract (k,[]) ])
                 |> Abstract
                 |> Result.Ok
-         Value _ -> Result.Err  "Abstract koncept cannot be added to a ValueKoncept"   
+         Value _ -> Result.Err  "An abstract koncept cannot be added to a value koncept"   
 
   
 
@@ -80,7 +79,7 @@ add: Koncept -> ParentKoncept -> Result String Koncept
 add koncept (ParentKoncept parent) =
    case parent of
    Abstract (ak, koncepts) ->  (ak , koncepts ++ [ koncept]) |> Abstract |> Ok
-   Cube _  -> Err "Only dimensional koncepts kan be added to a HyperCube"
+   Cube _  -> Err "Only a dimensional koncept kan be added to a hyper cube"
    Value _  -> Err "Value cannot act as parent for koncept"
 
 maybeAdd:Maybe Koncept -> Maybe ParentKoncept -> Result String (Maybe Koncept)
@@ -147,62 +146,28 @@ recursivefold f p k  =
    in
       Result.andThen (fmap p) k
 
--- let map f m =
+fold: (Koncept -> Result String (Maybe Koncept)) -> Result String Koncept -> Result String Koncept
+fold f m =
+   recursivefold f (Ok Nothing) (m |> Result.map Just)
+   |> parentAsKoncept
+   |> Result.map (\ v -> case v of 
+                           Just vi -> Ok vi 
+                           Nothing -> Err "Empty result from fold of koncept")
+   |> ResultExtension.foldOne
 
--- recursiveMap f (Ok None) (m |> Result.map Some)
--- |> parentAsKoncept
--- |> Result.map (fun v -> match v with | Some vi -> Ok vi | None -> Error "Empty result from map")
--- |> Result.join
+type Action a = 
+   Delete 
+   | MapValue a
+   | Ignore
 
-   -- |> Result.map (fun v -> match v with | Some vi -> Ok vi | None -> Error "Empty result from map")
-      
+type alias KonceptAction = Action Koncept
 
-
-
-
-
-   --  let map (f: Koncept -> Result<_,_>) koncept =
-   --      let rec map' parent koncept  =
-   --          let fmap koncept =
-   --              match koncept with
-   --              | Koncept.AbstractKoncept (ak, koncepts) ->
-   --                  let newKoncept = (ak, []) |> Koncept.AbstractKoncept |> Some |> Ok
-   --                  let accKoncept = koncepts |> List.map f |> List.fold map' newKoncept 
-   --                  let fn1 parent acc =
-   --                      let fn2 acc p =
-   --                          match p with
-   --                          | None -> acc |> Ok
-   --                          | Some parentKoncept -> 
-   --                              match acc with
-   --                              | Some childKoncept -> 
-   --                                  parentKoncept
-   --                                  |> ParentKoncept 
-   --                                  |> add childKoncept
-   --                              | None ->  parentKoncept |> Ok
-   --                              |> Result.map Some
-   --                      Result.bind (fn2 acc) parent
-   --                  accKoncept |> Result.bind (fn1 parent)
-   --              | Koncept.ValueKoncept vk -> 
-   --                  let fn parent =
-   --                      match parent with
-   --                      | Some p -> ValueKoncept.addToKoncept vk p
-   --                      | None ->  vk |> Koncept.ValueKoncept |> Ok
-   --                      |> Result.map Some
-   --                  parent |> Result.bind fn
-   --              | Koncept.Cube (hc,koncepts)->
-   --                  let newKoncept = f koncept
-   --                  let fn (parent: Koncept option) =
-   --                      match parent with
-   --                          | Some p -> 
-   --                              let f koncept = add koncept (ParentKoncept p) 
-   --                              Result.bind f newKoncept
-   --                          | None -> newKoncept 
-   --                      |> Result.map Some
-   --                  Result.bind fn parent
-   --          Result.bind fmap koncept
-   --      map' (Ok None) koncept
-   --      |> Result.map (fun v -> match v with | Some vi -> Ok vi | None -> Error "Empty result from map")
-   --      |> Result.join
+actionToKonceptOption: Koncept -> KonceptAction -> Maybe Koncept
+actionToKonceptOption koncept action =
+      case action of
+       Delete -> Nothing
+       MapValue k -> Just k
+       Ignore -> Just koncept
 
 
 -- module Koncept =
