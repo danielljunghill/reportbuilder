@@ -1,5 +1,7 @@
 module Koncepts.Model exposing (..)
 import Id exposing (..)
+
+-- Koncepts
 type ValueKonceptId = ValueKonceptId  Id
 type ValueKonceptName = ValueKonceptName String
 type alias ValueKoncept =
@@ -7,7 +9,15 @@ type alias ValueKoncept =
             name: ValueKonceptName
         ,   id: ValueKonceptId
     }
+type AbstractKonceptName = AbstractKonceptName String
+type AbstractKonceptId = AbstractKonceptId Id
+type alias AbstractKoncept =
+    {
+            name : AbstractKonceptName
+        ,   id : AbstractKonceptId
+    }
 
+--Hypercube
 type DomainName = DomainName String
 type DomainMember = DomainMember String
 type alias Domain =
@@ -16,31 +26,14 @@ type alias Domain =
         ,   members: List DomainMember 
     }
 
-
-domainCreate: String -> List String -> Domain
-domainCreate name members =
-    {
-            name = DomainName name
-        ,   members = members |> List.map DomainMember
-    }
-
 type DefaultMember = DefaultMember String  
 type Dimension =
      DimensionWithDefault  (DefaultMember,Domain)
      | DimensionWithoutDefault Domain
 
-createDimensionWithDefault: Domain -> Dimension
-createDimensionWithDefault domain =
-    DimensionWithDefault (DefaultMember "Total", domain)
-
-createDimensionWithoutDefault: Domain -> Dimension
-createDimensionWithoutDefault domain =
-    DimensionWithoutDefault domain
-
 type HyperDimension =
      Opened Dimension
      | Closed  Dimension
-
 
 type HyperCubeName = HyperCubeName String
 type HyperCubeId = HyperCubeId Id
@@ -52,16 +45,7 @@ type alias HyperCube =
         ,   id: HyperCubeId
     }
 
-
-
-type AbstractKonceptName = AbstractKonceptName String
-type AbstractKonceptId = AbstractKonceptId Id
-type alias AbstractKoncept =
-    {
-            name : AbstractKonceptName
-        ,   id : AbstractKonceptId
-    }
-
+-- Koncept strukture
 type DimensionalKoncept =
     DimensionalAbstract  (AbstractKoncept, List DimensionalKoncept) 
     | DimensionalValue ValueKoncept
@@ -86,4 +70,7 @@ createAbstractKoncept name =
         } 
 
 
-         
+type ModelAction a = 
+   Delete 
+   | MapValue a
+   | Ignore         

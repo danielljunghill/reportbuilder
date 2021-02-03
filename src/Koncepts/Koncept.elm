@@ -137,12 +137,9 @@ fold f m =
                            Nothing -> Err "Empty result from fold of koncept")
    |> ResultExtension.foldOne
 
-type Action a = 
-   Delete 
-   | MapValue a
-   | Ignore
 
-type alias KonceptAction = Action Koncept
+
+type alias KonceptAction = ModelAction Koncept
 
 actionToKonceptOption: Koncept -> KonceptAction -> Maybe Koncept
 actionToKonceptOption koncept action =
