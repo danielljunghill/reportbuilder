@@ -1,6 +1,6 @@
 module Koncepts.Model exposing (..)
 import Id exposing (..)
-import Json.Decode exposing (bool)
+
 
 -- Koncepts
 type ValueKonceptId = ValueKonceptId  Id

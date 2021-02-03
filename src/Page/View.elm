@@ -4,9 +4,10 @@ import Koncept.View as Koncepts exposing (..)
 import Html.Custom.Classes as Classes exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Msg as Msg exposing (..)
 import Html.Events exposing (..)
-import Koncept.Model exposing (Koncept)
+import Koncepts.Model exposing (..)
+import Koncepts.View as KonceptView
+import Msg exposing (..)
 
 toHtml: Page ->  Html Msg            
 toHtml page = 
@@ -14,7 +15,7 @@ toHtml page =
         koncepts: List (Html Msg) 
         koncepts =
             page.koncepts
-            |> List.map Koncepts.toHtml
+            |> List.map KonceptView.toHtml
     in
 
         -- List.append [ text page.name] sections
@@ -23,7 +24,7 @@ toHtml page =
         
 toHeaderHtlm: Page -> Html Msg
 toHeaderHtlm page =
-    div ([class "header", onClick (SelectPage page)] ++ (Classes.selected page.selected)) [ text page.name ]
+    div ([class "header", onClick ( page |> SelectItem.Page |> Msg.Select)] ++ (Classes.selected page.selected)) [ text page.name ]
  
 
        -- Classes.selected page.isSelected

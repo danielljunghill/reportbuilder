@@ -3,13 +3,13 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.Events exposing (..)
-import Msg as Msg exposing (..)
+
 import Report.Model as Model exposing (..)
 import Report.View as View exposing (..)
-import Report.Mock as Mock exposing (report)
 import Koncepts.Model exposing (..)
 import Koncepts.Koncept exposing (..)
-import Koncepts.Mock as KonceptMock
+import Koncepts.Mock as Mock
+import Msg exposing (..)
 
 import ResultExtension exposing (..)
 main : Program () Model.Report Msg

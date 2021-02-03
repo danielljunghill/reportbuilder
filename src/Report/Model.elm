@@ -1,7 +1,9 @@
 module Report.Model exposing (..)
 
-import Page.View as PW exposing (..)
-import Koncept.Model exposing (vkToKi)
+import Page.View exposing (..)
+import Page.Model as Page
+import Page exposing (..)
+import Koncepts.Model exposing (..)
 import Page.Model exposing (..)
 import List
 

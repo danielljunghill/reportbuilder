@@ -1,8 +1,7 @@
 module Report.View exposing (..)
 
-import Html.Custom.Classes as CS exposing (..)
+import Html.Custom.Classes exposing (..)
 import Page.View as Pages exposing (..)
-import Msg as Msg exposing (..)
 import Html exposing (..)
 import Msg exposing (..)
 import Report.Model exposing (..)

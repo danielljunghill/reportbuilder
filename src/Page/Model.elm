@@ -1,5 +1,5 @@
 module Page.Model exposing (..)
-import Koncept.Model as Koncepts exposing (..)
+import Koncepts.Model as Koncepts exposing (..)
 import Html.Attributes exposing (selected)
 
 
