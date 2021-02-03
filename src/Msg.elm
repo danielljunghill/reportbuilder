@@ -1,10 +1,10 @@
 module Msg exposing (..)
-import Koncept.Model as Koncept exposing (..)
+import Koncepts.Model as Koncept exposing (..)
 import Page.Model exposing (Page)
 
 
 type Msg = 
-  Select KonceptInformation
+  Select Koncept.Koncept
   | SelectPage Page
   | Add
   | AddPage

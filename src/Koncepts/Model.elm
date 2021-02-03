@@ -1,25 +1,41 @@
 module Koncepts.Model exposing (..)
 import Id exposing (..)
+import Json.Decode exposing (bool)
 
 -- Koncepts
 type ValueKonceptId = ValueKonceptId  Id
 type ValueKonceptName = ValueKonceptName String
+
+valueKonceptNameToString: ValueKonceptName -> String
+valueKonceptNameToString (ValueKonceptName name) =
+   name
 type alias ValueKoncept =
     {
             name: ValueKonceptName
         ,   id: ValueKonceptId
+        ,   selected: Bool
     }
 type AbstractKonceptName = AbstractKonceptName String
+
+abstractKonceptNameToString: AbstractKonceptName -> String
+abstractKonceptNameToString (AbstractKonceptName name) =
+   name
 type AbstractKonceptId = AbstractKonceptId Id
 type alias AbstractKoncept =
     {
             name : AbstractKonceptName
         ,   id : AbstractKonceptId
+        ,   selected: Bool
     }
 
 --Hypercube
 type DomainName = DomainName String
+domainNameToString: DomainName -> String
+domainNameToString (DomainName name) = name
 type DomainMember = DomainMember String
+
+domainMemberToString: DomainMember -> String
+domainMemberToString (DomainMember name) = name
 type alias Domain =
     {
             name: DomainName
@@ -36,6 +52,9 @@ type HyperDimension =
      | Closed  Dimension
 
 type HyperCubeName = HyperCubeName String
+
+hyperCubeNameToString: HyperCubeName -> String
+hyperCubeNameToString (HyperCubeName name) = name
 type HyperCubeId = HyperCubeId Id
 type alias HyperCube =
     {
@@ -55,19 +74,27 @@ type Koncept =
     | Abstract  (AbstractKoncept, List Koncept)
     | Value ValueKoncept
 
-
-createValueKoncept: String -> ValueKoncept   
-createValueKoncept name  =
+createValueKonceptWithSelection: Bool -> String -> ValueKoncept   
+createValueKonceptWithSelection selected name  =
         {
                 id = Id.create() |> ValueKonceptId 
-            ,   name = name |> ValueKonceptName }
+            ,   name = name |> ValueKonceptName
+            ,   selected = selected }
+
+createAbstractKonceptWithSelection: Bool -> String -> AbstractKoncept
+createAbstractKonceptWithSelection selected name  =  
+        {
+                     id = Id.create() |> AbstractKonceptId 
+                ,    name = AbstractKonceptName name   
+                ,    selected = selected               
+        } 
+
+createValueKoncept: String -> ValueKoncept   
+createValueKoncept = createValueKonceptWithSelection False
+
 
 createAbstractKoncept: String -> AbstractKoncept
-createAbstractKoncept name =  
-        {
-                id = Id.create() |> AbstractKonceptId 
-                , name = AbstractKonceptName name                      
-        } 
+createAbstractKoncept = createAbstractKonceptWithSelection False
 
 
 type ModelAction a = 

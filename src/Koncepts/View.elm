@@ -4,18 +4,21 @@ import Html exposing (..)
 import Html.Events exposing (..)
 import Html.Attributes exposing (class)
 import Events.Custom exposing (..)
-import Koncepts.Model exposing (..)
-import Msg exposing (..)
+import Koncepts.Model as Koncept
+import Msg 
 
-
-
-valueKonceptDetails: ValueKoncept -> Html Msg 
-valueKonceptDetails (ValueKoncept ki) =
- let
-    lbl: Html Msg
-    lbl = label [] [ text ki.name ] 
+valueKonceptDetails koncept =
+   let
+      lbl: Html Msg.Msg
+      lbl = 
+         label 
+            [] 
+            [  koncept.name 
+               |> Koncept.valueKonceptNameToString 
+               |> text
+            ] 
  in
-  div (joinAttributes [ class "value-details", onClickStopPropagation (Select ki)] (getSelection ki))
+  div (joinAttributes [ class "value-details", onClickStopPropagation (Msg.Select koncept)] (getSelection koncept))
       [ 
           lbl ,
           div [ class "value-details-space"] [],
