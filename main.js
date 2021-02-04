@@ -4754,6 +4754,43 @@ var $author$project$Koncepts$Mock$addDimensionalKoncept = function () {
 		});
 	return $author$project$Koncepts$Koncept$mapCube(f);
 }();
+var $author$project$Koncepts$Koncept$ParentKoncept = function (a) {
+	return {$: 'ParentKoncept', a: a};
+};
+var $author$project$Koncepts$Koncept$add = F2(
+	function (koncept, _v0) {
+		var parent = _v0.a;
+		switch (parent.$) {
+			case 'Abstract':
+				var _v2 = parent.a;
+				var ak = _v2.a;
+				var koncepts = _v2.b;
+				return $elm$core$Result$Ok(
+					$author$project$Koncepts$Model$Abstract(
+						_Utils_Tuple2(
+							ak,
+							_Utils_ap(
+								koncepts,
+								_List_fromArray(
+									[koncept])))));
+			case 'Cube':
+				return $elm$core$Result$Err('Only a dimensional koncept kan be added to a hyper cube');
+			default:
+				return $elm$core$Result$Err('Value cannot act as parent for koncept');
+		}
+	});
+var $author$project$Koncepts$Model$Value = function (a) {
+	return {$: 'Value', a: a};
+};
+var $author$project$Koncepts$Koncept$createValue = A2($elm$core$Basics$composeR, $author$project$Koncepts$Model$createValueKoncept, $author$project$Koncepts$Model$Value);
+var $author$project$Koncepts$Mock$addValue = F2(
+	function (name, koncept) {
+		return A2(
+			$elm$core$Result$andThen,
+			$author$project$Koncepts$Koncept$add(
+				$author$project$Koncepts$Koncept$createValue(name)),
+			A2($elm$core$Result$map, $author$project$Koncepts$Koncept$ParentKoncept, koncept));
+	});
 var $author$project$ResultExtension$foldOne = function (r) {
 	if (r.$ === 'Ok') {
 		var ri = r.a;
@@ -4787,31 +4824,6 @@ var $author$project$Koncepts$Koncept$parentAsKoncept = function (parent) {
 		},
 		parent);
 };
-var $author$project$Koncepts$Koncept$ParentKoncept = function (a) {
-	return {$: 'ParentKoncept', a: a};
-};
-var $author$project$Koncepts$Koncept$add = F2(
-	function (koncept, _v0) {
-		var parent = _v0.a;
-		switch (parent.$) {
-			case 'Abstract':
-				var _v2 = parent.a;
-				var ak = _v2.a;
-				var koncepts = _v2.b;
-				return $elm$core$Result$Ok(
-					$author$project$Koncepts$Model$Abstract(
-						_Utils_Tuple2(
-							ak,
-							_Utils_ap(
-								koncepts,
-								_List_fromArray(
-									[koncept])))));
-			case 'Cube':
-				return $elm$core$Result$Err('Only a dimensional koncept kan be added to a hyper cube');
-			default:
-				return $elm$core$Result$Err('Value cannot act as parent for koncept');
-		}
-	});
 var $author$project$Koncepts$Koncept$maybeAdd = F2(
 	function (koncept, parent) {
 		if (parent.$ === 'Nothing') {
@@ -4947,9 +4959,12 @@ var $author$project$Koncepts$Mock$head = A2(
 	$author$project$Koncepts$Koncept$ParentKoncept(
 		$author$project$Koncepts$Koncept$createAbstract('IORP2 nationell')));
 var $author$project$Koncepts$Mock$mockKoncept = A2(
-	$author$project$Koncepts$Koncept$fold,
-	$author$project$Koncepts$Mock$addDimensionalKoncept,
-	A2($author$project$Koncepts$Koncept$fold, $author$project$Koncepts$Mock$addCube, $author$project$Koncepts$Mock$head));
+	$author$project$Koncepts$Mock$addValue,
+	'Ett nytt värde',
+	A2(
+		$author$project$Koncepts$Koncept$fold,
+		$author$project$Koncepts$Mock$addDimensionalKoncept,
+		A2($author$project$Koncepts$Koncept$fold, $author$project$Koncepts$Mock$addCube, $author$project$Koncepts$Mock$head)));
 var $author$project$Report$Mock$page1 = A2(
 	$elm$core$Result$map,
 	function (koncept) {

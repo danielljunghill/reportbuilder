@@ -4,6 +4,7 @@ import Koncepts.Koncept as Koncept
 import Koncepts.Hypercube as HyperCybe 
 import Koncepts.Koncept exposing (KonceptAction)
 import Koncepts.Dimensionalkoncept as DimensionalKoncept
+import Array exposing (foldr)
 
 head: Result String Koncept
 head = 
@@ -71,9 +72,14 @@ addDimensionalKoncept  =
       
 mockKoncept: Result String Koncept
 mockKoncept =
+  
    head
    |> Koncept.fold addCube
    |> Koncept.fold addDimensionalKoncept
+   |> addValue "Ett nytt värde"
+
+
+
 
  
 
