@@ -1,16 +1,16 @@
-module Msg exposing (..)
+module Model exposing (..)
 import Report.Model as Report
+import Report.Model exposing (..)
 
 
-
-type ReportModel =
+type alias ReportModel =
    {
-      report:  Report
+      report: Report
    }
 
 type Model =
-   | NoReportWithError String
-   | ReportWithError (string, ReportModel)
+   NoReportWithError String
+   | ReportWithError (String, ReportModel)
    | ReportWithoutError ReportModel
 
 addError: Maybe Model -> String -> Model
@@ -19,21 +19,21 @@ addError model err =
       f: Model -> String -> Model
       f m e =
          case m of
-         ErrorNoReport -> ErrorNoReport err
-         | ErrorReport (_,r) -> ErrorReport (err,r)
-         | NoErrorReport -> NoErrorReport m
+            NoReportWithError _ -> NoReportWithError e
+            ReportWithError (_,r) -> ReportWithError (err,r)
+            ReportWithoutError r -> ReportWithoutError r
    in
-      case Maybe.map f model of
-         Just rm -> rm
-         Noting -> ErrorNoReport err
+      case model of
+         Just rm -> f rm err
+         Nothing -> NoReportWithError err
 
 -- Result String Report -> Model -> Result String Model
 
 update: Result String Report -> Maybe Model -> Model
 update result model =
    case result of
-      Ok report -> NoErrorReport { report : result}
-      Err err -> addError err model
+      Ok report -> ReportWithoutError { report = report }
+      Err err -> addError model err 
 
 
 

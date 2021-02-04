@@ -4355,12 +4355,24 @@ function _Browser_load(url)
 		}
 	}));
 }
-var $elm$core$Basics$identity = function (x) {
-	return x;
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
+var $elm$core$Basics$apR = F2(
+	function (x, f) {
+		return f(x);
+	});
+var $elm$core$Result$Err = function (a) {
+	return {$: 'Err', a: a};
 };
-var $author$project$Report$Model$Id = function (a) {
-	return {$: 'Id', a: a};
-};
+var $elm$core$Result$andThen = F2(
+	function (callback, result) {
+		if (result.$ === 'Ok') {
+			var value = result.a;
+			return callback(value);
+		} else {
+			var msg = result.a;
+			return $elm$core$Result$Err(msg);
+		}
+	});
 var $elm$core$List$cons = _List_cons;
 var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
 var $elm$core$Array$foldr = F3(
@@ -4441,34 +4453,85 @@ var $elm$core$Set$toList = function (_v0) {
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
-var $elm$core$Basics$append = _Utils_append;
-var $author$project$Report$Model$addPage = F2(
-	function (page, report) {
-		return _Utils_update(
-			report,
-			{
-				pages: _Utils_ap(
-					report.pages,
-					_List_fromArray(
-						[page]))
-			});
-	});
-var $elm$core$Basics$apR = F2(
-	function (x, f) {
-		return f(x);
-	});
-var $author$project$Report$Model$create = F4(
-	function (id, name, description, pages) {
-		return {description: description, id: id, name: name, pages: pages};
-	});
-var $author$project$Report$Model$init = F3(
-	function (id, name, desc) {
-		return A4($author$project$Report$Model$create, id, name, desc, _List_Nil);
-	});
-var $author$project$Page$Model$Id = function (a) {
+var $elm$core$Basics$True = {$: 'True'};
+var $elm$core$Basics$identity = function (x) {
+	return x;
+};
+var $author$project$Id$Id = function (a) {
 	return {$: 'Id', a: a};
 };
-var $elm$core$Basics$True = {$: 'True'};
+var $author$project$Id$create = function (_v0) {
+	return $author$project$Id$Id('c61291b7-9c50-4b06-a02e-762f193fc483');
+};
+var $author$project$Page$Model$create = F5(
+	function (koncepts, selected, id, name, description) {
+		return {description: description, id: id, koncepts: koncepts, name: name, selected: selected};
+	});
+var $elm$core$Result$Ok = function (a) {
+	return {$: 'Ok', a: a};
+};
+var $elm$core$Result$map = F2(
+	function (func, ra) {
+		if (ra.$ === 'Ok') {
+			var a = ra.a;
+			return $elm$core$Result$Ok(
+				func(a));
+		} else {
+			var e = ra.a;
+			return $elm$core$Result$Err(e);
+		}
+	});
+var $author$project$Koncepts$Model$Abstract = function (a) {
+	return {$: 'Abstract', a: a};
+};
+var $author$project$Koncepts$Model$AbstractKonceptName = function (a) {
+	return {$: 'AbstractKonceptName', a: a};
+};
+var $author$project$Koncepts$Model$Closed = function (a) {
+	return {$: 'Closed', a: a};
+};
+var $author$project$Koncepts$Model$Cube = function (a) {
+	return {$: 'Cube', a: a};
+};
+var $author$project$Koncepts$Model$Ignore = {$: 'Ignore'};
+var $author$project$Koncepts$Model$MapValue = function (a) {
+	return {$: 'MapValue', a: a};
+};
+var $elm$core$Basics$append = _Utils_append;
+var $author$project$Koncepts$Model$HyperCubeId = function (a) {
+	return {$: 'HyperCubeId', a: a};
+};
+var $author$project$Koncepts$Model$HyperCubeName = function (a) {
+	return {$: 'HyperCubeName', a: a};
+};
+var $author$project$Koncepts$Hypercube$create = F2(
+	function (name, dimension) {
+		return {
+			head: dimension,
+			id: $author$project$Koncepts$Model$HyperCubeId(
+				$author$project$Id$create(_Utils_Tuple0)),
+			name: $author$project$Koncepts$Model$HyperCubeName(name),
+			tail: _List_Nil
+		};
+	});
+var $author$project$Koncepts$Model$DefaultMember = function (a) {
+	return {$: 'DefaultMember', a: a};
+};
+var $author$project$Koncepts$Model$DimensionWithDefault = function (a) {
+	return {$: 'DimensionWithDefault', a: a};
+};
+var $author$project$Koncepts$Hypercube$createDimensionWithDefault = function (domain) {
+	return $author$project$Koncepts$Model$DimensionWithDefault(
+		_Utils_Tuple2(
+			$author$project$Koncepts$Model$DefaultMember('Total'),
+			domain));
+};
+var $author$project$Koncepts$Model$DomainMember = function (a) {
+	return {$: 'DomainMember', a: a};
+};
+var $author$project$Koncepts$Model$DomainName = function (a) {
+	return {$: 'DomainName', a: a};
+};
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$List$foldl = F3(
 	function (func, acc, list) {
@@ -4548,120 +4611,418 @@ var $elm$core$List$foldr = F3(
 	function (fn, acc, ls) {
 		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
 	});
-var $elm$core$List$append = F2(
-	function (xs, ys) {
-		if (!ys.b) {
-			return xs;
-		} else {
-			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+var $elm$core$List$map = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, acc) {
+					return A2(
+						$elm$core$List$cons,
+						f(x),
+						acc);
+				}),
+			_List_Nil,
+			xs);
+	});
+var $author$project$Koncepts$Hypercube$domainCreate = F2(
+	function (name, members) {
+		return {
+			members: A2($elm$core$List$map, $author$project$Koncepts$Model$DomainMember, members),
+			name: $author$project$Koncepts$Model$DomainName(name)
+		};
+	});
+var $elm$core$Basics$eq = _Utils_equal;
+var $elm$core$Maybe$Just = function (a) {
+	return {$: 'Just', a: a};
+};
+var $author$project$Koncepts$Koncept$actionToKonceptOption = F2(
+	function (koncept, action) {
+		switch (action.$) {
+			case 'Delete':
+				return $elm$core$Maybe$Nothing;
+			case 'MapValue':
+				var k = action.a;
+				return $elm$core$Maybe$Just(k);
+			default:
+				return $elm$core$Maybe$Just(koncept);
 		}
 	});
-var $author$project$Page$Model$addKoncepts = F2(
-	function (koncepts, page) {
-		return _Utils_update(
-			page,
-			{
-				koncepts: A2($elm$core$List$append, page.koncepts, koncepts)
-			});
+var $author$project$Koncepts$Koncept$mapAbstractKoncept = F2(
+	function (f, koncept) {
+		if (koncept.$ === 'Abstract') {
+			var _v1 = koncept.a;
+			var ak = _v1.a;
+			var koncepts = _v1.b;
+			return A2(
+				$elm$core$Result$map,
+				$author$project$Koncepts$Koncept$actionToKonceptOption(koncept),
+				A2(f, ak, koncepts));
+		} else {
+			return $elm$core$Result$Ok(
+				$elm$core$Maybe$Just(koncept));
+		}
+	});
+var $author$project$Koncepts$Mock$addCube = function (koncept) {
+	var hyperCube = A2(
+		$author$project$Koncepts$Hypercube$create,
+		'Kvartal och annat',
+		$author$project$Koncepts$Model$Closed(
+			$author$project$Koncepts$Hypercube$createDimensionWithDefault(
+				A2(
+					$author$project$Koncepts$Hypercube$domainCreate,
+					'Kvartal',
+					_List_fromArray(
+						['kv1', 'kv2', 'kv3', 'kv4'])))));
+	var f = F2(
+		function (ak, koncepts) {
+			return _Utils_eq(
+				ak.name,
+				$author$project$Koncepts$Model$AbstractKonceptName('Intäkter')) ? $elm$core$Result$Ok(
+				$author$project$Koncepts$Model$MapValue(
+					$author$project$Koncepts$Model$Abstract(
+						_Utils_Tuple2(
+							ak,
+							_Utils_ap(
+								koncepts,
+								_List_fromArray(
+									[
+										$author$project$Koncepts$Model$Cube(
+										_Utils_Tuple2(hyperCube, _List_Nil))
+									])))))) : $elm$core$Result$Ok($author$project$Koncepts$Model$Ignore);
+		});
+	return A2($author$project$Koncepts$Koncept$mapAbstractKoncept, f, koncept);
+};
+var $author$project$Koncepts$Model$DimensionalValue = function (a) {
+	return {$: 'DimensionalValue', a: a};
+};
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
 	});
 var $elm$core$Basics$False = {$: 'False'};
-var $author$project$Koncept$Model$Value = function (a) {
-	return {$: 'Value', a: a};
+var $author$project$Koncepts$Model$ValueKonceptId = function (a) {
+	return {$: 'ValueKonceptId', a: a};
 };
-var $author$project$Koncept$Model$ValueKoncept = function (a) {
-	return {$: 'ValueKoncept', a: a};
+var $author$project$Koncepts$Model$ValueKonceptName = function (a) {
+	return {$: 'ValueKonceptName', a: a};
 };
-var $author$project$Report$Mock$k1 = $author$project$Koncept$Model$Value(
-	$author$project$Koncept$Model$ValueKoncept(
-		{id: 'Z1', name: 'Intäkter', selected: false}));
-var $author$project$Koncept$Model$ParentKoncept = function (a) {
-	return {$: 'ParentKoncept', a: a};
-};
-var $author$project$Koncept$Model$AbstractKoncept = function (a) {
-	return {$: 'AbstractKoncept', a: a};
-};
-var $author$project$Koncept$Model$Koncepts = function (a) {
-	return {$: 'Koncepts', a: a};
-};
-var $author$project$Koncept$Model$add = F2(
-	function (_v0, koncept) {
-		var parent = _v0.a;
-		if (parent.$ === 'Value') {
-			var ki = parent.a.a;
-			return $author$project$Koncept$Model$Koncepts(
-				_Utils_Tuple2(
-					$author$project$Koncept$Model$AbstractKoncept(ki),
-					_List_fromArray(
-						[koncept])));
+var $author$project$Koncepts$Model$createValueKonceptWithSelection = F2(
+	function (selected, name) {
+		return {
+			id: $author$project$Koncepts$Model$ValueKonceptId(
+				$author$project$Id$create(_Utils_Tuple0)),
+			name: $author$project$Koncepts$Model$ValueKonceptName(name),
+			selected: selected
+		};
+	});
+var $author$project$Koncepts$Model$createValueKoncept = $author$project$Koncepts$Model$createValueKonceptWithSelection(false);
+var $author$project$Koncepts$Dimensionalkoncept$createValue = A2($elm$core$Basics$composeR, $author$project$Koncepts$Model$createValueKoncept, $author$project$Koncepts$Model$DimensionalValue);
+var $author$project$Koncepts$Koncept$mapCube = F2(
+	function (f, koncept) {
+		if (koncept.$ === 'Cube') {
+			var _v1 = koncept.a;
+			var hc = _v1.a;
+			var koncepts = _v1.b;
+			return A2(
+				$elm$core$Result$map,
+				$author$project$Koncepts$Koncept$actionToKonceptOption(koncept),
+				A2(f, hc, koncepts));
 		} else {
-			var _v2 = parent.a;
-			var ki = _v2.a;
-			var kl = _v2.b;
-			return $author$project$Koncept$Model$Koncepts(
-				_Utils_Tuple2(
-					ki,
-					A2(
-						$elm$core$List$append,
-						kl,
-						_List_fromArray(
-							[koncept]))));
+			return $elm$core$Result$Ok(
+				$elm$core$Maybe$Just(koncept));
 		}
 	});
-var $author$project$Report$Mock$k3 = A2(
-	$author$project$Koncept$Model$add,
-	$author$project$Koncept$Model$ParentKoncept($author$project$Report$Mock$k1),
-	$author$project$Koncept$Model$Value(
-		$author$project$Koncept$Model$ValueKoncept(
-			{id: 'Z12', name: 'Intäkter per år', selected: false})));
-var $author$project$Page$Model$create = F5(
-	function (koncepts, selected, id, name, description) {
-		return {description: description, id: id, koncepts: koncepts, name: name, selected: selected};
-	});
-var $author$project$Page$Model$new = $author$project$Page$Model$create(_List_Nil);
-var $author$project$Report$Mock$page1 = A2(
-	$author$project$Page$Model$addKoncepts,
-	_List_fromArray(
-		[$author$project$Report$Mock$k1, $author$project$Report$Mock$k3]),
-	A4(
-		$author$project$Page$Model$new,
-		true,
-		$author$project$Page$Model$Id('Page1'),
-		'Page1',
-		'Page1'));
-var $author$project$Report$Mock$k2 = $author$project$Koncept$Model$Value(
-	$author$project$Koncept$Model$ValueKoncept(
-		{id: 'Z2', name: 'Utgifter', selected: false}));
-var $author$project$Report$Mock$k4 = A2(
-	$author$project$Koncept$Model$add,
-	$author$project$Koncept$Model$ParentKoncept($author$project$Report$Mock$k2),
-	$author$project$Koncept$Model$Value(
-		$author$project$Koncept$Model$ValueKoncept(
-			{id: 'Z22', name: 'Utgifter per år', selected: false})));
-var $author$project$Report$Mock$page2 = A2(
-	$author$project$Page$Model$addKoncepts,
-	_List_fromArray(
-		[$author$project$Report$Mock$k2, $author$project$Report$Mock$k4]),
-	A4(
-		$author$project$Page$Model$new,
-		false,
-		$author$project$Page$Model$Id('Page2'),
-		'Page2',
-		'Page2'));
-var $author$project$Report$Mock$report = A2(
-	$author$project$Report$Model$addPage,
-	$author$project$Report$Mock$page2,
-	A2(
-		$author$project$Report$Model$addPage,
-		$author$project$Report$Mock$page1,
-		A3(
-			$author$project$Report$Model$init,
-			$author$project$Report$Model$Id('Report1'),
-			'Report1',
-			'Report1')));
-var $author$project$Main$init = $author$project$Report$Mock$report;
-var $elm$core$Result$Err = function (a) {
-	return {$: 'Err', a: a};
+var $author$project$Koncepts$Mock$addDimensionalKoncept = function () {
+	var dims = _List_fromArray(
+		[
+			$author$project$Koncepts$Dimensionalkoncept$createValue('Intäkter'),
+			$author$project$Koncepts$Dimensionalkoncept$createValue('Försäljning cyklar'),
+			$author$project$Koncepts$Dimensionalkoncept$createValue('Bidrag')
+		]);
+	var f = F2(
+		function (hc, dimensions) {
+			return _Utils_eq(
+				hc.name,
+				$author$project$Koncepts$Model$HyperCubeName('Kvartal och annat')) ? $elm$core$Result$Ok(
+				$author$project$Koncepts$Model$MapValue(
+					$author$project$Koncepts$Model$Cube(
+						_Utils_Tuple2(
+							hc,
+							_Utils_ap(dimensions, dims))))) : $elm$core$Result$Ok($author$project$Koncepts$Model$Ignore);
+		});
+	return $author$project$Koncepts$Koncept$mapCube(f);
+}();
+var $author$project$ResultExtension$foldOne = function (r) {
+	if (r.$ === 'Ok') {
+		var ri = r.a;
+		return ri;
+	} else {
+		var err = r.a;
+		return $elm$core$Result$Err(err);
+	}
 };
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Koncepts$Koncept$parentAsKoncept = function (parent) {
+	return A2(
+		$elm$core$Result$map,
+		function (r) {
+			return A2(
+				$elm$core$Maybe$map,
+				function (_v0) {
+					var k = _v0.a;
+					return k;
+				},
+				r);
+		},
+		parent);
+};
+var $author$project$Koncepts$Koncept$ParentKoncept = function (a) {
+	return {$: 'ParentKoncept', a: a};
+};
+var $author$project$Koncepts$Koncept$add = F2(
+	function (koncept, _v0) {
+		var parent = _v0.a;
+		switch (parent.$) {
+			case 'Abstract':
+				var _v2 = parent.a;
+				var ak = _v2.a;
+				var koncepts = _v2.b;
+				return $elm$core$Result$Ok(
+					$author$project$Koncepts$Model$Abstract(
+						_Utils_Tuple2(
+							ak,
+							_Utils_ap(
+								koncepts,
+								_List_fromArray(
+									[koncept])))));
+			case 'Cube':
+				return $elm$core$Result$Err('Only a dimensional koncept kan be added to a hyper cube');
+			default:
+				return $elm$core$Result$Err('Value cannot act as parent for koncept');
+		}
+	});
+var $author$project$Koncepts$Koncept$maybeAdd = F2(
+	function (koncept, parent) {
+		if (parent.$ === 'Nothing') {
+			return $elm$core$Result$Ok(koncept);
+		} else {
+			var pk = parent.a.a;
+			if (koncept.$ === 'Just') {
+				var child = koncept.a;
+				return A2(
+					$elm$core$Result$map,
+					$elm$core$Maybe$Just,
+					A2(
+						$author$project$Koncepts$Koncept$add,
+						child,
+						$author$project$Koncepts$Koncept$ParentKoncept(pk)));
+			} else {
+				return $elm$core$Result$Ok(
+					$elm$core$Maybe$Just(pk));
+			}
+		}
+	});
+var $author$project$Koncepts$Koncept$andThenMaybeAdd = F2(
+	function (parent, koncept) {
+		return A2(
+			$elm$core$Result$andThen,
+			$author$project$Koncepts$Koncept$maybeAdd(koncept),
+			parent);
+	});
+var $author$project$Koncepts$Koncept$mapToParent = function (m) {
+	return A2(
+		$elm$core$Result$map,
+		function (r) {
+			return A2($elm$core$Maybe$map, $author$project$Koncepts$Koncept$ParentKoncept, r);
+		},
+		m);
+};
+var $author$project$Koncepts$Koncept$recursivefold = F3(
+	function (f, p, k) {
+		var fmap = F2(
+			function (parent, koncept) {
+				if (koncept.$ === 'Just') {
+					var ki = koncept.a;
+					switch (ki.$) {
+						case 'Abstract':
+							var _v2 = ki.a;
+							var ak = _v2.a;
+							var koncepts = _v2.b;
+							var newKoncept = $elm$core$Result$Ok(
+								$elm$core$Maybe$Just(
+									$author$project$Koncepts$Koncept$ParentKoncept(
+										$author$project$Koncepts$Model$Abstract(
+											_Utils_Tuple2(ak, _List_Nil)))));
+							var accKoncept = $author$project$Koncepts$Koncept$parentAsKoncept(
+								A3(
+									$elm$core$List$foldl,
+									F2(
+										function (a, b) {
+											return A3($author$project$Koncepts$Koncept$recursivefold, f, b, a);
+										}),
+									newKoncept,
+									A2($elm$core$List$map, f, koncepts)));
+							return $author$project$Koncepts$Koncept$mapToParent(
+								A2(
+									$elm$core$Result$andThen,
+									$author$project$Koncepts$Koncept$andThenMaybeAdd(parent),
+									accKoncept));
+						case 'Value':
+							var newKoncept = f(ki);
+							return $author$project$Koncepts$Koncept$mapToParent(
+								A2(
+									$elm$core$Result$andThen,
+									$author$project$Koncepts$Koncept$andThenMaybeAdd(parent),
+									newKoncept));
+						default:
+							var newKoncept = f(ki);
+							return $author$project$Koncepts$Koncept$mapToParent(
+								A2(
+									$elm$core$Result$andThen,
+									$author$project$Koncepts$Koncept$andThenMaybeAdd(parent),
+									newKoncept));
+					}
+				} else {
+					return parent;
+				}
+			});
+		return A2(
+			$elm$core$Result$andThen,
+			fmap(p),
+			k);
+	});
+var $author$project$Koncepts$Koncept$fold = F2(
+	function (f, m) {
+		return $author$project$ResultExtension$foldOne(
+			A2(
+				$elm$core$Result$map,
+				function (v) {
+					if (v.$ === 'Just') {
+						var vi = v.a;
+						return $elm$core$Result$Ok(vi);
+					} else {
+						return $elm$core$Result$Err('Empty result from fold of koncept');
+					}
+				},
+				$author$project$Koncepts$Koncept$parentAsKoncept(
+					A3(
+						$author$project$Koncepts$Koncept$recursivefold,
+						f,
+						$elm$core$Result$Ok($elm$core$Maybe$Nothing),
+						A2($elm$core$Result$map, $elm$core$Maybe$Just, m)))));
+	});
+var $author$project$Koncepts$Model$AbstractKonceptId = function (a) {
+	return {$: 'AbstractKonceptId', a: a};
+};
+var $author$project$Koncepts$Model$createAbstractKonceptWithSelection = F2(
+	function (selected, name) {
+		return {
+			id: $author$project$Koncepts$Model$AbstractKonceptId(
+				$author$project$Id$create(_Utils_Tuple0)),
+			name: $author$project$Koncepts$Model$AbstractKonceptName(name),
+			selected: selected
+		};
+	});
+var $author$project$Koncepts$Model$createAbstractKoncept = $author$project$Koncepts$Model$createAbstractKonceptWithSelection(false);
+var $author$project$Koncepts$Koncept$createAbstract = function (name) {
+	return $author$project$Koncepts$Model$Abstract(
+		_Utils_Tuple2(
+			$author$project$Koncepts$Model$createAbstractKoncept(name),
+			_List_Nil));
+};
+var $author$project$Koncepts$Mock$head = A2(
+	$author$project$Koncepts$Koncept$add,
+	$author$project$Koncepts$Koncept$createAbstract('Intäkter'),
+	$author$project$Koncepts$Koncept$ParentKoncept(
+		$author$project$Koncepts$Koncept$createAbstract('IORP2 nationell')));
+var $author$project$Koncepts$Mock$mockKoncept = A2(
+	$author$project$Koncepts$Koncept$fold,
+	$author$project$Koncepts$Mock$addDimensionalKoncept,
+	A2($author$project$Koncepts$Koncept$fold, $author$project$Koncepts$Mock$addCube, $author$project$Koncepts$Mock$head));
+var $author$project$Report$Mock$page1 = A2(
+	$elm$core$Result$map,
+	function (koncept) {
+		return A5(
+			$author$project$Page$Model$create,
+			_List_fromArray(
+				[koncept]),
+			true,
+			$author$project$Id$create(_Utils_Tuple0),
+			'IORP2',
+			'IORP2 nation');
+	},
+	$author$project$Koncepts$Mock$mockKoncept);
+var $author$project$Report$Model$create = F4(
+	function (id, name, description, pages) {
+		return {description: description, id: id, name: name, pages: pages};
+	});
+var $author$project$Report$Mock$report = function (page) {
+	return $elm$core$Result$Ok(
+		A4(
+			$author$project$Report$Model$create,
+			$author$project$Id$create(_Utils_Tuple0),
+			'IORP2',
+			'IORP2',
+			_List_fromArray(
+				[page])));
+};
+var $author$project$Report$Mock$mockReport = A2($elm$core$Result$andThen, $author$project$Report$Mock$report, $author$project$Report$Mock$page1);
+var $author$project$Model$ReportWithoutError = function (a) {
+	return {$: 'ReportWithoutError', a: a};
+};
+var $author$project$Model$NoReportWithError = function (a) {
+	return {$: 'NoReportWithError', a: a};
+};
+var $author$project$Model$ReportWithError = function (a) {
+	return {$: 'ReportWithError', a: a};
+};
+var $author$project$Model$addError = F2(
+	function (model, err) {
+		var f = F2(
+			function (m, e) {
+				switch (m.$) {
+					case 'NoReportWithError':
+						return $author$project$Model$NoReportWithError(e);
+					case 'ReportWithError':
+						var _v2 = m.a;
+						var r = _v2.b;
+						return $author$project$Model$ReportWithError(
+							_Utils_Tuple2(err, r));
+					default:
+						var r = m.a;
+						return $author$project$Model$ReportWithoutError(r);
+				}
+			});
+		if (model.$ === 'Just') {
+			var rm = model.a;
+			return A2(f, rm, err);
+		} else {
+			return $author$project$Model$NoReportWithError(err);
+		}
+	});
+var $author$project$Model$update = F2(
+	function (result, model) {
+		if (result.$ === 'Ok') {
+			var report = result.a;
+			return $author$project$Model$ReportWithoutError(
+				{report: report});
+		} else {
+			var err = result.a;
+			return A2($author$project$Model$addError, model, err);
+		}
+	});
+var $author$project$Main$init = A2($author$project$Model$update, $author$project$Report$Mock$mockReport, $elm$core$Maybe$Nothing);
 var $elm$json$Json$Decode$Failure = F2(
 	function (a, b) {
 		return {$: 'Failure', a: a, b: b};
@@ -4674,16 +5035,9 @@ var $elm$json$Json$Decode$Index = F2(
 	function (a, b) {
 		return {$: 'Index', a: a, b: b};
 	});
-var $elm$core$Result$Ok = function (a) {
-	return {$: 'Ok', a: a};
-};
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
-var $elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
-var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$json$Json$Encode$encode = _Json_encode;
@@ -4899,7 +5253,6 @@ var $elm$core$Basics$apL = F2(
 	function (f, x) {
 		return f(x);
 	});
-var $elm$core$Basics$eq = _Utils_equal;
 var $elm$core$Basics$floor = _Basics_floor;
 var $elm$core$Elm$JsArray$length = _JsArray_length;
 var $elm$core$Basics$max = F2(
@@ -5190,20 +5543,6 @@ var $elm$core$Task$Perform = function (a) {
 };
 var $elm$core$Task$succeed = _Scheduler_succeed;
 var $elm$core$Task$init = $elm$core$Task$succeed(_Utils_Tuple0);
-var $elm$core$List$map = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A2(
-						$elm$core$List$cons,
-						f(x),
-						acc);
-				}),
-			_List_Nil,
-			xs);
-	});
 var $elm$core$Task$andThen = _Scheduler_andThen;
 var $elm$core$Task$map = F2(
 	function (func, taskA) {
@@ -5300,92 +5639,9 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
-var $author$project$Page$Model$deselect = function (page) {
-	return _Utils_update(
-		page,
-		{selected: false});
-};
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $author$project$Report$Model$addNewPage = function (report) {
-	var calculatePageName = function (pages) {
-		return function (nr) {
-			return 'Page ' + $elm$core$String$fromInt(nr + 1);
-		}(
-			$elm$core$List$length(
-				A2(
-					$elm$core$List$filter,
-					function (p) {
-						return A2($elm$core$String$startsWith, 'Page', p.name);
-					},
-					pages)));
-	};
-	var name = calculatePageName(report.pages);
-	var page = A4(
-		$author$project$Page$Model$new,
-		true,
-		$author$project$Page$Model$Id(name),
-		name,
-		name);
-	return _Utils_update(
-		report,
-		{
-			pages: _Utils_ap(
-				A2($elm$core$List$map, $author$project$Page$Model$deselect, report.pages),
-				_List_fromArray(
-					[page]))
-		});
-};
-var $elm$core$Debug$log = _Debug_log;
-var $author$project$Page$Model$select = function (page) {
-	return _Utils_update(
-		page,
-		{selected: true});
-};
-var $author$project$Report$Model$selectPage = F2(
-	function (report, page) {
-		var select = F2(
-			function (page1, page2) {
-				var _v0 = _Utils_eq(page1.id, page2.id);
-				if (_v0) {
-					return $author$project$Page$Model$select(page2);
-				} else {
-					return $author$project$Page$Model$deselect(page2);
-				}
-			});
-		return _Utils_update(
-			report,
-			{
-				pages: A2(
-					$elm$core$List$map,
-					select(page),
-					report.pages)
-			});
-	});
 var $author$project$Main$update = F2(
-	function (msg, report) {
-		switch (msg.$) {
-			case 'Select':
-				var ki = msg.a;
-				var id = A2($elm$core$Debug$log, 'Id ', ki.id);
-				return report;
-			case 'SelectPage':
-				var page = msg.a;
-				return A2($author$project$Report$Model$selectPage, report, page);
-			case 'Add':
-				return report;
-			default:
-				return $author$project$Report$Model$addNewPage(report);
-		}
+	function (msg, model) {
+		return model;
 	});
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -5418,7 +5674,7 @@ var $elm$html$Html$Events$onClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$konceptButton = function (htmls) {
+var $author$project$Main$konceptButton = function (_v0) {
 	return A2(
 		$elm$html$Html$button,
 		_List_fromArray(
@@ -5441,9 +5697,32 @@ var $author$project$Main$pageButton = A2(
 		[
 			$elm$html$Html$text('add Page')
 		]));
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $author$project$Msg$Select = function (a) {
+	return {$: 'Select', a: a};
+};
 var $author$project$Msg$SelectPage = function (a) {
 	return {$: 'SelectPage', a: a};
 };
+var $author$project$Msg$selectPage = A2($elm$core$Basics$composeR, $author$project$Msg$SelectPage, $author$project$Msg$Select);
 var $author$project$Html$Custom$Classes$selected = function (isSelected) {
 	return isSelected ? _List_fromArray(
 		[
@@ -5458,7 +5737,7 @@ var $author$project$Page$View$toHeaderHtlm = function (page) {
 				[
 					$elm$html$Html$Attributes$class('header'),
 					$elm$html$Html$Events$onClick(
-					$author$project$Msg$SelectPage(page))
+					$author$project$Msg$selectPage(page))
 				]),
 			$author$project$Html$Custom$Classes$selected(page.selected)),
 		_List_fromArray(
@@ -5466,16 +5745,17 @@ var $author$project$Page$View$toHeaderHtlm = function (page) {
 				$elm$html$Html$text(page.name)
 			]));
 };
-var $author$project$Msg$Select = function (a) {
-	return {$: 'Select', a: a};
+var $author$project$Koncepts$Model$abstractKonceptNameToString = function (_v0) {
+	var name = _v0.a;
+	return name;
 };
-var $author$project$Koncept$View$getSelection = function (ki) {
-	return ki.selected ? _List_fromArray(
+var $author$project$Koncepts$View$getSelection = function (isSelected) {
+	return isSelected ? _List_fromArray(
 		[
 			$elm$html$Html$Attributes$class('selected')
 		]) : _List_Nil;
 };
-var $author$project$Koncept$View$joinAttributes = F2(
+var $author$project$Koncepts$View$joinAttributes = F2(
 	function (a1, a2) {
 		return A2($elm$core$List$append, a1, a2);
 	});
@@ -5505,19 +5785,22 @@ var $author$project$Events$Custom$noPropapagation = F2(
 var $author$project$Events$Custom$onClickStopPropagation = function (msg) {
 	return A2($author$project$Events$Custom$noPropapagation, 'click', msg);
 };
-var $author$project$Koncept$View$abstractKonceptDetails = function (_v0) {
-	var ki = _v0.a;
+var $author$project$Msg$SelectAbstract = function (a) {
+	return {$: 'SelectAbstract', a: a};
+};
+var $author$project$Msg$selectAbstract = A2($elm$core$Basics$composeR, $author$project$Msg$SelectAbstract, $author$project$Msg$Select);
+var $author$project$Koncepts$View$abstractKonceptDetails = function (ak) {
 	return A2(
 		$elm$html$Html$div,
 		A2(
-			$author$project$Koncept$View$joinAttributes,
+			$author$project$Koncepts$View$joinAttributes,
 			_List_fromArray(
 				[
 					$elm$html$Html$Attributes$class('abstract-details'),
 					$author$project$Events$Custom$onClickStopPropagation(
-					$author$project$Msg$Select(ki))
+					$author$project$Msg$selectAbstract(ak))
 				]),
-			$author$project$Koncept$View$getSelection(ki)),
+			$author$project$Koncepts$View$getSelection(ak.selected)),
 		_List_fromArray(
 			[
 				A2(
@@ -5528,7 +5811,8 @@ var $author$project$Koncept$View$abstractKonceptDetails = function (_v0) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text(ki.name)
+						$elm$html$Html$text(
+						$author$project$Koncepts$Model$abstractKonceptNameToString(ak.name))
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -5549,7 +5833,7 @@ var $author$project$Koncept$View$abstractKonceptDetails = function (_v0) {
 					]))
 			]));
 };
-var $author$project$Koncept$View$divAbstractKoncept = F2(
+var $author$project$Koncepts$View$divAbstractKoncept = F2(
 	function (ak, htmls) {
 		return A2(
 			$elm$html$Html$div,
@@ -5562,31 +5846,39 @@ var $author$project$Koncept$View$divAbstractKoncept = F2(
 				$elm$core$List$append,
 				_List_fromArray(
 					[
-						$author$project$Koncept$View$abstractKonceptDetails(ak)
+						$author$project$Koncepts$View$abstractKonceptDetails(ak)
 					]),
 				htmls));
 	});
 var $elm$html$Html$label = _VirtualDom_node('label');
-var $author$project$Koncept$View$valueKonceptDetails = function (_v0) {
-	var ki = _v0.a;
+var $author$project$Msg$SelectValue = function (a) {
+	return {$: 'SelectValue', a: a};
+};
+var $author$project$Msg$selectValue = A2($elm$core$Basics$composeR, $author$project$Msg$SelectValue, $author$project$Msg$Select);
+var $author$project$Koncepts$Model$valueKonceptNameToString = function (_v0) {
+	var name = _v0.a;
+	return name;
+};
+var $author$project$Koncepts$View$valueKonceptDetails = function (vk) {
 	var lbl = A2(
 		$elm$html$Html$label,
 		_List_Nil,
 		_List_fromArray(
 			[
-				$elm$html$Html$text(ki.name)
+				$elm$html$Html$text(
+				$author$project$Koncepts$Model$valueKonceptNameToString(vk.name))
 			]));
 	return A2(
 		$elm$html$Html$div,
 		A2(
-			$author$project$Koncept$View$joinAttributes,
+			$author$project$Koncepts$View$joinAttributes,
 			_List_fromArray(
 				[
 					$elm$html$Html$Attributes$class('value-details'),
 					$author$project$Events$Custom$onClickStopPropagation(
-					$author$project$Msg$Select(ki))
+					$author$project$Msg$selectValue(vk))
 				]),
-			$author$project$Koncept$View$getSelection(ki)),
+			$author$project$Koncepts$View$getSelection(vk.selected)),
 		_List_fromArray(
 			[
 				lbl,
@@ -5609,7 +5901,7 @@ var $author$project$Koncept$View$valueKonceptDetails = function (_v0) {
 					]))
 			]));
 };
-var $author$project$Koncept$View$divValueKoncept = function (vk) {
+var $author$project$Koncepts$View$divValueKoncept = function (vk) {
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -5619,26 +5911,43 @@ var $author$project$Koncept$View$divValueKoncept = function (vk) {
 			]),
 		_List_fromArray(
 			[
-				$author$project$Koncept$View$valueKonceptDetails(vk)
+				$author$project$Koncepts$View$valueKonceptDetails(vk)
 			]));
 };
-var $author$project$Koncept$View$divKoncept = function (koncept) {
-	if (koncept.$ === 'Value') {
-		var vk = koncept.a;
-		return $author$project$Koncept$View$divValueKoncept(vk);
-	} else {
-		var _v1 = koncept.a;
-		var ak = _v1.a;
-		var kl = _v1.b;
-		return A2(
-			$author$project$Koncept$View$divAbstractKoncept,
-			ak,
-			A2($elm$core$List$map, $author$project$Koncept$View$divKoncept, kl));
+var $author$project$Koncepts$Model$hyperCubeNameToString = function (_v0) {
+	var name = _v0.a;
+	return name;
+};
+var $author$project$Koncepts$View$divKoncept = function (koncept) {
+	switch (koncept.$) {
+		case 'Value':
+			var vk = koncept.a;
+			return $author$project$Koncepts$View$divValueKoncept(vk);
+		case 'Abstract':
+			var _v1 = koncept.a;
+			var ak = _v1.a;
+			var kl = _v1.b;
+			return A2(
+				$author$project$Koncepts$View$divAbstractKoncept,
+				ak,
+				A2($elm$core$List$map, $author$project$Koncepts$View$divKoncept, kl));
+		default:
+			var _v2 = koncept.a;
+			var hc = _v2.a;
+			var dims = _v2.b;
+			return A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Koncepts$Model$hyperCubeNameToString(hc.name))
+					]));
 	}
 };
-var $author$project$Koncept$View$toHtml = $author$project$Koncept$View$divKoncept;
+var $author$project$Koncepts$View$toHtml = $author$project$Koncepts$View$divKoncept;
 var $author$project$Page$View$toHtml = function (page) {
-	var koncepts = A2($elm$core$List$map, $author$project$Koncept$View$toHtml, page.koncepts);
+	var koncepts = A2($elm$core$List$map, $author$project$Koncepts$View$toHtml, page.koncepts);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
@@ -5689,25 +5998,48 @@ var $author$project$Report$View$toHtml = function (report) {
 				]),
 			pagesHtml));
 };
-var $author$project$Main$view = function (report) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('report-wrapper')
-			]),
-		_List_fromArray(
-			[
-				$author$project$Report$View$toHtml(report),
-				A2(
+var $author$project$Main$view = function (model) {
+	var modelToHtml = function (report) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('report-wrapper')
+				]),
+			_List_fromArray(
+				[
+					$author$project$Report$View$toHtml(report),
+					A2(
+					$elm$html$Html$div,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$author$project$Main$konceptButton(report),
+							$author$project$Main$pageButton
+						]))
+				]));
+	};
+	switch (model.$) {
+		case 'NoReportWithError':
+			var err = model.a;
+			return A2(
 				$elm$html$Html$div,
-				_List_Nil,
 				_List_fromArray(
 					[
-						$author$project$Main$konceptButton(report),
-						$author$project$Main$pageButton
-					]))
-			]));
+						$elm$html$Html$Attributes$class('report-wrapper')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(err)
+					]));
+		case 'ReportWithError':
+			var _v1 = model.a;
+			var rm = _v1.b;
+			return modelToHtml(rm.report);
+		default:
+			var rm = model.a;
+			return modelToHtml(rm.report);
+	}
 };
 var $author$project$Main$main = $elm$browser$Browser$sandbox(
 	{init: $author$project$Main$init, update: $author$project$Main$update, view: $author$project$Main$view});

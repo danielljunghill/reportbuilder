@@ -9,36 +9,38 @@ import Report.View as Report
 import Report.Mock as Report 
 import Koncepts.Model exposing (..)
 import Koncepts.Koncept exposing (..)
-
+import Model 
+import Model exposing (..)
 import Msg exposing (..)
-
 import ResultExtension exposing (..)
-main : Program () Model.Report Msg
+main : Program () Model Msg
 main =
   Browser.sandbox { init = init, update = update, view = view }
 
-init: Result String Report
-init = Report.mockReport
+init: Model.Model
+init = Nothing |> Model.update Report.mockReport 
 
-update : Msg -> Model.Report -> Model.Report 
-update msg report =
-  case msg of
-    Select ki -> 
-        let
-          id = Debug.log "Id " ki.id
-          --newModel = report.pages.se.koncepts |> List.map (Koncept.select ki) |> Model.toModel
-        in
-          report
-
-
-    Report.SelectPage page -> 
-       page |> Model.selectPage report
-    Add -> report
-    AddPage -> Model.addNewPage report
+update : Msg -> Model.Model  -> Model.Model 
+update msg model =
+   case msg of
+      _ -> model
+--   case msg of
+--     Select ki -> 
+--         let
+--           id = Debug.log "Id " ki.id
+--           --newModel = report.pages.se.koncepts |> List.map (Koncept.select ki) |> Model.toModel
+--         in
+--           report
 
 
-konceptButton:  Model.Report -> Html Msg
-konceptButton  htmls = 
+--     SelectPage page -> 
+--        page |> Report.selectPage report
+--     Add -> report
+--     AddPage -> Report.addNewPage reportHuva
+
+
+konceptButton:  Report -> Html Msg
+konceptButton  _ = 
   button [ Add |> onClick ] [ text "add Koncept" ] 
 
 pageButton:  Html Msg
@@ -46,12 +48,21 @@ pageButton  =
   button [ AddPage |> onClick ] [ text "add Page" ] 
     
 
-view : Model.Report -> Html Msg
-view report =
-    div [ class "report-wrapper"]
-      [
-        View.toHtml report,
-        div [] [ konceptButton report,  pageButton]
-      ]
+view : Model.Model -> Html Msg
+view model =
+   let
+      modelToHtml: Report -> Html Msg
+      modelToHtml report =
+           div [ class "report-wrapper"]
+            [
+            Report.toHtml report,
+            div [] [ konceptButton report,  pageButton]
+            ]
+   in
+      case model of
+         NoReportWithError err -> div [ class "report-wrapper"] [ text err]
+         ReportWithError (_, rm) -> modelToHtml rm.report
+         ReportWithoutError rm -> modelToHtml rm.report
+    
   
   
