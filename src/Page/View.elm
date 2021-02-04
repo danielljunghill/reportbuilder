@@ -1,6 +1,5 @@
 module Page.View exposing (..)
 import Page.Model exposing (..)
-import Koncept.View as Koncepts exposing (..) 
 import Html.Custom.Classes as Classes exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -24,7 +23,7 @@ toHtml page =
         
 toHeaderHtlm: Page -> Html Msg
 toHeaderHtlm page =
-    div ([class "header", onClick ( page |> SelectItem.Page |> Msg.Select)] ++ (Classes.selected page.selected)) [ text page.name ]
+    div ([class "header", onClick ( page |>  Msg.selectPage )] ++ (Classes.selected page.selected)) [ text page.name ]
  
 
        -- Classes.selected page.isSelected

@@ -2,13 +2,11 @@ module Report.Model exposing (..)
 
 import Page.View exposing (..)
 import Page.Model as Page
-import Page exposing (..)
 import Koncepts.Model exposing (..)
 import Page.Model exposing (..)
 import List
+import Id exposing (..)
 
-
-type Id = Id String
 idValue: Id -> String
 idValue (Id v) = v
 
@@ -46,7 +44,7 @@ addNewPage report =
         name: String
         name = calculatePageName report.pages
         page: Page 
-        page = Page.Model.new True (Page.Model.Id name) name name
+        page = Page.Model.new True (Id name) name name
         
     in
 

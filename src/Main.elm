@@ -4,11 +4,12 @@ import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.Events exposing (..)
 
-import Report.Model as Model exposing (..)
-import Report.View as View exposing (..)
+import Report.Model exposing (..)
+import Report.View as Report
+import Report.Mock as Report 
 import Koncepts.Model exposing (..)
 import Koncepts.Koncept exposing (..)
-import Koncepts.Mock as Mock
+
 import Msg exposing (..)
 
 import ResultExtension exposing (..)
@@ -16,8 +17,8 @@ main : Program () Model.Report Msg
 main =
   Browser.sandbox { init = init, update = update, view = view }
 
-init: Model.Report
-init = Mock.report
+init: Result String Report
+init = Report.mockReport
 
 update : Msg -> Model.Report -> Model.Report 
 update msg report =
@@ -30,7 +31,7 @@ update msg report =
           report
 
 
-    SelectPage page -> 
+    Report.SelectPage page -> 
        page |> Model.selectPage report
     Add -> report
     AddPage -> Model.addNewPage report

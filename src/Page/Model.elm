@@ -1,9 +1,9 @@
 module Page.Model exposing (..)
 import Koncepts.Model as Koncepts exposing (..)
 import Html.Attributes exposing (selected)
+import Id exposing (..)
 
 
-type Id = Id String
 idValue: Id -> String
 idValue (Id v) = v
 

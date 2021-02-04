@@ -6,8 +6,8 @@ import Html.Attributes exposing (class)
 import Events.Custom exposing (..)
 import Koncepts.Model as Koncept
 import Koncepts.Model exposing (..)
-import Msg exposing (..)
 import Msg 
+import Msg exposing (..)
 
 valueKonceptDetails: ValueKoncept -> Html Msg 
 valueKonceptDetails vk =
@@ -22,7 +22,7 @@ valueKonceptDetails vk =
                |> text
             ] 
    in
-      div (joinAttributes [ class "value-details", onClickStopPropagation ( vk |> SelectItem.Value|> Msg.Select )] (getSelection vk.selected))
+      div (joinAttributes [ class "value-details", onClickStopPropagation ( vk |> Msg.selectValue)] (getSelection vk.selected))
             [ 
                lbl ,
                div [ class "value-details-space"] [],
@@ -33,7 +33,7 @@ valueKonceptDetails vk =
 getSelection: Bool -> List (Attribute Msg)
 getSelection isSelected = if isSelected then [class "selected"] else []
 
-s
+
    
 
 joinAttributes: List (Attribute Msg) -> List (Attribute Msg) -> List (Attribute Msg)
@@ -44,7 +44,7 @@ abstractKonceptDetails: AbstractKoncept -> Html Msg
 abstractKonceptDetails ak =
 
   
-  div (joinAttributes [ class "abstract-details", onClickStopPropagation (ak |> SelectItem.Abstract|> Msg.Select ) ] (getSelection ak.selected))
+  div (joinAttributes [ class "abstract-details", onClickStopPropagation (ak |> Msg.selectAbstract ) ] (getSelection ak.selected))
       [ 
           div [ class "abstract-details-label"] [ ak.name |> abstractKonceptNameToString |> text ],
           div [ class "abstract-details-space"] [],
@@ -71,7 +71,7 @@ divKoncept koncept =
         |> List.map divKoncept 
         |> divAbstractKoncept ak
     Cube (hc,dims) ->
-        div [] [text hc.name]
+        div [] [ hc.name |> Koncept.hyperCubeNameToString |> text ]
  
 
 
