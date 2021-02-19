@@ -1,58 +1,57 @@
 module Koncepts.Area exposing (..)
-import Koncepts.Lines exposing(..
-import Koncepts.Lines
+import Koncepts.Lines exposing(..)
+import Koncepts.Lines as Lines
 
 
-type Area =
+type alias Area =
    {
-      verticalLine: VerticalLine
-      horizontalLine: HorizontalLine
+         verticalLine: VerticalLine
+      ,  horizontalLine: HorizontalLine
    }
 
 incrementVerticalStart: Area -> Area
 incrementVerticalStart area =
    {
-       area | VerticalLine = Lines.incrementVerticalStart area.verticalLine
+       area | verticalLine = Lines.verticalIncrementStart area.verticalLine
    }
 
 incrementHorizontalStart: Area -> Area
 incrementHorizontalStart area =
    {
-       area | horizonalStart = Lines.incrementHorizontalStart area.horizontalLine
+       area | horizontalLine = Lines.horizontalIncrementStart area.horizontalLine
    }
 
 setHorizontalStart: Lines.Start -> Area -> Area  
 setHorizontalStart start area =
    {
-      area | horizonalStart = area.horizontalLine |> Lines.setHorizontalStart start
+      area | horizontalLine = area.horizontalLine |> Lines.horizontalSetStart start
    }
 
 setVerticalStart: Lines.Start -> Area -> Area  
 setVerticalStart start area =
    {
-      area | verticalStart = area.verticalLine |> Lines.setVerticalStart start
+      area | verticalLine = area.verticalLine |> Lines.verticalSetStart start
    }
 
-
 setHorizontalSpan: Lines.Span -> Area -> Area  
-setHorizontalSpan: span area =
+setHorizontalSpan span area =
    {
-      area | horizonalStart = area.horizontalLine |> Lines.setHorizontalSpan span
+      area | horizontalLine = area.horizontalLine |> Lines.horizontalSetSpan span
    }
 
 setVerticalSpan: Lines.Span -> Area -> Area  
 setVerticalSpan span area =
    {
-      area | verticalStart = area.verticalLine |> Lines.setVerticalSpan span
+      area | verticalLine = area.verticalLine |> Lines.verticalSetSpan span
    }
 
-vertialStart: Area -> Start
+verticalStart: Area -> Start
 verticalStart area =
-   Lines.vertialStart area.verticalLine
+   area.verticalLine |> Lines.verticalStart 
 
 horizontaStart: Area -> Start
 horizontaStart area =
-   Lines.horizonalStart area.horizontalLine
+   Lines.horizontalStart area.horizontalLine
 
 verticalSpan: Area -> Span
 verticalSpan area =
@@ -60,4 +59,11 @@ verticalSpan area =
 
 horizontalSpan: Area -> Span
 horizontalSpan area =
-   Lines.horizonalSpan area.horizontalLine
+   Lines.horizontalSpan area.horizontalLine
+
+empty: Area
+empty =  
+    {    
+            verticalLine = VerticalLine Lines.empty
+         ,  horizontalLine = HorizontalLine Lines.empty
+    }
