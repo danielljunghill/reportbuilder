@@ -9,6 +9,12 @@ type alias Area =
       ,  horizontalLine: HorizontalLine
    }
 
+type Direction =
+   Vertical
+   | Horizontal
+
+type Depth = Depth Int
+
 incrementVerticalStart: Area -> Area
 incrementVerticalStart area =
    {

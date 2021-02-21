@@ -1,5 +1,7 @@
 module Koncepts.Model exposing (..)
 import Id exposing (..)
+import Id
+-- import Events.Custom exposing (onClickStopPropagation)
 
 
 -- Koncepts
@@ -32,20 +34,47 @@ type alias AbstractKoncept =
 type DomainName = DomainName String
 domainNameToString: DomainName -> String
 domainNameToString (DomainName name) = name
-type DomainMember = DomainMember String
+
+type Factor = Factor Int
+type alias Member =
+   {
+         id : Id
+      , name: String
+      , factor: Factor
+   }
+
+createMember: Factor -> String -> Member
+createMember factor name =
+   {
+         id = Id.create()
+      ,  factor = factor
+      ,  name = name
+   }
+type DomainMember = DomainMember Member
+
+createDomainMember: Factor -> String -> DomainMember
+createDomainMember factor name =
+   createMember factor name 
+   |> DomainMember
 
 domainMemberToString: DomainMember -> String
-domainMemberToString (DomainMember name) = name
+domainMemberToString (DomainMember member) = member.name
 type alias Domain =
     {
             name: DomainName
         ,   members: List DomainMember 
     }
 
-type DefaultMember = DefaultMember String  
+type DefaultMember = DefaultMember Member  
+createDefaultMember: Factor -> String -> DefaultMember
+createDefaultMember factor name =
+   createMember factor name 
+   |> DefaultMember
+
 type Dimension =
      DimensionWithDefault  (DefaultMember,Domain)
      | DimensionWithoutDefault Domain
+
 
 type HyperDimension =
      Opened Dimension

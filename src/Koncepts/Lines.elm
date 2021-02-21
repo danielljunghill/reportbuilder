@@ -3,10 +3,14 @@ module Koncepts.Lines exposing (..)
 type Span = Span Int
 spanInt: Span -> Int
 spanInt (Span span) = span
+spanAdd: Span -> Span -> Span
+spanAdd (Span span1) (Span span2) = Span (span1 + span2)
 
 type Start = Start Int
 startInt: Start -> Int
 startInt (Start start) = start
+startAdd: Start -> Start -> Start
+startAdd (Start start1) (Start start2) = Start (start1 + start2)
 
 type alias Line = 
    { 
@@ -19,6 +23,14 @@ lineSpan line = line.span |>  spanInt
 
 lineStart: Line -> Int
 lineStart line = line.start |> startInt
+
+createLine: Start -> Span -> Line
+createLine start span = 
+   {
+         start = start
+      ,   span = span
+      
+   }
 
 addSpanToStart: Start -> Span -> Start
 addSpanToStart (Start start) (Span span) =

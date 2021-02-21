@@ -35,7 +35,10 @@ domainCreate: String -> List String -> Domain
 domainCreate name members =
     {
             name = DomainName name
-        ,   members = members |> List.map DomainMember
+        ,   members = 
+               members 
+               |> List.map (createDomainMember (Factor 1))
+            
     }
 
 domainCreateEmpty : DomainName -> Domain
@@ -51,7 +54,7 @@ domainAddMember member domain  =
 
 createDimensionWithDefault: Domain -> Dimension
 createDimensionWithDefault domain =
-    DimensionWithDefault (DefaultMember "Total", domain)
+    DimensionWithDefault (createDefaultMember (Factor 1) "Total", domain)
 
 createDimensionWithoutDefault: Domain -> Dimension
 createDimensionWithoutDefault domain =

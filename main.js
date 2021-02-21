@@ -4514,24 +4514,48 @@ var $author$project$Koncepts$Hypercube$create = F2(
 			tail: _List_Nil
 		};
 	});
-var $author$project$Koncepts$Model$DefaultMember = function (a) {
-	return {$: 'DefaultMember', a: a};
-};
 var $author$project$Koncepts$Model$DimensionWithDefault = function (a) {
 	return {$: 'DimensionWithDefault', a: a};
 };
+var $author$project$Koncepts$Model$Factor = function (a) {
+	return {$: 'Factor', a: a};
+};
+var $author$project$Koncepts$Model$DefaultMember = function (a) {
+	return {$: 'DefaultMember', a: a};
+};
+var $author$project$Koncepts$Model$createMember = F2(
+	function (factor, name) {
+		return {
+			factor: factor,
+			id: $author$project$Id$create(_Utils_Tuple0),
+			name: name
+		};
+	});
+var $author$project$Koncepts$Model$createDefaultMember = F2(
+	function (factor, name) {
+		return $author$project$Koncepts$Model$DefaultMember(
+			A2($author$project$Koncepts$Model$createMember, factor, name));
+	});
 var $author$project$Koncepts$Hypercube$createDimensionWithDefault = function (domain) {
 	return $author$project$Koncepts$Model$DimensionWithDefault(
 		_Utils_Tuple2(
-			$author$project$Koncepts$Model$DefaultMember('Total'),
+			A2(
+				$author$project$Koncepts$Model$createDefaultMember,
+				$author$project$Koncepts$Model$Factor(1),
+				'Total'),
 			domain));
-};
-var $author$project$Koncepts$Model$DomainMember = function (a) {
-	return {$: 'DomainMember', a: a};
 };
 var $author$project$Koncepts$Model$DomainName = function (a) {
 	return {$: 'DomainName', a: a};
 };
+var $author$project$Koncepts$Model$DomainMember = function (a) {
+	return {$: 'DomainMember', a: a};
+};
+var $author$project$Koncepts$Model$createDomainMember = F2(
+	function (factor, name) {
+		return $author$project$Koncepts$Model$DomainMember(
+			A2($author$project$Koncepts$Model$createMember, factor, name));
+	});
 var $elm$core$Basics$add = _Basics_add;
 var $elm$core$List$foldl = F3(
 	function (func, acc, list) {
@@ -4628,7 +4652,11 @@ var $elm$core$List$map = F2(
 var $author$project$Koncepts$Hypercube$domainCreate = F2(
 	function (name, members) {
 		return {
-			members: A2($elm$core$List$map, $author$project$Koncepts$Model$DomainMember, members),
+			members: A2(
+				$elm$core$List$map,
+				$author$project$Koncepts$Model$createDomainMember(
+					$author$project$Koncepts$Model$Factor(1)),
+				members),
 			name: $author$project$Koncepts$Model$DomainName(name)
 		};
 	});

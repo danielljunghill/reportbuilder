@@ -7,6 +7,7 @@ import Koncepts.Dimensionalkoncept as DimensionalKoncept
 import Array exposing (foldr)
 import Koncepts.Area
 import Koncepts.Lines
+import Koncepts.DimensionHeader
 
 
 
