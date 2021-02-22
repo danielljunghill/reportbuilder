@@ -76,6 +76,18 @@ type Dimension =
      | DimensionWithoutDefault Domain
 
 
+dimensionMembers: Dimension -> List DomainMember
+dimensionMembers dimension =
+   case dimension of 
+      DimensionWithDefault (_,m) -> m.members
+      DimensionWithoutDefault m -> m.members
+
+memberDefault: Dimension -> Maybe DefaultMember
+memberDefault dimension =
+   case dimension of 
+      DimensionWithDefault (d,_) -> Just d
+      DimensionWithoutDefault _ -> Nothing
+   
 type HyperDimension =
      Opened Dimension
      | Closed  Dimension

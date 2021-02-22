@@ -4,7 +4,7 @@ import Koncepts.Area exposing (..)
 import Koncepts.Model exposing (..)
 import Koncepts.Lines exposing (..)
 import Koncepts.Lines as Lines
-
+import Lists as Lists
 
 type alias DimensionalHeaderItem =
    {
@@ -14,6 +14,8 @@ type alias DimensionalHeaderItem =
    }
 
 type DimensionalHeader = DimensionalHeader DimensionalHeaderItem
+
+
 calculateSpan: Dimension -> Span -> Span
 calculateSpan dimension (Span span)   =
    case dimension of
@@ -56,6 +58,44 @@ calculateArea dimension direction area ordinal =
                ,  verticalLine = VerticalLine (createLine vStart vSpan)--{ Span = verticalSpan ; Start = verticalStart }
             }
 
+calculateDefaultArea: Direction -> Depth -> Area -> Area
+calculateDefaultArea direction depth area =
+   
+fromDimension: Direction -> Depth -> Area -> Dimension -> (List DimensionalHeader, Maybe DimensionalHeader )
+fromDimension direction depth area dimension =
+                
+      let
+         dms: List DomainMember
+         dms = dimensionMembers.members dimension
+         dm: Maybe DefaultMember
+         dm = memberDefault dimension
+         memberHeaders: List DimensionalHeader
+         memberHeaders = 
+            dms
+            |> Lists.mapi 
+               (\ i (DomainMember m) ->  
+                     m.name 
+                     |> createMember (calculateArea direction area i)
+                     |> DimensionalHeader)
+
+         getLastArea: List DimensionalHeader -> Area 
+         getLastArea headers = 
+            headers 
+            |> Lists.rev 
+            |> List.head 
+            |> (\ (DimensionalHeader item) -> item.area)
+
+         defaultMemberHeader: Maybe DimensionalHeader
+         defaultMemberHeader =
+            dm
+            |> Maybe.map (\ (DefaultMember md) ->  
+               -- let area = Area.total direction depth (getLastArea memberHeaders)
+               md.name 
+               |> createMember (Factor 1) (Area.total direction depth (getLastArea memberHeaders)) 
+               |> DimensionalHeader)
+      in
+         (memberHeaders, defaultMemberHeader)
+     
 -- fromDimension: Area.Direction -> Area.Depth -> Dimensional.Dimension -> (DimensionalHeader List, Maybe DimensionalHeader)
 -- fromDimension direction depth area dimension =
 --    let
