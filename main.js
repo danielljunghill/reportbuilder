@@ -4514,6 +4514,10 @@ var $author$project$Koncepts$Hypercube$create = F2(
 			tail: _List_Nil
 		};
 	});
+var $author$project$NList$create2 = F2(
+	function (m, l) {
+		return {head: m, tail: l};
+	});
 var $author$project$Koncepts$Model$DimensionWithDefault = function (a) {
 	return {$: 'DimensionWithDefault', a: a};
 };
@@ -4649,11 +4653,18 @@ var $elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
+var $author$project$NList$map = F2(
+	function (f, m) {
+		return {
+			head: f(m.head),
+			tail: A2($elm$core$List$map, f, m.tail)
+		};
+	});
 var $author$project$Koncepts$Hypercube$domainCreate = F2(
 	function (name, members) {
 		return {
 			members: A2(
-				$elm$core$List$map,
+				$author$project$NList$map,
 				$author$project$Koncepts$Model$createDomainMember(
 					$author$project$Koncepts$Model$Factor(1)),
 				members),
@@ -4692,16 +4703,17 @@ var $author$project$Koncepts$Koncept$mapAbstractKoncept = F2(
 		}
 	});
 var $author$project$Koncepts$Mock$addCube = function (koncept) {
+	var kvartal = A2(
+		$author$project$NList$create2,
+		'kv1',
+		_List_fromArray(
+			['kv2', 'kv3', 'kv4']));
 	var hyperCube = A2(
 		$author$project$Koncepts$Hypercube$create,
 		'Kvartal och annat',
 		$author$project$Koncepts$Model$Closed(
 			$author$project$Koncepts$Hypercube$createDimensionWithDefault(
-				A2(
-					$author$project$Koncepts$Hypercube$domainCreate,
-					'Kvartal',
-					_List_fromArray(
-						['kv1', 'kv2', 'kv3', 'kv4'])))));
+				A2($author$project$Koncepts$Hypercube$domainCreate, 'Kvartal', kvartal))));
 	var f = F2(
 		function (ak, koncepts) {
 			return _Utils_eq(

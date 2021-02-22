@@ -67,8 +67,8 @@ horizontalSpan: Area -> Span
 horizontalSpan area =
    Lines.horizontalSpan area.horizontalLine
 
-empty: Area
-empty =  
+emptyArea: Area
+emptyArea =  
     {    
             verticalLine = VerticalLine Lines.empty
          ,  horizontalLine = HorizontalLine Lines.empty

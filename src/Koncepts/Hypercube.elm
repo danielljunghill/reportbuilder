@@ -2,8 +2,8 @@ module Koncepts.Hypercube exposing (..)
 import Id exposing (..)
 import ResultExtension exposing (..)
 import Koncepts.Model exposing (..)
-
-
+import NList exposing(..)
+import NList as NList
 -- type DomainName = DomainName String
 -- type DomainMember = DomainMember String
 -- type alias Domain =
@@ -31,24 +31,24 @@ import Koncepts.Model exposing (..)
 --         ,   id: HyperCubeId
 --     }
 
-domainCreate: String -> List String -> Domain
+domainCreate: String -> NList String -> Domain
 domainCreate name members =
     {
             name = DomainName name
         ,   members = 
                members 
-               |> List.map (createDomainMember (Factor 1))
+               |> NList.map (createDomainMember (Factor 1))
             
     }
 
-domainCreateEmpty : DomainName -> Domain
-domainCreateEmpty name =
-   {     name = name
-      ,  members = [] }
+-- domainCreate : Member -> DomainName -> Domain
+-- domainCreate member name =
+--    {     name = name
+--       ,  members = NList.create member}
 
 domainAddMember : DomainMember -> Domain ->  Domain
 domainAddMember member domain  =
-      {  domain | members = domain.members ++ [ member ] }
+      {  domain | members =  NList.append domain.members [ member ] }
 
 
 

@@ -8,6 +8,9 @@ import Array exposing (foldr)
 import Koncepts.Area
 import Koncepts.Lines
 import Koncepts.DimensionHeader
+import Json.Decode exposing (string)
+import NList exposing (..)
+import NList as NList
 
 
 
@@ -34,9 +37,11 @@ addAbstract name koncept =
 addCube: Koncept -> Result String (Maybe Koncept)
 addCube koncept  =
       let
+        kvartal: NList String
+        kvartal = NList.create2 "kv1"  ["kv2", "kv3","kv4"]
         hyperCube: HyperCube
         hyperCube = 
-         ["kv1",  "kv2", "kv3","kv4"]
+         kvartal
          |> HyperCybe.domainCreate "Kvartal" 
          |> HyperCybe.createDimensionWithDefault
          |> Closed

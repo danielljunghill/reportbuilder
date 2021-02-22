@@ -1,6 +1,7 @@
 module Koncepts.Model exposing (..)
 import Id exposing (..)
 import Id
+import NList exposing (..)
 -- import Events.Custom exposing (onClickStopPropagation)
 
 
@@ -62,7 +63,7 @@ domainMemberToString (DomainMember member) = member.name
 type alias Domain =
     {
             name: DomainName
-        ,   members: List DomainMember 
+        ,   members: NList DomainMember 
     }
 
 type DefaultMember = DefaultMember Member  
@@ -76,7 +77,7 @@ type Dimension =
      | DimensionWithoutDefault Domain
 
 
-dimensionMembers: Dimension -> List DomainMember
+dimensionMembers: Dimension -> NList DomainMember
 dimensionMembers dimension =
    case dimension of 
       DimensionWithDefault (_,m) -> m.members

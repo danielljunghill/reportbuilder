@@ -24,3 +24,24 @@ rev m =
    in 
       reverseInner m
 
+type alias NList a =
+   {
+         header: a
+      ,  tail: List a
+   }
+
+createNList: a -> NList a
+createNList a =
+   {
+         header = a
+      ,  tail = []
+   }
+
+nListToList: NList a -> List a
+nListToList m = 
+  [ m.header ] ++ m.tail
+
+
+
+
+
