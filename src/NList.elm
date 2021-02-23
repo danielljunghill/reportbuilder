@@ -29,8 +29,8 @@ length: NList a -> Int
 length m =
    1 + (m.tail |> List.length)
   
-getLast:NList a -> a
-getLast m =
+last:NList a -> a
+last m =
    case m.tail |> Lists.rev of
        [] -> m.head
        head :: _ -> head
@@ -41,13 +41,35 @@ map f m =
          head = f m.head
       ,  tail = m.tail |> List.map f
    }
+mapi: (Int -> a -> b) -> NList a -> NList b
+mapi f m =
+   let 
+      innerMapi: Int -> List a -> List b
+      innerMapi i im =
+         case im of
+            [] -> []
+            head :: tail -> [ f i head ] ++ innerMapi (i + 1) tail
+   in
+      {
+            head = f 0 m.head
+         ,  tail =  innerMapi 1 m.tail         
+      }
 
 append: NList a -> List a -> NList a
 append n m =
    { n | tail = n.tail ++ m}
 
 
+addFirst: a -> NList a -> NList a
+addFirst n m =
+      {
+            head = n
+         ,  tail = toList m
+      }
 
+addList: NList a -> List a -> NList a
+addList n m =
+   { n |  tail = n.tail ++ m }
 
 
 

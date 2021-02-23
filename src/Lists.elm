@@ -3,43 +3,47 @@ module Lists exposing (..)
 mapi: (Int -> (a -> b)) -> List a -> List b
 mapi f m =
    let
-      mapiInner: Int -> List a -> List b
-      mapiInner i ms =
+      recMapi: Int -> List a -> List b
+      recMapi i ms =
          case ms of
             [] -> []
             head :: tail -> 
-               [ f i head  ] ++ (mapiInner (i + 1) tail)
+               [ f i head  ] ++ (recMapi (i + 1) tail)
    in
-      mapiInner 0 m
+      recMapi 0 m
 
 rev: List a -> List a 
 rev m =
    let
-      reverseInner: List a -> List a 
-      reverseInner mi =
+      recRevers: List a -> List a 
+      recRevers mi =
          case mi of
             [] -> []
             head :: tail ->
-               reverseInner tail ++ [ head ]
+               recRevers tail ++ [ head ]
    in 
-      reverseInner m
+      recRevers m
 
-type alias NList a =
-   {
-         header: a
-      ,  tail: List a
-   }
 
-createNList: a -> NList a
-createNList a =
-   {
-         header = a
-      ,  tail = []
-   }
+maybeAsList: Maybe a -> List a
+maybeAsList a =
+   case a of
+      Just v -> [ v ]
+      Nothing -> []
 
-nListToList: NList a -> List a
-nListToList m = 
-  [ m.header ] ++ m.tail
+
+collect: (a -> List b) -> List a -> List b
+collect f m =
+   let 
+      recCollect: List a -> List b
+      recCollect rm =
+         case rm of
+         [] -> []
+         head :: tail -> 
+            (f head) ++ recCollect tail
+   in
+      recCollect m
+
 
 
 
