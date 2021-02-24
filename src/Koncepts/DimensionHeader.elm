@@ -254,9 +254,49 @@ addDimensionToAccumulatedHeaders direction depth span dimension acc =
                |> NList.toList
          _ -> acc |> Lists.collect (addDimensionToAccumulatedHeader direction depth dimension)
 
+calculateSpanForDimensions: List Dimension -> Span
+calculateSpanForDimensions dimensions =
+   let
+      recCalculateSpan: List Dimension -> Int
+      recCalculateSpan d =
+         case d of
+            [] -> 1
+            head :: tail ->
+               case head of
+                  DimensionWithDefault (_,m) ->  (NList.length m.members) * (recCalculateSpan tail) + 1 
+                  DimensionWithoutDefault (m)-> (NList.length m.members) * (recCalculateSpan tail)
+   in
+      dimensions
+      |> recCalculateSpan 
+      |> Span
+                  
+
+calculateHeadersForDimensions: Direction -> (List Dimension) -> List AccumulatedHeader
+calculateHeadersForDimensions direction dimensions =
+   let
+      calculateNextDepth: Depth -> Depth
+      calculateNextDepth (Depth d) = (d - 1) |> Depth
+      recFold: Span -> Depth -> List AccumulatedHeader -> List Dimension ->  List AccumulatedHeader 
+      recFold span depth acc dims  =
+         case dims of
+            [] -> acc
+            head :: tail ->   
+               let
+                  nextDepth: Depth 
+                  nextDepth = calculateNextDepth depth
+                  state: List AccumulatedHeader 
+                  state = addDimensionToAccumulatedHeaders direction depth span head acc 
+               in
+                  recFold span nextDepth state tail 
+   in
+      let
+         totalSpanForDimensions : Span
+         totalSpanForDimensions = calculateSpanForDimensions dimensions
+      in
+         dimensions
+         |> recFold totalSpanForDimensions (dimensions |> List.length |> Depth) []  
 
 
-   
 
 
    
