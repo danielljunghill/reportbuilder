@@ -167,6 +167,7 @@ tableHeaderAsMembers acc =
      |> (\ h -> h.head)
      |> (\ (DimensionalHeader item)-> item.member)
 
+
 -- accumulatedHeaders: TableHeader -> List DimensionalHeader
 -- accumulatedHeaders acc =
 --    case acc of
@@ -296,17 +297,14 @@ calculateTableHeaders direction dimensions =
          dimensions
          |> recFold totalSpanForDimensions (dimensions |> List.length |> Depth) []  
 
-type alias TableColumn = 
-   {
-      members: NList Member
-   }
+type TableColumn = TableColumn (NList Member)
 
-type alias TableColumns =
-   {
-      columns: List TableColumn
-   }
-
-
+type  TableColumns = TableColumns (List TableColumn)
+tableHeadersToTableColumns: List TableHeader -> TableColumns
+tableHeadersToTableColumns headers = 
+  headers 
+  |> List.map (tableHeaderAsMembers >> TableColumn)
+  |> TableColumns
 -- let calculateColumnsAndHeaders: Direction -> List Dimension -> (TableColumns, 
 
    
