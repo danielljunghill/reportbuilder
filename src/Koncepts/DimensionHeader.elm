@@ -150,11 +150,11 @@ fromDimension direction depth area dimension parentMembers =
 
 -- type MemberHeader = MemberHeader DimensionalHeader
 -- type DefaultHeader = DefaultHeader DimensionalHeader
-type AccumulatedHeader = 
+type TableHeader  = 
    MemberHeader (NList DimensionalHeader)
    | TotalHeader (NList DimensionalHeader)
 
-accumulatedMembers: AccumulatedHeader -> NList Member
+accumulatedMembers: TableHeader -> NList Member
 accumulatedMembers acc =
    let 
       headers: NList DimensionalHeader
@@ -167,7 +167,7 @@ accumulatedMembers acc =
      |> (\ h -> h.head)
      |> (\ (DimensionalHeader item)-> item.member)
 
-accumulatedHeaders: AccumulatedHeader -> List DimensionalHeader
+accumulatedHeaders: TableHeader -> List DimensionalHeader
 accumulatedHeaders acc =
    case acc of
       MemberHeader headers -> headers |> NList.toList
@@ -175,8 +175,8 @@ accumulatedHeaders acc =
       
 
 
-addDimensionToMemberHeader: Direction -> Depth -> Dimension -> NList DimensionalHeader -> NList AccumulatedHeader
-addDimensionToMemberHeader direction depth dimension headers =
+dimensionAsTableHeader: Direction -> Depth -> Dimension -> NList DimensionalHeader -> NList TableHeader
+dimensionAsTableHeader direction depth dimension headers =
    let 
 
       header: DimensionalHeader
@@ -201,10 +201,10 @@ addDimensionToMemberHeader direction depth dimension headers =
 
       result: (NList DimensionalHeader, Maybe DimensionalHeader)
       result = columnHeaders header
-      v1: NList AccumulatedHeader  
+      v1: NList TableHeader  
       v1 =  (first result)
             |> NList.mapi (\ i m -> MemberHeader (NList.create2 m (mapHeaders i headers))) 
-      v2: List AccumulatedHeader 
+      v2: List TableHeader 
       v2 = 
          (second result)
          |> Lists.maybeAsList
@@ -212,19 +212,19 @@ addDimensionToMemberHeader direction depth dimension headers =
    in
       NList.addList v1 v2
 
-addDimensionToAccumulatedHeader: Direction -> Depth -> Dimension -> AccumulatedHeader -> List AccumulatedHeader
-addDimensionToAccumulatedHeader direction depth dimension acc =
+addDimensionToTableHeader: Direction -> Depth -> Dimension -> TableHeader -> List TableHeader
+addDimensionToTableHeader direction depth dimension acc =
    let
-      result: NList AccumulatedHeader
+      result: NList TableHeader
       result =
          case acc of
             TotalHeader _ -> NList.create acc
-            MemberHeader dimensionHeaders -> addDimensionToMemberHeader direction depth dimension dimensionHeaders
+            MemberHeader dimensionHeaders -> dimensionAsTableHeader direction depth dimension dimensionHeaders
    in
       result |> NList.toList
 
-addDimensionToAccumulatedHeaders: Direction -> Depth -> Span -> Dimension -> List AccumulatedHeader -> List AccumulatedHeader
-addDimensionToAccumulatedHeaders direction depth span dimension acc =
+addDimensionToTableHeaders: Direction -> Depth -> Span -> Dimension -> List TableHeader -> List TableHeader
+addDimensionToTableHeaders direction depth span dimension acc =
    let 
       initArea: Direction -> Span -> Area
       initArea d totalSpan =
@@ -241,10 +241,10 @@ addDimensionToAccumulatedHeaders direction depth span dimension acc =
                area = initArea direction span
                mt: (NList DimensionalHeader, Maybe DimensionalHeader)
                mt = fromDimension direction depth area dimension []
-               v1: NList AccumulatedHeader  
+               v1: NList TableHeader  
                v1 =  (first mt)
                      |> NList.map (NList.create >> MemberHeader)
-               v2: List AccumulatedHeader 
+               v2: List TableHeader 
                v2 = 
                   (second mt)
                   |> Lists.maybeAsList
@@ -252,7 +252,7 @@ addDimensionToAccumulatedHeaders direction depth span dimension acc =
             in
                NList.addList v1 v2
                |> NList.toList
-         _ -> acc |> Lists.collect (addDimensionToAccumulatedHeader direction depth dimension)
+         _ -> acc |> Lists.collect (addDimensionToTableHeader direction depth dimension)
 
 calculateSpanForDimensions: List Dimension -> Span
 calculateSpanForDimensions dimensions =
@@ -271,12 +271,12 @@ calculateSpanForDimensions dimensions =
       |> Span
                   
 
-calculateHeadersForDimensions: Direction -> (List Dimension) -> List AccumulatedHeader
-calculateHeadersForDimensions direction dimensions =
+calculateTableHeaders: Direction -> (List Dimension) -> List TableHeader
+calculateTableHeaders direction dimensions =
    let
       calculateNextDepth: Depth -> Depth
       calculateNextDepth (Depth d) = (d - 1) |> Depth
-      recFold: Span -> Depth -> List AccumulatedHeader -> List Dimension ->  List AccumulatedHeader 
+      recFold: Span -> Depth -> List TableHeader -> List Dimension ->  List TableHeader 
       recFold span depth acc dims  =
          case dims of
             [] -> acc
@@ -284,8 +284,8 @@ calculateHeadersForDimensions direction dimensions =
                let
                   nextDepth: Depth 
                   nextDepth = calculateNextDepth depth
-                  state: List AccumulatedHeader 
-                  state = addDimensionToAccumulatedHeaders direction depth span head acc 
+                  state: List TableHeader 
+                  state = addDimensionToTableHeaders direction depth span head acc 
                in
                   recFold span nextDepth state tail 
    in
@@ -296,8 +296,18 @@ calculateHeadersForDimensions direction dimensions =
          dimensions
          |> recFold totalSpanForDimensions (dimensions |> List.length |> Depth) []  
 
+type alias TableColumn = 
+   {
+      members: NList Member
+   }
+
+type alias TableColumns =
+   {
+      columns: List TableColumn
+   }
 
 
+-- let calculateColumnsAndHeaders: Direction -> List Dimension -> (TableColumns, 
 
    
    --      let (SimpleHeader (Header s)) = headers.Head
