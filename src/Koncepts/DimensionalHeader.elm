@@ -7,6 +7,9 @@ import Koncepts.Lines as Lines
 import Lists as Lists
 import NList exposing (..)
 import Tuple exposing (..)
+import Msg 
+import Msg exposing (..)
+import Html exposing (..)
 
 type alias DimensionalHeaderItem =
    {
@@ -297,14 +300,58 @@ calculateTableHeaders direction dimensions =
          dimensions
          |> recFold totalSpanForDimensions (dimensions |> List.length |> Depth) []  
 
-type TableColumn = TableColumn (NList Member)
+type CubeColumn = CubeColumn (NList Member)
 
-type  TableColumns = TableColumns (List TableColumn)
-tableHeadersToTableColumns: List TableHeader -> TableColumns
-tableHeadersToTableColumns headers = 
+type  CubeColumns = CubeColumns (List CubeColumn)
+
+type alias CubeHeader =
+   {
+         isTotal: Bool
+      ,  area: Area
+      ,  members: Member
+   }
+
+tableHeaderToCubeHeader: TableHeader -> List CubeHeader
+tableHeaderToCubeHeader tableHeader =
+   let   
+      createCubeHeader: Bool -> DimensionalHeader -> CubeHeader
+      createCubeHeader isTotal (DimensionalHeader d) =
+         {
+               isTotal = isTotal
+            ,  area = d.area
+            ,  members = d.member.head  
+         }
+   in
+      let
+         ch: NList CubeHeader
+         ch =
+            case tableHeader of
+               MemberHeader h -> h |> NList.map (createCubeHeader False)
+               TotalHeader h -> h |> NList.map (createCubeHeader True)
+      in
+   
+         ch |> NList.toList
+
+
+cubeColumns: List TableHeader -> CubeColumns
+cubeColumns headers = 
   headers 
-  |> List.map (tableHeaderAsMembers >> TableColumn)
-  |> TableColumns
+  |> List.map (tableHeaderAsMembers >> CubeColumn)
+  |> CubeColumns
+
+
+cubeHeaders: List TableHeader -> List CubeHeader  
+cubeHeaders headers =
+   headers
+   |> Lists.collect tableHeaderToCubeHeader
+
+-- tableHeaderView: List TableColumn -> Html Msg
+-- tableHeaderView columns = 
+--    let -> 
+--       tableColumAsHtml: TableColumns -> List (Html Msg)
+--       tableColumnAsHtml c =
+--          c.    
+
 -- let calculateColumnsAndHeaders: Direction -> List Dimension -> (TableColumns, 
 
    
