@@ -154,8 +154,8 @@ type TableHeader  =
    MemberHeader (NList DimensionalHeader)
    | TotalHeader (NList DimensionalHeader)
 
-accumulatedMembers: TableHeader -> NList Member
-accumulatedMembers acc =
+tableHeaderAsMembers: TableHeader -> NList Member
+tableHeaderAsMembers acc =
    let 
       headers: NList DimensionalHeader
       headers =
@@ -167,11 +167,11 @@ accumulatedMembers acc =
      |> (\ h -> h.head)
      |> (\ (DimensionalHeader item)-> item.member)
 
-accumulatedHeaders: TableHeader -> List DimensionalHeader
-accumulatedHeaders acc =
-   case acc of
-      MemberHeader headers -> headers |> NList.toList
-      TotalHeader headers -> headers |> NList.toList
+-- accumulatedHeaders: TableHeader -> List DimensionalHeader
+-- accumulatedHeaders acc =
+--    case acc of
+--       MemberHeader headers -> headers |> NList.toList
+--       TotalHeader headers -> headers |> NList.toList
       
 
 
