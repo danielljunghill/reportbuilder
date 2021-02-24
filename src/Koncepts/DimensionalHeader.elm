@@ -1,4 +1,4 @@
-module Koncepts.DimensionHeader exposing (..)
+module Koncepts.DimensionalHeader exposing (..)
 import Koncepts.Dimensionalkoncept exposing (..)
 import Koncepts.Area exposing (..)
 import Koncepts.Model exposing (..)

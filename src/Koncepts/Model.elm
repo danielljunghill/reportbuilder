@@ -101,8 +101,7 @@ type HyperCubeId = HyperCubeId Id
 type alias HyperCube =
     {
             name: HyperCubeName
-        ,   head: HyperDimension
-        ,   tail: List HyperDimension 
+        ,   dimensions: NList HyperDimension
         ,   id: HyperCubeId
     }
 

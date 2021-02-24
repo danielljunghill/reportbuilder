@@ -65,13 +65,13 @@ create name dimension =
         {
                         id = Id.create() |> HyperCubeId
                 ,       name = HyperCubeName name
-                ,       head = dimension
-                ,       tail = []
+                ,       dimensions = NList.create dimension
+
         }
 
 addDimension: HyperCube -> HyperDimension -> HyperCube
 addDimension hyperCube dimension =
-   { hyperCube | tail = hyperCube.tail ++ [ dimension ]}
+   { hyperCube | dimensions = NList.append hyperCube.dimensions [ dimension ]}
 
         
 
