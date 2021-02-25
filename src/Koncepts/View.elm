@@ -8,6 +8,9 @@ import Koncepts.Model as Koncept
 import Koncepts.Model exposing (..)
 import Msg 
 import Msg exposing (..)
+import Koncepts.DimensionalView exposing (..)
+import Koncepts.Area exposing (..)
+import Koncepts.Lines exposing(..)
 
 valueKonceptDetails: ValueKoncept -> Html Msg 
 valueKonceptDetails vk =
@@ -70,8 +73,13 @@ divKoncept koncept =
         kl 
         |> List.map divKoncept 
         |> divAbstractKoncept ak
-    Cube (hc,_) ->
-        div [] [ hc.name |> Koncept.hyperCubeNameToString |> text ]
+    Cube (hc,dk) ->
+
+        div [] 
+            [ 
+                    hc.name |> Koncept.hyperCubeNameToString |> text
+                ,   viewCube Horizontal hc dk
+            ]
  
 
 

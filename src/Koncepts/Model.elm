@@ -93,6 +93,12 @@ type HyperDimension =
      Opened Dimension
      | Closed  Dimension
 
+hyperDimensionAsDimension: HyperDimension -> Dimension
+hyperDimensionAsDimension hyperDimension =
+    case hyperDimension of
+        Opened dimension -> dimension
+        Closed dimension -> dimension
+
 type HyperCubeName = HyperCubeName String
 
 hyperCubeNameToString: HyperCubeName -> String

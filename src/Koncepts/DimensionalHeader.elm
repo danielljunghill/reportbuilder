@@ -345,6 +345,8 @@ dimensionColumnHeaders headers =
    headers
    |> Lists.collect tableHeaderToDimensionColumnHeader
 
+
+
 -- tableHeaderView: List TableColumn -> Html Msg
 -- tableHeaderView columns = 
 --    let -> 
