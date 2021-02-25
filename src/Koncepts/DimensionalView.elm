@@ -64,7 +64,11 @@ gridPointAttr row column =
         startColumn (Column c) = gridItemAttr "grid-column-start" c
     in
          [ column |> startColumn , row |> startRow ]
-         
+
+gridItem: Row -> Column -> String -> Html Msg
+gridItem row col t =
+    div (gridPointAttr row col) [ text t ]
+
 viewCube: Direction -> HyperCube -> List DimensionalKoncept  -> Html Msg
 viewCube direction hyperCube koncepts =
     let 
@@ -89,8 +93,13 @@ viewCube direction hyperCube koncepts =
         headers = tableHeaders |> dimensionColumnHeaders 
         
     in
+ 
         div (createGrid (Rows 2) (Columns 2))  [
-
+            div [] [ text "laksnalkndslnkad"]
+            ,    gridItem (Row 1) (Column 1) "First:First"
+            ,   gridItem (Row 1) (Column 2) "First:Second"
+            ,   gridItem (Row 2) (Column 1) "Second:First"
+            ,   gridItem (Row 2) (Column 2) "Second:Second"
         ]
 
 

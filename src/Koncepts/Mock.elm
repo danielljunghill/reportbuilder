@@ -17,7 +17,7 @@ import NList as NList
 
 head: Result String Koncept
 head = 
-    "IORP2 nationell"  
+    "IORP2 nationell strunt"  
     |> Koncept.createAbstract 
     |> Koncept.ParentKoncept  
     |> Koncept.add ("Intäkter" |> Koncept.createAbstract )
@@ -45,7 +45,7 @@ addCube koncept  =
          |> HyperCybe.domainCreate "Kvartal" 
          |> HyperCybe.createDimensionWithDefault
          |> Closed
-         |> HyperCybe.create "Kvartal och annat"  
+         |> HyperCybe.create "Kvartal och annat tjafs"  
       in
          let
             f: AbstractKoncept -> List Koncept -> Result String KonceptAction

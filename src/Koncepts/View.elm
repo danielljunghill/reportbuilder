@@ -74,7 +74,6 @@ divKoncept koncept =
         |> List.map divKoncept 
         |> divAbstractKoncept ak
     Cube (hc,dk) ->
-
         div [] 
             [ 
                     hc.name |> Koncept.hyperCubeNameToString |> text
