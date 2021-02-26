@@ -55,8 +55,8 @@ verticalStart: Area -> Start
 verticalStart area =
    area.verticalLine |> Lines.verticalStart 
 
-horizontaStart: Area -> Start
-horizontaStart area =
+horizontalStart: Area -> Start
+horizontalStart area =
    Lines.horizontalStart area.horizontalLine
 
 verticalSpan: Area -> Span
@@ -73,3 +73,9 @@ emptyArea =
             verticalLine = VerticalLine Lines.empty
          ,  horizontalLine = HorizontalLine Lines.empty
     }
+
+
+
+
+
+

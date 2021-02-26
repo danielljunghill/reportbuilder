@@ -4498,6 +4498,26 @@ var $author$project$Koncepts$Model$MapValue = function (a) {
 	return {$: 'MapValue', a: a};
 };
 var $elm$core$Basics$append = _Utils_append;
+var $author$project$NList$append = F2(
+	function (n, m) {
+		return _Utils_update(
+			n,
+			{
+				tail: _Utils_ap(n.tail, m)
+			});
+	});
+var $author$project$Koncepts$Hypercube$addDimension = F2(
+	function (hyperCube, dimension) {
+		return _Utils_update(
+			hyperCube,
+			{
+				dimensions: A2(
+					$author$project$NList$append,
+					hyperCube.dimensions,
+					_List_fromArray(
+						[dimension]))
+			});
+	});
 var $author$project$Koncepts$Model$HyperCubeId = function (a) {
 	return {$: 'HyperCubeId', a: a};
 };
@@ -4705,17 +4725,28 @@ var $author$project$Koncepts$Koncept$mapAbstractKoncept = F2(
 		}
 	});
 var $author$project$Koncepts$Mock$addCube = function (koncept) {
+	var regioner = A2(
+		$author$project$NList$create2,
+		'Sverige',
+		_List_fromArray(
+			['Norge']));
 	var kvartal = A2(
 		$author$project$NList$create2,
 		'kv1',
 		_List_fromArray(
 			['kv2', 'kv3', 'kv4']));
-	var hyperCube = A2(
-		$author$project$Koncepts$Hypercube$create,
-		'Kvartal och annat tjafs',
-		$author$project$Koncepts$Model$Closed(
-			$author$project$Koncepts$Hypercube$createDimensionWithDefault(
-				A2($author$project$Koncepts$Hypercube$domainCreate, 'Kvartal', kvartal))));
+	var dimRegioner = $author$project$Koncepts$Model$Closed(
+		$author$project$Koncepts$Hypercube$createDimensionWithDefault(
+			A2($author$project$Koncepts$Hypercube$domainCreate, 'Region', regioner)));
+	var hyperCube = function (cube) {
+		return A2($author$project$Koncepts$Hypercube$addDimension, cube, dimRegioner);
+	}(
+		A2(
+			$author$project$Koncepts$Hypercube$create,
+			'Kvartal och annat tjafs',
+			$author$project$Koncepts$Model$Closed(
+				$author$project$Koncepts$Hypercube$createDimensionWithDefault(
+					A2($author$project$Koncepts$Hypercube$domainCreate, 'Kvartal', kvartal)))));
 	var f = F2(
 		function (ak, koncepts) {
 			return _Utils_eq(
@@ -5976,17 +6007,11 @@ var $author$project$Koncepts$Model$hyperCubeNameToString = function (_v0) {
 	var name = _v0.a;
 	return name;
 };
-var $author$project$Koncepts$DimensionalView$Column = function (a) {
-	return {$: 'Column', a: a};
+var $author$project$Koncepts$DimensionalHeader$GridColumns = function (a) {
+	return {$: 'GridColumns', a: a};
 };
-var $author$project$Koncepts$DimensionalView$Columns = function (a) {
-	return {$: 'Columns', a: a};
-};
-var $author$project$Koncepts$DimensionalView$Row = function (a) {
-	return {$: 'Row', a: a};
-};
-var $author$project$Koncepts$DimensionalView$Rows = function (a) {
-	return {$: 'Rows', a: a};
+var $author$project$Koncepts$DimensionalHeader$GridRows = function (a) {
+	return {$: 'GridRows', a: a};
 };
 var $author$project$Koncepts$Lines$Span = function (a) {
 	return {$: 'Span', a: a};
@@ -6490,35 +6515,11 @@ var $author$project$Koncepts$DimensionalHeader$calculateTableHeaders = F2(
 			_List_Nil,
 			dimensions);
 	});
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
-var $author$project$Koncepts$DimensionalView$createAttributeValue = F4(
-	function (s1, s2, i, s3) {
-		return A2(
-			$elm$html$Html$Attributes$style,
-			s1,
-			function (s) {
-				return _Utils_ap(
-					s2,
-					_Utils_ap(s, s3));
-			}(
-				$elm$core$String$fromInt(i)));
-	});
-var $author$project$Koncepts$DimensionalView$createGrid = F2(
-	function (_v0, _v1) {
-		var rows = _v0.a;
-		var columns = _v1.a;
-		var attrdisplay = A2($elm$html$Html$Attributes$style, 'display', 'grid');
-		var attrRows = A4($author$project$Koncepts$DimensionalView$createAttributeValue, 'grid-template-rows', 'repeat(', rows, ', minmax(50px,auto))');
-		var attrColumns = A4($author$project$Koncepts$DimensionalView$createAttributeValue, 'grid-template-columns', 'repeat(', columns, ')');
-		return _List_fromArray(
-			[attrdisplay, attrRows, attrColumns]);
-	});
 var $author$project$Koncepts$DimensionalHeader$tableHeaderToDimensionColumnHeader = function (tableHeader) {
 	var createDimensionColumnHeader = F2(
 		function (isTotal, _v1) {
 			var d = _v1.a;
-			return {area: d.area, isTotal: isTotal, members: d.member.head};
+			return {area: d.area, isTotal: isTotal, member: d.member.head};
 		});
 	var ch = function () {
 		if (tableHeader.$ === 'MemberHeader') {
@@ -6571,34 +6572,105 @@ var $author$project$Koncepts$DimensionalHeader$dimensionColumns = function (head
 			A2($elm$core$Basics$composeR, $author$project$Koncepts$DimensionalHeader$tableHeaderAsMembers, $author$project$Koncepts$DimensionalHeader$DimensionColumn),
 			headers));
 };
-var $author$project$Koncepts$DimensionalView$gridPointAttr = F2(
-	function (row, column) {
-		var gridItemAttr = F2(
-			function (s, i) {
-				return A2(
-					$elm$html$Html$Attributes$style,
-					s,
-					$elm$core$String$fromInt(i));
-			});
-		var startColumn = function (_v1) {
-			var c = _v1.a;
-			return A2(gridItemAttr, 'grid-column-start', c);
-		};
-		var startRow = function (_v0) {
-			var r = _v0.a;
-			return A2(gridItemAttr, 'grid-row-start', r);
-		};
-		return _List_fromArray(
-			[
-				startColumn(column),
-				startRow(row)
-			]);
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $author$project$Koncepts$DimensionalHeader$gridSizeAttribute = F4(
+	function (s1, s2, i, s3) {
+		return A2(
+			$elm$html$Html$Attributes$style,
+			s1,
+			function (s) {
+				return _Utils_ap(
+					s2,
+					_Utils_ap(s, s3));
+			}(
+				$elm$core$String$fromInt(i)));
 	});
-var $author$project$Koncepts$DimensionalView$gridItem = F3(
-	function (row, col, t) {
+var $author$project$Koncepts$DimensionalHeader$grid = F2(
+	function (_v0, _v1) {
+		var rows = _v0.a;
+		var cols = _v1.a;
+		var attrdisplay = A2($elm$html$Html$Attributes$style, 'display', 'grid');
+		var attrRows = A4($author$project$Koncepts$DimensionalHeader$gridSizeAttribute, 'grid-template-rows', 'repeat(', rows, ', minmax(50px,100px))');
+		var attrColumns = A4($author$project$Koncepts$DimensionalHeader$gridSizeAttribute, 'grid-template-columns', 'repeat(', cols, ')');
+		return _List_fromArray(
+			[attrdisplay, attrColumns]);
+	});
+var $author$project$Koncepts$Area$horizontalSpan = function (area) {
+	return $author$project$Koncepts$Lines$horizontalSpan(area.horizontalLine);
+};
+var $author$project$Koncepts$Area$horizontalStart = function (area) {
+	return $author$project$Koncepts$Lines$horizontalStart(area.horizontalLine);
+};
+var $author$project$Koncepts$Lines$spanInt = function (_v0) {
+	var span = _v0.a;
+	return span;
+};
+var $author$project$Koncepts$Lines$startInt = function (_v0) {
+	var start = _v0.a;
+	return start;
+};
+var $author$project$Koncepts$Area$verticalSpan = function (area) {
+	return $author$project$Koncepts$Lines$verticalSpan(area.verticalLine);
+};
+var $author$project$Koncepts$Area$verticalStart = function (area) {
+	return $author$project$Koncepts$Lines$verticalStart(area.verticalLine);
+};
+var $author$project$Koncepts$DimensionalHeader$gridAreaAttribute = function (area) {
+	var rowSpan = function (s) {
+		return ' / span ' + s;
+	}(
+		$elm$core$String$fromInt(
+			$author$project$Koncepts$Lines$spanInt(
+				$author$project$Koncepts$Area$verticalSpan(area))));
+	var row = function (s) {
+		return s;
+	}(
+		$elm$core$String$fromInt(
+			$author$project$Koncepts$Lines$startInt(
+				$author$project$Koncepts$Area$verticalStart(area))));
+	var gridItemAttr = F2(
+		function (s, i) {
+			return A2(
+				$elm$html$Html$Attributes$style,
+				s,
+				$elm$core$String$fromInt(i));
+		});
+	var colSpan = function (s) {
+		return ' / span ' + s;
+	}(
+		$elm$core$String$fromInt(
+			$author$project$Koncepts$Lines$spanInt(
+				$author$project$Koncepts$Area$horizontalSpan(area))));
+	var col = function (s) {
+		return ' / ' + s;
+	}(
+		$elm$core$String$fromInt(
+			$author$project$Koncepts$Lines$startInt(
+				$author$project$Koncepts$Area$horizontalStart(area))));
+	var calculateEnd = F2(
+		function (start, span) {
+			return ($author$project$Koncepts$Lines$startInt(start) + $author$project$Koncepts$Lines$spanInt(span)) - 1;
+		});
+	var areaAttribute = A2(
+		$elm$html$Html$Attributes$style,
+		'grid-area',
+		_Utils_ap(
+			row,
+			_Utils_ap(
+				col,
+				_Utils_ap(rowSpan, colSpan))));
+	return _List_fromArray(
+		[
+			areaAttribute,
+			A2($elm$html$Html$Attributes$style, 'border', 'black solid 1px')
+		]);
+};
+var $author$project$Koncepts$DimensionalHeader$gridItem = F2(
+	function (area, t) {
 		return A2(
 			$elm$html$Html$div,
-			A2($author$project$Koncepts$DimensionalView$gridPointAttr, row, col),
+			$author$project$Koncepts$DimensionalHeader$gridAreaAttribute(area),
 			_List_fromArray(
 				[
 					$elm$html$Html$text(t)
@@ -6613,50 +6685,48 @@ var $author$project$Koncepts$Model$hyperDimensionAsDimension = function (hyperDi
 		return dimension;
 	}
 };
-var $author$project$Koncepts$DimensionalView$viewCube = F3(
+var $author$project$Koncepts$DimensionalHeader$viewCube = F3(
 	function (direction, hyperCube, koncepts) {
+		var gridRows = F3(
+			function (d, _v4, _v5) {
+				var s = _v4.a;
+				var c = _v5.a;
+				if (d.$ === 'Horizontal') {
+					return $author$project$Koncepts$DimensionalHeader$GridRows(s);
+				} else {
+					return $author$project$Koncepts$DimensionalHeader$GridRows(
+						$elm$core$List$length(c));
+				}
+			});
+		var gridColumns = F3(
+			function (d, _v1, _v2) {
+				var s = _v1.a;
+				var c = _v2.a;
+				if (d.$ === 'Horizontal') {
+					return $author$project$Koncepts$DimensionalHeader$GridColumns(
+						$elm$core$List$length(c));
+				} else {
+					return $author$project$Koncepts$DimensionalHeader$GridColumns(s);
+				}
+			});
 		var dimensions = $author$project$NList$toList(
 			A2($author$project$NList$map, $author$project$Koncepts$Model$hyperDimensionAsDimension, hyperCube.dimensions));
 		var span = $author$project$Koncepts$DimensionalHeader$calculateSpanForDimensions(dimensions);
 		var tableHeaders = A2($author$project$Koncepts$DimensionalHeader$calculateTableHeaders, direction, dimensions);
-		var headers = $author$project$Koncepts$DimensionalHeader$dimensionColumnHeaders(tableHeaders);
+		var headers = A2(
+			$elm$core$List$map,
+			function (header) {
+				return A2($author$project$Koncepts$DimensionalHeader$gridItem, header.area, header.member.name);
+			},
+			$author$project$Koncepts$DimensionalHeader$dimensionColumnHeaders(tableHeaders));
 		var columns = $author$project$Koncepts$DimensionalHeader$dimensionColumns(tableHeaders);
 		return A2(
 			$elm$html$Html$div,
 			A2(
-				$author$project$Koncepts$DimensionalView$createGrid,
-				$author$project$Koncepts$DimensionalView$Rows(2),
-				$author$project$Koncepts$DimensionalView$Columns(2)),
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$div,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text('laksnalkndslnkad')
-						])),
-					A3(
-					$author$project$Koncepts$DimensionalView$gridItem,
-					$author$project$Koncepts$DimensionalView$Row(1),
-					$author$project$Koncepts$DimensionalView$Column(1),
-					'First:First'),
-					A3(
-					$author$project$Koncepts$DimensionalView$gridItem,
-					$author$project$Koncepts$DimensionalView$Row(1),
-					$author$project$Koncepts$DimensionalView$Column(2),
-					'First:Second'),
-					A3(
-					$author$project$Koncepts$DimensionalView$gridItem,
-					$author$project$Koncepts$DimensionalView$Row(2),
-					$author$project$Koncepts$DimensionalView$Column(1),
-					'Second:First'),
-					A3(
-					$author$project$Koncepts$DimensionalView$gridItem,
-					$author$project$Koncepts$DimensionalView$Row(2),
-					$author$project$Koncepts$DimensionalView$Column(2),
-					'Second:Second')
-				]));
+				$author$project$Koncepts$DimensionalHeader$grid,
+				A3(gridRows, direction, span, columns),
+				A3(gridColumns, direction, span, columns)),
+			headers);
 	});
 var $author$project$Koncepts$View$divKoncept = function (koncept) {
 	switch (koncept.$) {
@@ -6682,7 +6752,7 @@ var $author$project$Koncepts$View$divKoncept = function (koncept) {
 					[
 						$elm$html$Html$text(
 						$author$project$Koncepts$Model$hyperCubeNameToString(hc.name)),
-						A3($author$project$Koncepts$DimensionalView$viewCube, $author$project$Koncepts$Area$Horizontal, hc, dk)
+						A3($author$project$Koncepts$DimensionalHeader$viewCube, $author$project$Koncepts$Area$Horizontal, hc, dk)
 					]));
 	}
 };

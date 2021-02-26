@@ -1,6 +1,7 @@
 module Koncepts.DimensionalHeader exposing (..)
 import Koncepts.Dimensionalkoncept exposing (..)
 import Koncepts.Area exposing (..)
+import Koncepts.Area as Area
 import Koncepts.Model exposing (..)
 import Koncepts.Lines exposing (..)
 import Koncepts.Lines as Lines
@@ -10,9 +11,11 @@ import Tuple exposing (..)
 import Msg 
 import Msg exposing (..)
 import Html exposing (..)
+import Html.Attributes exposing (..)
 
 type alias DimensionHeaderItem =
    {
+
          area: Area
       ,  member: NList Member 
    }
@@ -308,7 +311,7 @@ type alias DimensionColumnHeader =
    {
          isTotal: Bool
       ,  area: Area
-      ,  members: Member
+      ,  member: Member
    }
 
 tableHeaderToDimensionColumnHeader: TableHeader -> List DimensionColumnHeader
@@ -319,7 +322,7 @@ tableHeaderToDimensionColumnHeader tableHeader =
          {
                isTotal = isTotal
             ,  area = d.area
-            ,  members = d.member.head  
+            ,  member = d.member.head  
          }
    in
       let
@@ -345,6 +348,130 @@ dimensionColumnHeaders headers =
    headers
    |> Lists.collect tableHeaderToDimensionColumnHeader
 
+--------------------------------- View -----------------------------------
+
+
+
+gridSizeAttribute:  String -> String -> Int -> String -> Attribute msg
+gridSizeAttribute s1 s2 i s3 =
+   i 
+   |> String.fromInt
+   |> (\s -> s2 ++ s ++ s3)
+   |> style s1
+
+
+type GridColumns = GridColumns Int
+columnsInt: GridColumns -> Int
+columnsInt (GridColumns columns) = columns
+
+type GridRows = GridRows Int
+rowsInt: GridRows -> Int
+rowsInt (GridRows rows) = rows
+
+grid: GridRows -> GridColumns -> List (Attribute msg) 
+grid (GridRows rows) (GridColumns cols)=
+    let 
+      
+        attrdisplay: Attribute msg
+        attrdisplay = style "display" "grid"  
+      -- Horizontal span
+        attrColumns: Attribute msg
+        attrColumns = gridSizeAttribute "grid-template-columns" "repeat(" cols ")"
+      -- vertical span
+        attrRows: Attribute msg
+        attrRows = gridSizeAttribute "grid-template-rows" "repeat(" rows ", minmax(50px,100px))"
+
+    in
+     [ attrdisplay , attrColumns]
+
+
+
+gridAreaAttribute: Area -> List (Attribute msg)
+gridAreaAttribute area =
+    let 
+        gridItemAttr: String -> Int ->  Attribute msg
+        gridItemAttr s i =
+            String.fromInt i
+            |> style s
+
+        calculateEnd: Start -> Span  -> Int 
+        calculateEnd start span  = 
+            (startInt start) + (spanInt span) - 1
+      
+        row: String 
+        row = area |> Area.verticalStart |> startInt |> String.fromInt |> (\s -> s )
+        col: String 
+        col = area |> Area.horizontalStart |> startInt |> String.fromInt |> (\s -> " / " ++ s)
+        colSpan: String 
+        colSpan = area |> Area.horizontalSpan |> spanInt |> String.fromInt |> (\s ->" / span " ++ s )
+        rowSpan: String 
+        rowSpan = area |> Area.verticalSpan |> spanInt |> String.fromInt |> (\s ->" / span " ++ s)
+        areaAttribute: Attribute msg   
+        areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
+
+      --   startColumn: Attribute msg   
+      --   startColumn = gridItemAttr "grid-column-start" (area |> Area.horizontalStart |> startInt)
+
+      --   endRow: Attribute msg   
+      --   endRow = gridItemAttr "grid-row-end" (calculateEnd (Area.verticalStart area) (Area.verticalSpan area))
+
+      --   endColumn: Attribute msg   
+      --   endColumn = gridItemAttr "grid-column-end" (calculateEnd (Area.horizontalStart area) (Area.horizontalSpan area))
+    in
+         [ areaAttribute,style "border" "black solid 1px" ]
+
+gridItem: Area -> String -> Html Msg
+gridItem area t = 
+    div (gridAreaAttribute area) [ text t ]
+
+viewCube: Direction -> HyperCube -> List DimensionalKoncept  -> Html Msg
+viewCube direction hyperCube koncepts =
+    let 
+         dimensions: List Dimension 
+         dimensions = 
+            hyperCube.dimensions 
+            |> NList.map hyperDimensionAsDimension
+            |> NList.toList
+
+         span: Span 
+         span = dimensions |> calculateSpanForDimensions 
+
+         tableHeaders: List TableHeader
+         tableHeaders = 
+            dimensions 
+            |> calculateTableHeaders direction
+
+         columns: DimensionColumns 
+         columns = tableHeaders |> dimensionColumns 
+
+
+        
+         headers: List (Html Msg) 
+         headers = 
+            tableHeaders 
+            |> dimensionColumnHeaders 
+            |> List.map (\header -> gridItem header.area header.member.name)
+
+         gridRows: Direction -> Span -> DimensionColumns -> GridRows
+         gridRows d (Span s) (DimensionColumns c)=
+            case d of
+               Horizontal ->
+                  GridRows s
+               Vertical ->
+                  GridRows (List.length c)
+
+         
+         gridColumns: Direction -> Span -> DimensionColumns -> GridColumns
+         gridColumns d (Span s) (DimensionColumns c)=
+            case d of
+               Horizontal ->
+                  GridColumns (List.length c)
+               Vertical ->
+                  GridColumns s
+        
+    in
+ 
+        div (grid (gridRows direction span columns) (gridColumns direction span columns))  headers
 
 
 -- tableHeaderView: List TableColumn -> Html Msg

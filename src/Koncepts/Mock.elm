@@ -1,7 +1,7 @@
 module Koncepts.Mock exposing (..)
 import Koncepts.Model exposing (..)
 import Koncepts.Koncept as Koncept
-import Koncepts.Hypercube as HyperCybe 
+import Koncepts.Hypercube as HyperCube 
 import Koncepts.Koncept exposing (KonceptAction)
 import Koncepts.Dimensionalkoncept as DimensionalKoncept
 import Array exposing (foldr)
@@ -37,15 +37,26 @@ addAbstract name koncept =
 addCube: Koncept -> Result String (Maybe Koncept)
 addCube koncept  =
       let
+        regioner: NList String
+        regioner = NList.create2 "Sverige"  ["Norge"]
+        dimRegioner: HyperDimension
+        dimRegioner = 
+            regioner 
+            |> HyperCube.domainCreate "Region" 
+            |> HyperCube.createDimensionWithDefault
+            |> Closed
         kvartal: NList String
         kvartal = NList.create2 "kv1"  ["kv2", "kv3","kv4"]
         hyperCube: HyperCube
         hyperCube = 
          kvartal
-         |> HyperCybe.domainCreate "Kvartal" 
-         |> HyperCybe.createDimensionWithDefault
+         |> HyperCube.domainCreate "Kvartal" 
+         |> HyperCube.createDimensionWithDefault
          |> Closed
-         |> HyperCybe.create "Kvartal och annat tjafs"  
+         |> HyperCube.create "Kvartal och annat tjafs"  
+         |> (\cube -> HyperCube.addDimension cube dimRegioner)
+         -- |> 
+        
       in
          let
             f: AbstractKoncept -> List Koncept -> Result String KonceptAction
