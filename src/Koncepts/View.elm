@@ -77,7 +77,7 @@ divKoncept koncept =
         div [] 
             [ 
                     hc.name |> Koncept.hyperCubeNameToString |> text
-                ,   viewCube Horizontal hc dk
+                ,   viewCube Vertical hc dk
             ]
  
 

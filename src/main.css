@@ -24,7 +24,7 @@ body, html, .report-wrapper
     border: 1px black;
     border-style: solid;
     padding: 10px;
-    height: 400px
+    height: 100%
 }
 
 .selected

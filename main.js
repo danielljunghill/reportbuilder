@@ -4738,15 +4738,26 @@ var $author$project$Koncepts$Mock$addCube = function (koncept) {
 	var dimRegioner = $author$project$Koncepts$Model$Closed(
 		$author$project$Koncepts$Hypercube$createDimensionWithDefault(
 			A2($author$project$Koncepts$Hypercube$domainCreate, 'Region', regioner)));
+	var artal = A2(
+		$author$project$NList$create2,
+		'2020',
+		_List_fromArray(
+			['2021']));
+	var dimArtal = $author$project$Koncepts$Model$Closed(
+		$author$project$Koncepts$Hypercube$createDimensionWithDefault(
+			A2($author$project$Koncepts$Hypercube$domainCreate, 'Artal', artal)));
 	var hyperCube = function (cube) {
-		return A2($author$project$Koncepts$Hypercube$addDimension, cube, dimRegioner);
+		return A2($author$project$Koncepts$Hypercube$addDimension, cube, dimArtal);
 	}(
-		A2(
-			$author$project$Koncepts$Hypercube$create,
-			'Kvartal och annat tjafs',
-			$author$project$Koncepts$Model$Closed(
-				$author$project$Koncepts$Hypercube$createDimensionWithDefault(
-					A2($author$project$Koncepts$Hypercube$domainCreate, 'Kvartal', kvartal)))));
+		function (cube) {
+			return A2($author$project$Koncepts$Hypercube$addDimension, cube, dimRegioner);
+		}(
+			A2(
+				$author$project$Koncepts$Hypercube$create,
+				'Kvartal och annat tjafs',
+				$author$project$Koncepts$Model$Closed(
+					$author$project$Koncepts$Hypercube$createDimensionWithDefault(
+						A2($author$project$Koncepts$Hypercube$domainCreate, 'Kvartal', kvartal))))));
 	var f = F2(
 		function (ak, koncepts) {
 			return _Utils_eq(
@@ -5833,7 +5844,7 @@ var $author$project$Page$View$toHeaderHtlm = function (page) {
 				$elm$html$Html$text(page.name)
 			]));
 };
-var $author$project$Koncepts$Area$Horizontal = {$: 'Horizontal'};
+var $author$project$Koncepts$Area$Vertical = {$: 'Vertical'};
 var $author$project$Koncepts$Model$abstractKonceptNameToString = function (_v0) {
 	var name = _v0.a;
 	return name;
@@ -6616,7 +6627,7 @@ var $author$project$Koncepts$Area$verticalSpan = function (area) {
 var $author$project$Koncepts$Area$verticalStart = function (area) {
 	return $author$project$Koncepts$Lines$verticalStart(area.verticalLine);
 };
-var $author$project$Koncepts$DimensionalHeader$gridAreaAttribute = function (area) {
+var $author$project$Koncepts$DimensionalHeader$areaToAttribute = function (area) {
 	var rowSpan = function (s) {
 		return ' / span ' + s;
 	}(
@@ -6629,13 +6640,6 @@ var $author$project$Koncepts$DimensionalHeader$gridAreaAttribute = function (are
 		$elm$core$String$fromInt(
 			$author$project$Koncepts$Lines$startInt(
 				$author$project$Koncepts$Area$verticalStart(area))));
-	var gridItemAttr = F2(
-		function (s, i) {
-			return A2(
-				$elm$html$Html$Attributes$style,
-				s,
-				$elm$core$String$fromInt(i));
-		});
 	var colSpan = function (s) {
 		return ' / span ' + s;
 	}(
@@ -6648,10 +6652,6 @@ var $author$project$Koncepts$DimensionalHeader$gridAreaAttribute = function (are
 		$elm$core$String$fromInt(
 			$author$project$Koncepts$Lines$startInt(
 				$author$project$Koncepts$Area$horizontalStart(area))));
-	var calculateEnd = F2(
-		function (start, span) {
-			return ($author$project$Koncepts$Lines$startInt(start) + $author$project$Koncepts$Lines$spanInt(span)) - 1;
-		});
 	var areaAttribute = A2(
 		$elm$html$Html$Attributes$style,
 		'grid-area',
@@ -6670,7 +6670,7 @@ var $author$project$Koncepts$DimensionalHeader$gridItem = F2(
 	function (area, t) {
 		return A2(
 			$elm$html$Html$div,
-			$author$project$Koncepts$DimensionalHeader$gridAreaAttribute(area),
+			$author$project$Koncepts$DimensionalHeader$areaToAttribute(area),
 			_List_fromArray(
 				[
 					$elm$html$Html$text(t)
@@ -6752,7 +6752,7 @@ var $author$project$Koncepts$View$divKoncept = function (koncept) {
 					[
 						$elm$html$Html$text(
 						$author$project$Koncepts$Model$hyperCubeNameToString(hc.name)),
-						A3($author$project$Koncepts$DimensionalHeader$viewCube, $author$project$Koncepts$Area$Horizontal, hc, dk)
+						A3($author$project$Koncepts$DimensionalHeader$viewCube, $author$project$Koncepts$Area$Vertical, hc, dk)
 					]));
 	}
 };

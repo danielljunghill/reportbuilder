@@ -386,18 +386,9 @@ grid (GridRows rows) (GridColumns cols)=
 
 
 
-gridAreaAttribute: Area -> List (Attribute msg)
-gridAreaAttribute area =
+areaToAttribute: Area -> List (Attribute msg)
+areaToAttribute area =
     let 
-        gridItemAttr: String -> Int ->  Attribute msg
-        gridItemAttr s i =
-            String.fromInt i
-            |> style s
-
-        calculateEnd: Start -> Span  -> Int 
-        calculateEnd start span  = 
-            (startInt start) + (spanInt span) - 1
-      
         row: String 
         row = area |> Area.verticalStart |> startInt |> String.fromInt |> (\s -> s )
         col: String 
@@ -408,21 +399,12 @@ gridAreaAttribute area =
         rowSpan = area |> Area.verticalSpan |> spanInt |> String.fromInt |> (\s ->" / span " ++ s)
         areaAttribute: Attribute msg   
         areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
-
-      --   startColumn: Attribute msg   
-      --   startColumn = gridItemAttr "grid-column-start" (area |> Area.horizontalStart |> startInt)
-
-      --   endRow: Attribute msg   
-      --   endRow = gridItemAttr "grid-row-end" (calculateEnd (Area.verticalStart area) (Area.verticalSpan area))
-
-      --   endColumn: Attribute msg   
-      --   endColumn = gridItemAttr "grid-column-end" (calculateEnd (Area.horizontalStart area) (Area.horizontalSpan area))
     in
          [ areaAttribute,style "border" "black solid 1px" ]
 
 gridItem: Area -> String -> Html Msg
 gridItem area t = 
-    div (gridAreaAttribute area) [ text t ]
+    div (areaToAttribute area) [ text t ]
 
 viewCube: Direction -> HyperCube -> List DimensionalKoncept  -> Html Msg
 viewCube direction hyperCube koncepts =

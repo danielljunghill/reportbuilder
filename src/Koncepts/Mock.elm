@@ -45,6 +45,15 @@ addCube koncept  =
             |> HyperCube.domainCreate "Region" 
             |> HyperCube.createDimensionWithDefault
             |> Closed
+
+        artal: NList String
+        artal = NList.create2 "2020"  ["2021"]
+        dimArtal: HyperDimension
+        dimArtal = 
+            artal 
+            |> HyperCube.domainCreate "Artal" 
+            |> HyperCube.createDimensionWithDefault
+            |> Closed
         kvartal: NList String
         kvartal = NList.create2 "kv1"  ["kv2", "kv3","kv4"]
         hyperCube: HyperCube
@@ -55,6 +64,7 @@ addCube koncept  =
          |> Closed
          |> HyperCube.create "Kvartal och annat tjafs"  
          |> (\cube -> HyperCube.addDimension cube dimRegioner)
+         |> (\cube -> HyperCube.addDimension cube dimArtal)
          -- |> 
         
       in
