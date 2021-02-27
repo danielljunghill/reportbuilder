@@ -3,8 +3,6 @@ import Koncepts.Dimensionalkoncept exposing (..)
 import Koncepts.Area exposing (..)
 import Koncepts.Area as Area
 import Koncepts.Model exposing (..)
-import Koncepts.Lines exposing (..)
-import Koncepts.Lines as Lines
 import Lists as Lists
 import NList exposing (..)
 import Tuple exposing (..)
@@ -44,8 +42,8 @@ calculateSpan dimension (Span span)   =
       DimensionWithoutDefault (domain) -> span // (domain.members |> NList.length) |> Span
    
 
-calculateStart: Int -> Start -> Span -> Start
-calculateStart ordinal (Start start) (Span span)  =
+calculateStart: Int -> Span -> Start -> Start
+calculateStart ordinal (Span span) (Start start)  =
          start + span * ordinal
          |> Start
 
@@ -54,72 +52,119 @@ calculateArea dimension direction area ordinal =
    case direction of
       Horizontal ->
          let
-            hSpan: Span
-            hSpan = Lines.horizontalSpan area.horizontalLine |> calculateSpan dimension
-            hStart: Start
-            hStart = calculateStart ordinal (Lines.horizontalStart area.horizontalLine) hSpan
-            vStart: Start 
-            vStart = Lines.startAdd (Lines.verticalStart area.verticalLine) (Start 1)    
+            hSpan: HorizontalSpan
+            hSpan = 
+               area.horizontalSpan 
+               |> horizontalSpanToSpan 
+               |> calculateSpan dimension
+               |> HorizontalSpan
+            hStart: HorizontalStart
+            hStart = 
+               area.horizontalStart 
+               |> horizontalStartToStart
+               |> calculateStart ordinal  (hSpan |> horizontalSpanToSpan)
+               |> HorizontalStart
+            vStart: VerticalStart
+            vStart = 
+               area.verticalStart 
+               |> verticalStartMap startIncrement --Lines.startAdd (Lines.verticalStart area.verticalLine) (Start 1)    
          in
             { 
-                  horizontalLine = HorizontalLine (createLine hStart hSpan)  -- HorizontalLine    { span = horizontalSpan; start = horizontalstart} 
-               ,  verticalLine = VerticalLine (createLine vStart (Span 1))  --VerticalLine { span =  ; start = verticalStart}
+                     verticalStart = vStart
+                 ,   verticalSpan = 1 |> Span |> VerticalSpan
+                 ,   horizontalStart = hStart
+                 ,   horizontalSpan = hSpan
+                 
+               --    horizontalLine = HorizontalLine (createLine hStart hSpan)  -- HorizontalLine    { span = horizontalSpan; start = horizontalstart} 
+               -- ,  verticalLine = VerticalLine (createLine vStart (Span 1))  --VerticalLine { span =  ; start = verticalStart}
             }
       Vertical ->
          let
-            vSpan: Span
-            vSpan = Lines.verticalSpan area.verticalLine |> calculateSpan dimension
-            vStart: Start
-            vStart = calculateStart ordinal (Lines.verticalStart area.verticalLine) vSpan
-            hStart: Start 
-            hStart = Lines.startAdd (Lines.horizontalStart area.horizontalLine) (Start 1)
+            vSpan: VerticalSpan
+            vSpan = 
+               area.verticalSpan
+               |> verticalSpanToSpan
+               |> calculateSpan dimension
+               |> VerticalSpan
+            vStart: VerticalStart
+            vStart = 
+               area.verticalStart
+               |> verticalStartToStart
+               |> calculateStart ordinal (vSpan |> verticalSpanToSpan)
+               |> VerticalStart
+            hStart: HorizontalStart 
+            hStart = 
+               area.horizontalStart
+               |> horizontalStartMap startIncrement
          in
             { 
-                  horizontalLine = HorizontalLine (createLine hStart (Span 1)) -- { Span = Span 1; Start = horizontalStart}
-               ,  verticalLine = VerticalLine (createLine vStart vSpan)--{ Span = verticalSpan ; Start = verticalStart }
+                     verticalStart = vStart
+                 ,   verticalSpan = vSpan
+                 ,   horizontalStart = hStart
+                 ,   horizontalSpan = 1 |> Span |> HorizontalSpan
+                 
+               --    horizontalLine = HorizontalLine (createLine hStart (Span 1)) -- { Span = Span 1; Start = horizontalStart}
+               -- ,  verticalLine = VerticalLine (createLine vStart vSpan)--{ Span = verticalSpan ; Start = verticalStart }
             }
 
 calculateDefaultArea: Direction -> Depth -> Area -> Area
 calculateDefaultArea direction (Depth depth) area =
-   let
-      vl: VerticalLine
-      vl = area.verticalLine
-      hl: HorizontalLine
-      hl = area.horizontalLine
-   in
+   -- let
+   --    vl: VerticalLine
+   --    vl = area.verticalLine
+   --    hl: HorizontalLine
+   --    hl = area.horizontalLine
+   -- in
       case direction of
          Horizontal -> 
-            let
-               newVl: VerticalLine 
-               newVl =
-                  vl
-                  |> verticalSetSpan (Span depth)
-               newHl: HorizontalLine
-               newHl =
-                  hl
-                  |> horizontalIncrementStartWithSpan 
-                  |> horizontalSetSpan (Span 1)
-            in
-               { 
-                     verticalLine = newVl
-                  ,  horizontalLine = newHl
+            -- let
+
+               {
+                     verticalStart = area.verticalStart
+                  ,  verticalSpan = VerticalSpan (Span depth)
+                  ,  horizontalSpan = HorizontalSpan (Span 1)
+                  ,  horizontalStart = 
+                     area.horizontalStart  
+                     |> horizontalStartMap ((spanStart (\a b -> a + b) (area.horizontalSpan |> horizontalSpanToSpan)) >> Start)
                }
+            --    newVl: VerticalLine 
+            --    newVl =
+            --       vl
+            --       |> verticalSetSpan (Span depth)
+            --    newHl: HorizontalLine
+            --    newHl =
+            --       hl
+            --       |> horizontalIncrementStartWithSpan 
+            --       |> horizontalSetSpan (Span 1)
+            -- in
+            --    { 
+            --          verticalLine = newVl
+            --       ,  horizontalLine = newHl
+            --    }
          Vertical ->
-            let
-               newHl: HorizontalLine 
-               newHl =
-                  hl
-                  |> horizontalSetSpan (Span depth)
-               newVl: VerticalLine
-               newVl =
-                  vl
-                  |> verticalIncrementStartWithSpan 
-                  |> verticalSetSpan (Span 1)
-            in
-               { 
-                     verticalLine = newVl
-                  ,  horizontalLine = newHl
+               {
+                     horizontalStart = area.horizontalStart
+                  ,  horizontalSpan = HorizontalSpan (Span depth)
+                  ,  verticalSpan = VerticalSpan  (Span 1)
+                  ,  verticalStart = 
+                     area.verticalStart  
+                     |> verticalStartMap ((spanStart (\a b -> a + b) (area.verticalSpan |> verticalSpanToSpan)) >> Start)
                }
+            -- let
+            --    newHl: HorizontalLine 
+            --    newHl =
+            --       hl
+            --       |> horizontalSetSpan (Span depth)
+            --    newVl: VerticalLine
+            --    newVl =
+            --       vl
+            --       |> verticalIncrementStartWithSpan 
+            --       |> verticalSetSpan (Span 1)
+            -- in
+            --    { 
+            --          verticalLine = newVl
+            --       ,  horizontalLine = newHl
+            --    }
 
 fromDimension: Direction -> Depth -> Area -> Dimension -> List Member -> (NList DimensionHeader, Maybe DimensionHeader )
 fromDimension direction depth area dimension parentMembers =
@@ -237,9 +282,21 @@ addDimensionToTableHeaders direction depth span dimension acc =
       initArea d totalSpan =
             case d of
                Horizontal ->
-                  { verticalLine = VerticalLine { span = Span 0, start = Start 0},  horizontalLine = HorizontalLine {span = totalSpan, start = Start 1}}
+                  {
+                        verticalSpan =  0 |> Span |> VerticalSpan
+                     ,  verticalStart = 0 |> Start |> VerticalStart
+                     ,  horizontalSpan = totalSpan |> HorizontalSpan
+                     ,  horizontalStart = 1 |> Start |> HorizontalStart
+                  }
+                  -- { verticalLine = VerticalLine { span = Span 0, start = Start 0},  horizontalLine = HorizontalLine {span = totalSpan, start = Start 1}}
                Vertical ->
-                  { verticalLine = VerticalLine  { span = totalSpan, start = Start 1}, horizontalLine = HorizontalLine {span = Span 0, start = Start 0}}
+                  {
+                        verticalSpan = totalSpan |> VerticalSpan
+                     ,  verticalStart =  1 |> Start |> VerticalStart
+                     ,  horizontalSpan = 0 |> Span |> HorizontalSpan
+                     ,  horizontalStart =  0 |> Start|> HorizontalStart
+                  }
+                  -- { verticalLine = VerticalLine  { span = totalSpan, start = Start 1}, horizontalLine = HorizontalLine {span = Span 0, start = Start 0}}
    in
       case acc of
          [] -> 
@@ -390,13 +447,13 @@ areaToAttribute: Area -> List (Attribute msg)
 areaToAttribute area =
     let 
         row: String 
-        row = area |> Area.verticalStart |> startInt |> String.fromInt |> (\s -> s )
+        row = area.verticalStart |> verticalStartToInt |> String.fromInt |> (\s -> s )
         col: String 
-        col = area |> Area.horizontalStart |> startInt |> String.fromInt |> (\s -> " / " ++ s)
+        col = area.horizontalStart |> horizontalStartToInt |> String.fromInt |> (\s -> " / " ++ s)
         colSpan: String 
-        colSpan = area |> Area.horizontalSpan |> spanInt |> String.fromInt |> (\s ->" / span " ++ s )
+        colSpan = area.horizontalSpan |> horizontalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s )
         rowSpan: String 
-        rowSpan = area |> Area.verticalSpan |> spanInt |> String.fromInt |> (\s ->" / span " ++ s)
+        rowSpan = area.verticalSpan |> verticalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s)
         areaAttribute: Attribute msg   
         areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
     in
@@ -425,9 +482,7 @@ viewCube direction hyperCube koncepts =
 
          columns: DimensionColumns 
          columns = tableHeaders |> dimensionColumns 
-
-
-        
+       
          headers: List (Html Msg) 
          headers = 
             tableHeaders 
@@ -441,8 +496,7 @@ viewCube direction hyperCube koncepts =
                   GridRows s
                Vertical ->
                   GridRows (List.length c)
-
-         
+        
          gridColumns: Direction -> Span -> DimensionColumns -> GridColumns
          gridColumns d (Span s) (DimensionColumns c)=
             case d of

@@ -6024,7 +6024,7 @@ var $author$project$Koncepts$DimensionalHeader$GridColumns = function (a) {
 var $author$project$Koncepts$DimensionalHeader$GridRows = function (a) {
 	return {$: 'GridRows', a: a};
 };
-var $author$project$Koncepts$Lines$Span = function (a) {
+var $author$project$Koncepts$Area$Span = function (a) {
 	return {$: 'Span', a: a};
 };
 var $author$project$NList$length = function (m) {
@@ -6047,26 +6047,32 @@ var $author$project$Koncepts$DimensionalHeader$calculateSpanForDimensions = func
 			}
 		}
 	};
-	return $author$project$Koncepts$Lines$Span(
+	return $author$project$Koncepts$Area$Span(
 		recCalculateSpan(dimensions));
 };
 var $author$project$Koncepts$Area$Depth = function (a) {
 	return {$: 'Depth', a: a};
 };
-var $author$project$Koncepts$Lines$HorizontalLine = function (a) {
-	return {$: 'HorizontalLine', a: a};
+var $author$project$Koncepts$Area$HorizontalSpan = function (a) {
+	return {$: 'HorizontalSpan', a: a};
+};
+var $author$project$Koncepts$Area$HorizontalStart = function (a) {
+	return {$: 'HorizontalStart', a: a};
 };
 var $author$project$Koncepts$DimensionalHeader$MemberHeader = function (a) {
 	return {$: 'MemberHeader', a: a};
 };
-var $author$project$Koncepts$Lines$Start = function (a) {
+var $author$project$Koncepts$Area$Start = function (a) {
 	return {$: 'Start', a: a};
 };
 var $author$project$Koncepts$DimensionalHeader$TotalHeader = function (a) {
 	return {$: 'TotalHeader', a: a};
 };
-var $author$project$Koncepts$Lines$VerticalLine = function (a) {
-	return {$: 'VerticalLine', a: a};
+var $author$project$Koncepts$Area$VerticalSpan = function (a) {
+	return {$: 'VerticalSpan', a: a};
+};
+var $author$project$Koncepts$Area$VerticalStart = function (a) {
+	return {$: 'VerticalStart', a: a};
 };
 var $author$project$NList$addList = F2(
 	function (n, m) {
@@ -6082,161 +6088,153 @@ var $author$project$Koncepts$DimensionalHeader$calculateSpan = F2(
 		if (dimension.$ === 'DimensionWithDefault') {
 			var _v2 = dimension.a;
 			var domain = _v2.b;
-			return $author$project$Koncepts$Lines$Span(
+			return $author$project$Koncepts$Area$Span(
 				((span - 1) / $author$project$NList$length(domain.members)) | 0);
 		} else {
 			var domain = dimension.a;
-			return $author$project$Koncepts$Lines$Span(
+			return $author$project$Koncepts$Area$Span(
 				(span / $author$project$NList$length(domain.members)) | 0);
 		}
 	});
 var $author$project$Koncepts$DimensionalHeader$calculateStart = F3(
 	function (ordinal, _v0, _v1) {
+		var span = _v0.a;
+		var start = _v1.a;
+		return $author$project$Koncepts$Area$Start(start + (span * ordinal));
+	});
+var $author$project$Koncepts$Area$horizontalSpanToSpan = function (_v0) {
+	var span = _v0.a;
+	return span;
+};
+var $author$project$Koncepts$Area$horizontalStartMap = F2(
+	function (f, _v0) {
 		var start = _v0.a;
-		var span = _v1.a;
-		return $author$project$Koncepts$Lines$Start(start + (span * ordinal));
+		return $author$project$Koncepts$Area$HorizontalStart(
+			f(start));
 	});
-var $author$project$Koncepts$Lines$createLine = F2(
-	function (start, span) {
-		return {span: span, start: start};
+var $author$project$Koncepts$Area$horizontalStartToStart = function (_v0) {
+	var start = _v0.a;
+	return start;
+};
+var $author$project$Koncepts$Area$startMap = F2(
+	function (f, _v0) {
+		var start = _v0.a;
+		return $author$project$Koncepts$Area$Start(
+			f(start));
 	});
-var $author$project$Koncepts$Lines$horizontalSpan = function (_v0) {
-	var line = _v0.a;
-	return line.span;
-};
-var $author$project$Koncepts$Lines$horizontalStart = function (_v0) {
-	var line = _v0.a;
-	return line.start;
-};
-var $author$project$Koncepts$Lines$startAdd = F2(
-	function (_v0, _v1) {
-		var start1 = _v0.a;
-		var start2 = _v1.a;
-		return $author$project$Koncepts$Lines$Start(start1 + start2);
+var $author$project$Koncepts$Area$startIncrement = $author$project$Koncepts$Area$startMap(
+	function (i) {
+		return i + 1;
 	});
-var $author$project$Koncepts$Lines$verticalSpan = function (_v0) {
-	var line = _v0.a;
-	return line.span;
+var $author$project$Koncepts$Area$verticalSpanToSpan = function (_v0) {
+	var span = _v0.a;
+	return span;
 };
-var $author$project$Koncepts$Lines$verticalStart = function (_v0) {
-	var line = _v0.a;
-	return line.start;
+var $author$project$Koncepts$Area$verticalStartMap = F2(
+	function (f, _v0) {
+		var start = _v0.a;
+		return $author$project$Koncepts$Area$VerticalStart(
+			f(start));
+	});
+var $author$project$Koncepts$Area$verticalStartToStart = function (_v0) {
+	var start = _v0.a;
+	return start;
 };
 var $author$project$Koncepts$DimensionalHeader$calculateArea = F4(
 	function (dimension, direction, area, ordinal) {
 		if (direction.$ === 'Horizontal') {
-			var vStart = A2(
-				$author$project$Koncepts$Lines$startAdd,
-				$author$project$Koncepts$Lines$verticalStart(area.verticalLine),
-				$author$project$Koncepts$Lines$Start(1));
-			var hSpan = A2(
-				$author$project$Koncepts$DimensionalHeader$calculateSpan,
-				dimension,
-				$author$project$Koncepts$Lines$horizontalSpan(area.horizontalLine));
-			var hStart = A3(
-				$author$project$Koncepts$DimensionalHeader$calculateStart,
-				ordinal,
-				$author$project$Koncepts$Lines$horizontalStart(area.horizontalLine),
-				hSpan);
+			var vStart = A2($author$project$Koncepts$Area$verticalStartMap, $author$project$Koncepts$Area$startIncrement, area.verticalStart);
+			var hSpan = $author$project$Koncepts$Area$HorizontalSpan(
+				A2(
+					$author$project$Koncepts$DimensionalHeader$calculateSpan,
+					dimension,
+					$author$project$Koncepts$Area$horizontalSpanToSpan(area.horizontalSpan)));
+			var hStart = $author$project$Koncepts$Area$HorizontalStart(
+				A3(
+					$author$project$Koncepts$DimensionalHeader$calculateStart,
+					ordinal,
+					$author$project$Koncepts$Area$horizontalSpanToSpan(hSpan),
+					$author$project$Koncepts$Area$horizontalStartToStart(area.horizontalStart)));
 			return {
-				horizontalLine: $author$project$Koncepts$Lines$HorizontalLine(
-					A2($author$project$Koncepts$Lines$createLine, hStart, hSpan)),
-				verticalLine: $author$project$Koncepts$Lines$VerticalLine(
-					A2(
-						$author$project$Koncepts$Lines$createLine,
-						vStart,
-						$author$project$Koncepts$Lines$Span(1)))
+				horizontalSpan: hSpan,
+				horizontalStart: hStart,
+				verticalSpan: $author$project$Koncepts$Area$VerticalSpan(
+					$author$project$Koncepts$Area$Span(1)),
+				verticalStart: vStart
 			};
 		} else {
-			var vSpan = A2(
-				$author$project$Koncepts$DimensionalHeader$calculateSpan,
-				dimension,
-				$author$project$Koncepts$Lines$verticalSpan(area.verticalLine));
-			var vStart = A3(
-				$author$project$Koncepts$DimensionalHeader$calculateStart,
-				ordinal,
-				$author$project$Koncepts$Lines$verticalStart(area.verticalLine),
-				vSpan);
-			var hStart = A2(
-				$author$project$Koncepts$Lines$startAdd,
-				$author$project$Koncepts$Lines$horizontalStart(area.horizontalLine),
-				$author$project$Koncepts$Lines$Start(1));
+			var vSpan = $author$project$Koncepts$Area$VerticalSpan(
+				A2(
+					$author$project$Koncepts$DimensionalHeader$calculateSpan,
+					dimension,
+					$author$project$Koncepts$Area$verticalSpanToSpan(area.verticalSpan)));
+			var vStart = $author$project$Koncepts$Area$VerticalStart(
+				A3(
+					$author$project$Koncepts$DimensionalHeader$calculateStart,
+					ordinal,
+					$author$project$Koncepts$Area$verticalSpanToSpan(vSpan),
+					$author$project$Koncepts$Area$verticalStartToStart(area.verticalStart)));
+			var hStart = A2($author$project$Koncepts$Area$horizontalStartMap, $author$project$Koncepts$Area$startIncrement, area.horizontalStart);
 			return {
-				horizontalLine: $author$project$Koncepts$Lines$HorizontalLine(
-					A2(
-						$author$project$Koncepts$Lines$createLine,
-						hStart,
-						$author$project$Koncepts$Lines$Span(1))),
-				verticalLine: $author$project$Koncepts$Lines$VerticalLine(
-					A2($author$project$Koncepts$Lines$createLine, vStart, vSpan))
+				horizontalSpan: $author$project$Koncepts$Area$HorizontalSpan(
+					$author$project$Koncepts$Area$Span(1)),
+				horizontalStart: hStart,
+				verticalSpan: vSpan,
+				verticalStart: vStart
 			};
 		}
 	});
-var $author$project$Koncepts$Lines$addSpanToStart = F2(
-	function (_v0, _v1) {
-		var start = _v0.a;
-		var span = _v1.a;
-		return $author$project$Koncepts$Lines$Start(start + span);
-	});
-var $author$project$Koncepts$Lines$horizontalIncrementStartWithSpan = function (_v0) {
-	var line = _v0.a;
-	return $author$project$Koncepts$Lines$HorizontalLine(
-		_Utils_update(
-			line,
-			{
-				start: A2($author$project$Koncepts$Lines$addSpanToStart, line.start, line.span)
-			}));
-};
-var $author$project$Koncepts$Lines$horizontalSetSpan = F2(
-	function (span, _v0) {
-		var line = _v0.a;
-		return $author$project$Koncepts$Lines$HorizontalLine(
-			_Utils_update(
-				line,
-				{span: span}));
-	});
-var $author$project$Koncepts$Lines$verticalIncrementStartWithSpan = function (_v0) {
-	var line = _v0.a;
-	return $author$project$Koncepts$Lines$VerticalLine(
-		_Utils_update(
-			line,
-			{
-				start: A2($author$project$Koncepts$Lines$addSpanToStart, line.start, line.span)
-			}));
-};
-var $author$project$Koncepts$Lines$verticalSetSpan = F2(
-	function (span, _v0) {
-		var line = _v0.a;
-		return $author$project$Koncepts$Lines$VerticalLine(
-			_Utils_update(
-				line,
-				{span: span}));
+var $author$project$Koncepts$Area$spanStart = F3(
+	function (f, _v0, _v1) {
+		var span = _v0.a;
+		var start = _v1.a;
+		return A2(f, start, span);
 	});
 var $author$project$Koncepts$DimensionalHeader$calculateDefaultArea = F3(
 	function (direction, _v0, area) {
 		var depth = _v0.a;
-		var vl = area.verticalLine;
-		var hl = area.horizontalLine;
 		if (direction.$ === 'Horizontal') {
-			var newVl = A2(
-				$author$project$Koncepts$Lines$verticalSetSpan,
-				$author$project$Koncepts$Lines$Span(depth),
-				vl);
-			var newHl = A2(
-				$author$project$Koncepts$Lines$horizontalSetSpan,
-				$author$project$Koncepts$Lines$Span(1),
-				$author$project$Koncepts$Lines$horizontalIncrementStartWithSpan(hl));
-			return {horizontalLine: newHl, verticalLine: newVl};
+			return {
+				horizontalSpan: $author$project$Koncepts$Area$HorizontalSpan(
+					$author$project$Koncepts$Area$Span(1)),
+				horizontalStart: A2(
+					$author$project$Koncepts$Area$horizontalStartMap,
+					A2(
+						$elm$core$Basics$composeR,
+						A2(
+							$author$project$Koncepts$Area$spanStart,
+							F2(
+								function (a, b) {
+									return a + b;
+								}),
+							$author$project$Koncepts$Area$horizontalSpanToSpan(area.horizontalSpan)),
+						$author$project$Koncepts$Area$Start),
+					area.horizontalStart),
+				verticalSpan: $author$project$Koncepts$Area$VerticalSpan(
+					$author$project$Koncepts$Area$Span(depth)),
+				verticalStart: area.verticalStart
+			};
 		} else {
-			var newVl = A2(
-				$author$project$Koncepts$Lines$verticalSetSpan,
-				$author$project$Koncepts$Lines$Span(1),
-				$author$project$Koncepts$Lines$verticalIncrementStartWithSpan(vl));
-			var newHl = A2(
-				$author$project$Koncepts$Lines$horizontalSetSpan,
-				$author$project$Koncepts$Lines$Span(depth),
-				hl);
-			return {horizontalLine: newHl, verticalLine: newVl};
+			return {
+				horizontalSpan: $author$project$Koncepts$Area$HorizontalSpan(
+					$author$project$Koncepts$Area$Span(depth)),
+				horizontalStart: area.horizontalStart,
+				verticalSpan: $author$project$Koncepts$Area$VerticalSpan(
+					$author$project$Koncepts$Area$Span(1)),
+				verticalStart: A2(
+					$author$project$Koncepts$Area$verticalStartMap,
+					A2(
+						$elm$core$Basics$composeR,
+						A2(
+							$author$project$Koncepts$Area$spanStart,
+							F2(
+								function (a, b) {
+									return a + b;
+								}),
+							$author$project$Koncepts$Area$verticalSpanToSpan(area.verticalSpan)),
+						$author$project$Koncepts$Area$Start),
+					area.verticalStart)
+			};
 		}
 	});
 var $author$project$Koncepts$DimensionalHeader$DimensionHeader = function (a) {
@@ -6442,29 +6440,23 @@ var $author$project$Koncepts$DimensionalHeader$addDimensionToTableHeaders = F5(
 			function (d, totalSpan) {
 				if (d.$ === 'Horizontal') {
 					return {
-						horizontalLine: $author$project$Koncepts$Lines$HorizontalLine(
-							{
-								span: totalSpan,
-								start: $author$project$Koncepts$Lines$Start(1)
-							}),
-						verticalLine: $author$project$Koncepts$Lines$VerticalLine(
-							{
-								span: $author$project$Koncepts$Lines$Span(0),
-								start: $author$project$Koncepts$Lines$Start(0)
-							})
+						horizontalSpan: $author$project$Koncepts$Area$HorizontalSpan(totalSpan),
+						horizontalStart: $author$project$Koncepts$Area$HorizontalStart(
+							$author$project$Koncepts$Area$Start(1)),
+						verticalSpan: $author$project$Koncepts$Area$VerticalSpan(
+							$author$project$Koncepts$Area$Span(0)),
+						verticalStart: $author$project$Koncepts$Area$VerticalStart(
+							$author$project$Koncepts$Area$Start(0))
 					};
 				} else {
 					return {
-						horizontalLine: $author$project$Koncepts$Lines$HorizontalLine(
-							{
-								span: $author$project$Koncepts$Lines$Span(0),
-								start: $author$project$Koncepts$Lines$Start(0)
-							}),
-						verticalLine: $author$project$Koncepts$Lines$VerticalLine(
-							{
-								span: totalSpan,
-								start: $author$project$Koncepts$Lines$Start(1)
-							})
+						horizontalSpan: $author$project$Koncepts$Area$HorizontalSpan(
+							$author$project$Koncepts$Area$Span(0)),
+						horizontalStart: $author$project$Koncepts$Area$HorizontalStart(
+							$author$project$Koncepts$Area$Start(0)),
+						verticalSpan: $author$project$Koncepts$Area$VerticalSpan(totalSpan),
+						verticalStart: $author$project$Koncepts$Area$VerticalStart(
+							$author$project$Koncepts$Area$Start(1))
 					};
 				}
 			});
@@ -6607,51 +6599,39 @@ var $author$project$Koncepts$DimensionalHeader$grid = F2(
 		return _List_fromArray(
 			[attrdisplay, attrColumns]);
 	});
-var $author$project$Koncepts$Area$horizontalSpan = function (area) {
-	return $author$project$Koncepts$Lines$horizontalSpan(area.horizontalLine);
-};
-var $author$project$Koncepts$Area$horizontalStart = function (area) {
-	return $author$project$Koncepts$Lines$horizontalStart(area.horizontalLine);
-};
-var $author$project$Koncepts$Lines$spanInt = function (_v0) {
+var $author$project$Koncepts$Area$spanInt = function (_v0) {
 	var span = _v0.a;
 	return span;
 };
-var $author$project$Koncepts$Lines$startInt = function (_v0) {
+var $author$project$Koncepts$Area$horizontalSpanToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$horizontalSpanToSpan, $author$project$Koncepts$Area$spanInt);
+var $author$project$Koncepts$Area$startInt = function (_v0) {
 	var start = _v0.a;
 	return start;
 };
-var $author$project$Koncepts$Area$verticalSpan = function (area) {
-	return $author$project$Koncepts$Lines$verticalSpan(area.verticalLine);
-};
-var $author$project$Koncepts$Area$verticalStart = function (area) {
-	return $author$project$Koncepts$Lines$verticalStart(area.verticalLine);
-};
+var $author$project$Koncepts$Area$horizontalStartToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$horizontalStartToStart, $author$project$Koncepts$Area$startInt);
+var $author$project$Koncepts$Area$verticalSpanToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$verticalSpanToSpan, $author$project$Koncepts$Area$spanInt);
+var $author$project$Koncepts$Area$verticalStartToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$verticalStartToStart, $author$project$Koncepts$Area$startInt);
 var $author$project$Koncepts$DimensionalHeader$areaToAttribute = function (area) {
 	var rowSpan = function (s) {
 		return ' / span ' + s;
 	}(
 		$elm$core$String$fromInt(
-			$author$project$Koncepts$Lines$spanInt(
-				$author$project$Koncepts$Area$verticalSpan(area))));
+			$author$project$Koncepts$Area$verticalSpanToInt(area.verticalSpan)));
 	var row = function (s) {
 		return s;
 	}(
 		$elm$core$String$fromInt(
-			$author$project$Koncepts$Lines$startInt(
-				$author$project$Koncepts$Area$verticalStart(area))));
+			$author$project$Koncepts$Area$verticalStartToInt(area.verticalStart)));
 	var colSpan = function (s) {
 		return ' / span ' + s;
 	}(
 		$elm$core$String$fromInt(
-			$author$project$Koncepts$Lines$spanInt(
-				$author$project$Koncepts$Area$horizontalSpan(area))));
+			$author$project$Koncepts$Area$horizontalSpanToInt(area.horizontalSpan)));
 	var col = function (s) {
 		return ' / ' + s;
 	}(
 		$elm$core$String$fromInt(
-			$author$project$Koncepts$Lines$startInt(
-				$author$project$Koncepts$Area$horizontalStart(area))));
+			$author$project$Koncepts$Area$horizontalStartToInt(area.horizontalStart)));
 	var areaAttribute = A2(
 		$elm$html$Html$Attributes$style,
 		'grid-area',

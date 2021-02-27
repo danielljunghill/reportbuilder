@@ -1,13 +1,123 @@
 module Koncepts.Area exposing (..)
-import Koncepts.Lines exposing(..)
-import Koncepts.Lines as Lines
+-- import Koncepts.Lines exposing(..)
+-- import Koncepts.Lines as Lines
+
+
+-- mapBase: (Int -> Int) -> (a -> int) -> (int -> a) -> a
+-- mapBase f a b =
+--    a >> f >> b
+
+type Span = Span Int
+spanInt: Span -> Int
+spanInt (Span span) = span
+
+spanAdd: Span -> Span -> Span
+spanAdd (Span span1) (Span span2) = Span (span1 + span2)
+
+spanMap: (Int -> Int) -> Span -> Span
+spanMap f (Span span) =
+   f span
+   |> Span
+
+spanIncrement: Span -> Span
+spanIncrement = spanMap (\i -> i + 1) 
+
+type VerticalSpan = VerticalSpan Span
+verticalSpanMap:  (Span -> Span) -> VerticalSpan -> VerticalSpan
+verticalSpanMap f (VerticalSpan span) =
+   span   
+   |> f 
+   |> VerticalSpan
+
+verticalSpanToSpan: VerticalSpan -> Span
+verticalSpanToSpan (VerticalSpan span) = span
+   
+verticalSpanToInt: VerticalSpan -> Int
+verticalSpanToInt = verticalSpanToSpan >> spanInt
+
+intToVerticalSpan: Int -> VerticalSpan
+intToVerticalSpan = Span >> VerticalSpan
+
+type HorizontalSpan = HorizontalSpan Span
+horizontalSpanMap:  (Span -> Span) -> HorizontalSpan -> HorizontalSpan
+horizontalSpanMap f (HorizontalSpan span) =
+   span   
+   |> f 
+   |> HorizontalSpan
+
+horizontalSpanToSpan: HorizontalSpan -> Span  
+horizontalSpanToSpan (HorizontalSpan span) = span
+
+horizontalSpanToInt: HorizontalSpan -> Int
+horizontalSpanToInt = horizontalSpanToSpan >> spanInt
+
+intToHorizontalSpan: Int -> HorizontalSpan
+intToHorizontalSpan = Span >> HorizontalSpan
+
+type Start = Start Int
+startInt: Start -> Int
+startInt (Start start) = start
+
+startMap: (Int -> Int) -> Start -> Start
+startMap f (Start start) =
+   f start
+   |> Start
+
+startIncrement: Start -> Start
+startIncrement = startMap (\i -> i + 1) 
+  
+startAdd: Start -> Start -> Start
+startAdd (Start start1) (Start start2) = Start (start1 + start2)
+
+startSpan: (Int -> Int -> Int) -> Start -> Span -> Int
+startSpan f (Start start) (Span span) =
+   f start span
+
+spanStart: (Int -> Int -> Int) -> Span -> Start -> Int
+spanStart f  (Span span) (Start start)=
+   f start span
+
+type VerticalStart = VerticalStart Start
+verticalStartMap:  (Start -> Start) -> VerticalStart -> VerticalStart
+verticalStartMap f (VerticalStart start) =
+   start   
+   |> f 
+   |> VerticalStart
+
+verticalStartToStart: VerticalStart -> Start
+verticalStartToStart (VerticalStart start) = start  
+   
+verticalStartToInt: VerticalStart -> Int
+verticalStartToInt = verticalStartToStart >> startInt
+
+intToVerticalStart: Int -> VerticalStart
+intToVerticalStart = Start >> VerticalStart
+
+type HorizontalStart = HorizontalStart Start
+horizontalStartMap:  (Start -> Start) -> HorizontalStart -> HorizontalStart
+horizontalStartMap f (HorizontalStart start) =
+   start   
+   |> f 
+   |> HorizontalStart
+
+horizontalStartToStart: HorizontalStart -> Start
+horizontalStartToStart (HorizontalStart start) = start
+
+horizontalStartToInt: HorizontalStart -> Int
+horizontalStartToInt = horizontalStartToStart >> startInt
+
+intToHorizontalStart: Int -> HorizontalStart
+intToHorizontalStart = Start >> HorizontalStart
 
 
 type alias Area =
    {
-         verticalLine: VerticalLine
-      ,  horizontalLine: HorizontalLine
+         horizontalStart: HorizontalStart
+      ,  horizontalSpan: HorizontalSpan
+      ,  verticalStart: VerticalStart
+      ,  verticalSpan: VerticalSpan
    }
+
 
 type Direction =
    Vertical
@@ -18,60 +128,62 @@ type Depth = Depth Int
 incrementVerticalStart: Area -> Area
 incrementVerticalStart area =
    {
-       area | verticalLine = Lines.verticalIncrementStart area.verticalLine
+       area | verticalStart = area.verticalStart |> (verticalStartMap startIncrement)
    }
 
 incrementHorizontalStart: Area -> Area
 incrementHorizontalStart area =
    {
-       area | horizontalLine = Lines.horizontalIncrementStart area.horizontalLine
+       area | horizontalStart = area.horizontalStart |> (horizontalStartMap startIncrement)
    }
 
-setHorizontalStart: Lines.Start -> Area -> Area  
+setHorizontalStart: Start -> Area -> Area  
 setHorizontalStart start area =
    {
-      area | horizontalLine = area.horizontalLine |> Lines.horizontalSetStart start
+      area | horizontalStart = HorizontalStart start
    }
 
-setVerticalStart: Lines.Start -> Area -> Area  
+setVerticalStart: Start -> Area -> Area  
 setVerticalStart start area =
    {
-      area | verticalLine = area.verticalLine |> Lines.verticalSetStart start
+      area | verticalStart = VerticalStart start
    }
 
-setHorizontalSpan: Lines.Span -> Area -> Area  
+setHorizontalSpan: Span -> Area -> Area  
 setHorizontalSpan span area =
    {
-      area | horizontalLine = area.horizontalLine |> Lines.horizontalSetSpan span
+      area | horizontalSpan = HorizontalSpan span
    }
 
-setVerticalSpan: Lines.Span -> Area -> Area  
+setVerticalSpan: Span -> Area -> Area  
 setVerticalSpan span area =
    {
-      area | verticalLine = area.verticalLine |> Lines.verticalSetSpan span
+      area | verticalSpan = VerticalSpan span
    }
 
 verticalStart: Area -> Start
 verticalStart area =
-   area.verticalLine |> Lines.verticalStart 
+   area.verticalStart |> verticalStartToStart
 
 horizontalStart: Area -> Start
 horizontalStart area =
-   Lines.horizontalStart area.horizontalLine
+   area.horizontalStart |> horizontalStartToStart
 
 verticalSpan: Area -> Span
 verticalSpan area =
-   Lines.verticalSpan area.verticalLine
+   area.verticalSpan |> verticalSpanToSpan
 
 horizontalSpan: Area -> Span
 horizontalSpan area =
-   Lines.horizontalSpan area.horizontalLine
+   area.horizontalSpan |> horizontalSpanToSpan
 
 emptyArea: Area
 emptyArea =  
     {    
-            verticalLine = VerticalLine Lines.empty
-         ,  horizontalLine = HorizontalLine Lines.empty
+         horizontalStart = intToHorizontalStart 0
+      ,  horizontalSpan = intToHorizontalSpan 0
+      ,  verticalStart = intToVerticalStart 0
+      ,  verticalSpan = intToVerticalSpan 0
     }
 
 

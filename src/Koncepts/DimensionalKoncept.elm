@@ -4,7 +4,7 @@ import Koncepts.Model exposing (..)
 import ResultExtension
 import Koncepts.Area exposing (..)
 import Lists
-import Koncepts.Lines exposing (..)
+
 
 
 createValue: String -> DimensionalKoncept
@@ -146,37 +146,45 @@ createValueRow area item =
         ,   item = ValueRow item  
       }
 
-calculateRows: List DimensionalKoncept -> ( List KonceptRow , Span )
-calculateRows koncepts =
-   let 
-      spanDepth: Int 
-      spanDepth = 
-         koncepts 
-         |> Lists.collect calculateSpan 
-         |> List.max 
-      area: Start -> Span -> Area
-      area xStart yStart =
-         { 
-               verticalLine = VerticalLine { start = yStart, span = Span 1}
-            ,  horizontalLine = HorizontalLine { start = xStart , span = Span (spanDepth - (Start.value xStart) + 1) } 
-         }
-   in 
-      let
+-- calculateRows: List DimensionalKoncept -> ( List KonceptRow , Span )
+-- calculateRows koncepts =
+--    let 
+--       spanDepth: Int 
+--       spanDepth = 
+--          koncepts 
+--          |> Lists.collect calculateSpan 
+--          |> List.max 
+--       area: HorizontalStart -> VerticalStart -> Area
+--       area hStart vstart =
+--          { 
+
+--                   verticalStart = vStart 
+--                ,  horizontalStart =  hStart
+--                ,  horizontalSpan =  
+--                      spanDepth - (verticalStartToInt vstart) + 1 
+--                      |> Span 
+--                      |> HorizontalSpan
+--                ,  verticalSpan = Span 1
+--             --    verticalLine = VerticalLine { start = yStart, span = Span 1}
+--             -- ,  horizontalLine = HorizontalLine { start = xStart , span = Span (spanDepth - (Start.value xStart) + 1) } 
+--          }
+--    in 
+--       let
  
-         recKonceptRow: Start -> DimensionalKoncept -> List KonceptRow
-         recKonceptRow start koncept =
-            case koncept of 
-               DimensionalAbstract (ak, childKoncepts) ->
-                  [ createAbstractRow (area (Start 1) start) ak ] ++ childKoncepts |> Lists.collect (recKonceptRow (increment start))
-               DimensionalValue vk -> 
-                  [ createValue (area (Start 1) start) vk ]
-      in
-         (
-         koncepts 
-         |> Lists.collect recKonceptRow (Start 1)
-         |> Lists.mapi (\rowIndex item -> { item | area = item.area |> Area.setVerticalStart (Start (rowIndex + 1)) })
-         , spanDepth
-         )
+--          recKonceptRow: Start -> DimensionalKoncept -> List KonceptRow
+--          recKonceptRow start koncept =
+--             case koncept of 
+--                DimensionalAbstract (ak, childKoncepts) ->
+--                   [ createAbstractRow (area (Start 1) start) ak ] ++ childKoncepts |> Lists.collect (recKonceptRow (increment start))
+--                DimensionalValue vk -> 
+--                   [ createValue (area (Start 1) start) vk ]
+--       in
+--          (
+--          koncepts 
+--          |> Lists.collect recKonceptRow (Start 1)
+--          |> Lists.mapi (\rowIndex item -> { item | area = item.area |> Area.setVerticalStart (Start (rowIndex + 1)) })
+--          , spanDepth
+--          )
 
   
 
