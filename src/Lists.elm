@@ -47,5 +47,25 @@ collect f m =
 
 
 
+maxBy: (a -> a -> Bool)  -> List a -> Maybe a
+maxBy f m =
+   let
+      recMax: Maybe a -> List a  -> Maybe a
+      recMax state rm =
+         case rm of
+            [] -> state
+            head :: tail -> 
+               case state of
+                  Just v -> 
+                     if f v head then
+                        recMax state tail
+                     else recMax (Just head) tail
+                  Nothing ->
+                     recMax (Just head) tail
+   in
+     m |> recMax Nothing
+
+maxInt: List Int  -> Maybe Int
+maxInt = maxBy (\a b -> a > b)             
 
 

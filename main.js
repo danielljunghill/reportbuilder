@@ -5844,7 +5844,7 @@ var $author$project$Page$View$toHeaderHtlm = function (page) {
 				$elm$html$Html$text(page.name)
 			]));
 };
-var $author$project$Koncepts$Area$Vertical = {$: 'Vertical'};
+var $author$project$Koncepts$Area$Horizontal = {$: 'Horizontal'};
 var $author$project$Koncepts$Model$abstractKonceptNameToString = function (_v0) {
 	var name = _v0.a;
 	return name;
@@ -6732,7 +6732,7 @@ var $author$project$Koncepts$View$divKoncept = function (koncept) {
 					[
 						$elm$html$Html$text(
 						$author$project$Koncepts$Model$hyperCubeNameToString(hc.name)),
-						A3($author$project$Koncepts$DimensionalHeader$viewCube, $author$project$Koncepts$Area$Vertical, hc, dk)
+						A3($author$project$Koncepts$DimensionalHeader$viewCube, $author$project$Koncepts$Area$Horizontal, hc, dk)
 					]));
 	}
 };

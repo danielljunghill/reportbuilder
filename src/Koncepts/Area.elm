@@ -161,21 +161,21 @@ setVerticalSpan span area =
       area | verticalSpan = VerticalSpan span
    }
 
-verticalStart: Area -> Start
-verticalStart area =
-   area.verticalStart |> verticalStartToStart
+-- verticalStart: Area -> Start
+-- verticalStart area =
+--    area.verticalStart |> verticalStartToStart
 
-horizontalStart: Area -> Start
-horizontalStart area =
-   area.horizontalStart |> horizontalStartToStart
+-- horizontalStart: Area -> Start
+-- horizontalStart area =
+--    area.horizontalStart |> horizontalStartToStart
 
-verticalSpan: Area -> Span
-verticalSpan area =
-   area.verticalSpan |> verticalSpanToSpan
+-- verticalSpan: Area -> Span
+-- verticalSpan area =
+--    area.verticalSpan |> verticalSpanToSpan
 
-horizontalSpan: Area -> Span
-horizontalSpan area =
-   area.horizontalSpan |> horizontalSpanToSpan
+-- horizontalSpan: Area -> Span
+-- horizontalSpan area =
+--    area.horizontalSpan |> horizontalSpanToSpan
 
 emptyArea: Area
 emptyArea =  
@@ -185,6 +185,34 @@ emptyArea =
       ,  verticalStart = intToVerticalStart 0
       ,  verticalSpan = intToVerticalSpan 0
     }
+
+verticalStartOne: VerticalStart 
+verticalStartOne =  1 |> Start |> VerticalStart
+
+horizontalStartOne: HorizontalStart
+horizontalStartOne = 1 |> Start |> HorizontalStart
+
+verticalSpanOne: VerticalSpan
+verticalSpanOne = 1 |> Span |> VerticalSpan
+
+horizontalSpanOne: HorizontalSpan
+horizontalSpanOne = 1 |> Span |> HorizontalSpan
+
+verticalStartAtLeastOne: Area -> Area
+verticalStartAtLeastOne area =
+      if (area.verticalStart |> verticalStartToStart) == Start 0 then 
+         area |> setVerticalStart (Start 1)
+      else area
+
+horizontalStartAtLeastOne: Area -> Area
+horizontalStartAtLeastOne area =
+      if (area.horizontalStart |> horizontalStartToStart) == Start 0 then 
+         area |> setHorizontalStart (Start 1)
+      else area
+startAtLeastOne: Area -> Area
+startAtLeastOne = verticalStartAtLeastOne >> horizontalStartAtLeastOne
+--  vs1 = 1 |> Start |> VerticalStart
+--    let hs1 = 1 |> Start |> HorizontalStart
 
 
 

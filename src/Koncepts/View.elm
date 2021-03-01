@@ -10,7 +10,7 @@ import Msg
 import Msg exposing (..)
 import Koncepts.DimensionalHeader exposing (..)
 import Koncepts.Area exposing (..)
-import Koncepts.Lines exposing(..)
+
 
 valueKonceptDetails: ValueKoncept -> Html Msg 
 valueKonceptDetails vk =
@@ -77,7 +77,7 @@ divKoncept koncept =
         div [] 
             [ 
                     hc.name |> Koncept.hyperCubeNameToString |> text
-                ,   viewCube Vertical hc dk
+                ,   viewCube Horizontal hc dk
             ]
  
 

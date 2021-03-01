@@ -6,7 +6,6 @@ import Koncepts.Koncept exposing (KonceptAction)
 import Koncepts.Dimensionalkoncept as DimensionalKoncept
 import Array exposing (foldr)
 import Koncepts.Area
-import Koncepts.Lines
 import Koncepts.DimensionalHeader
 import Json.Decode exposing (string)
 import NList exposing (..)

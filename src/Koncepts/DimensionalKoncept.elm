@@ -3,6 +3,7 @@ import Koncepts.Model exposing(createValueKoncept, ValueKoncept, createAbstractK
 import Koncepts.Model exposing (..)
 import ResultExtension
 import Koncepts.Area exposing (..)
+import Koncepts.Area as Area
 import Lists
 
 
@@ -99,29 +100,7 @@ fold f m =
                            Nothing -> Err "Empty result from fold of koncept")
    |> ResultExtension.foldOne
 
-calculateSpan: DimensionalKoncept -> List Int
-calculateSpan dimKoncept =
-   let 
-      recCalcForOne: Int -> DimensionalKoncept -> List Int
-      recCalcForOne stateOne koncept =
-         let
-            newStateOne: Int
-            newStateOne = 1
-         in
-            case koncept of
-               DimensionalAbstract (_,childKoncepts) ->
-                  let
-                     recCalcForMany: Int -> List DimensionalKoncept -> List Int
-                     recCalcForMany stateMany koncepts =
-                        case koncepts of
-                           [] -> [ stateMany ]
-                           head :: tail ->  (recCalcForOne stateMany head) ++ recCalcForMany stateMany tail
-                  in
-                     recCalcForMany newStateOne childKoncepts
-               DimensionalValue _ -> [ newStateOne ]
-     
-   in
-      recCalcForOne 0 dimKoncept
+
 
 type KonceptRowItem =
    AbstractRow AbstractKoncept
@@ -146,47 +125,72 @@ createValueRow area item =
         ,   item = ValueRow item  
       }
 
--- calculateRows: List DimensionalKoncept -> ( List KonceptRow , Span )
--- calculateRows koncepts =
---    let 
---       spanDepth: Int 
---       spanDepth = 
---          koncepts 
---          |> Lists.collect calculateSpan 
---          |> List.max 
---       area: HorizontalStart -> VerticalStart -> Area
---       area hStart vstart =
---          { 
+indentedRowSpan: DimensionalKoncept -> List Int
+indentedRowSpan dimKoncept =
+   let 
+      recCalcForOne: Int -> DimensionalKoncept -> List Int
+      recCalcForOne stateOne koncept =
+         let
+            newStateOne: Int
+            newStateOne = 1
+         in
+            case koncept of
+               DimensionalAbstract (_,childKoncepts) ->
+                  let
+                     recCalcForMany: Int -> List DimensionalKoncept -> List Int
+                     recCalcForMany stateMany koncepts =
+                        case koncepts of
+                           [] -> [ stateMany ]
+                           head :: tail ->  (recCalcForOne stateMany head) ++ recCalcForMany stateMany tail
+                  in
+                     recCalcForMany newStateOne childKoncepts
+               DimensionalValue _ -> [ newStateOne ]
+     
+   in
+      recCalcForOne 0 dimKoncept
+      
 
---                   verticalStart = vStart 
---                ,  horizontalStart =  hStart
---                ,  horizontalSpan =  
---                      spanDepth - (verticalStartToInt vstart) + 1 
---                      |> Span 
---                      |> HorizontalSpan
---                ,  verticalSpan = Span 1
---             --    verticalLine = VerticalLine { start = yStart, span = Span 1}
---             -- ,  horizontalLine = HorizontalLine { start = xStart , span = Span (spanDepth - (Start.value xStart) + 1) } 
---          }
---    in 
---       let
- 
---          recKonceptRow: Start -> DimensionalKoncept -> List KonceptRow
---          recKonceptRow start koncept =
---             case koncept of 
---                DimensionalAbstract (ak, childKoncepts) ->
---                   [ createAbstractRow (area (Start 1) start) ak ] ++ childKoncepts |> Lists.collect (recKonceptRow (increment start))
---                DimensionalValue vk -> 
---                   [ createValue (area (Start 1) start) vk ]
---       in
---          (
---          koncepts 
---          |> Lists.collect recKonceptRow (Start 1)
---          |> Lists.mapi (\rowIndex item -> { item | area = item.area |> Area.setVerticalStart (Start (rowIndex + 1)) })
---          , spanDepth
---          )
+calculateIndentedRows: List DimensionalKoncept -> List KonceptRow
+calculateIndentedRows koncepts =
+   let
+      maxSpan: Int
+      maxSpan = 
+         koncepts 
+         |> Lists.collect indentedRowSpan 
+         |> Lists.maxInt
+         |> Maybe.withDefault 0
 
+      area: VerticalStart -> HorizontalStart -> Area
+      area vStart hStart  = 
+         { 
+               horizontalStart =  hStart
+            ,  horizontalSpan = 
+                  maxSpan - (Area.horizontalStartToInt hStart) + 1
+                  |> Span 
+                  |> HorizontalSpan
+            ,  verticalSpan = Area.verticalSpanOne
+            ,  verticalStart = vStart
+         }
+    in
+      let
+          recCalculateRows: HorizontalStart -> DimensionalKoncept-> List KonceptRow
+          recCalculateRows horizontalStart koncept =
+            case koncept of
+               DimensionalAbstract (ak, childKoncepts) -> 
+                  [  
+                     createAbstractRow (area Area.verticalStartOne horizontalStart) ak
+                  ] 
+                  ++ (childKoncepts |> Lists.collect (recCalculateRows (Area.horizontalStartMap startIncrement horizontalStart))) 
+               DimensionalValue vk -> 
+                  [
+                     createValueRow (area Area.verticalStartOne horizontalStart) vk                     
+                  ] 
+
+      in  
   
+         koncepts 
+         |> Lists.collect (recCalculateRows Area.horizontalStartOne)
+         |> Lists.mapi (\i row -> { row | area = row.area |> Area.setVerticalStart (Start (i + 1)) })  
 
 -- let calcSpan koncept =
 --    let rec span state (koncept: DimensionalKoncept) = 
