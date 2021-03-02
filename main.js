@@ -4754,7 +4754,7 @@ var $author$project$Koncepts$Mock$addCube = function (koncept) {
 		}(
 			A2(
 				$author$project$Koncepts$Hypercube$create,
-				'Kvartal och annat tjafs',
+				'Kvartal och annat',
 				$author$project$Koncepts$Model$Closed(
 					$author$project$Koncepts$Hypercube$createDimensionWithDefault(
 						A2($author$project$Koncepts$Hypercube$domainCreate, 'Kvartal', kvartal))))));
@@ -4803,12 +4803,14 @@ var $author$project$Koncepts$Model$createValueKonceptWithSelection = F2(
 	});
 var $author$project$Koncepts$Model$createValueKoncept = $author$project$Koncepts$Model$createValueKonceptWithSelection(false);
 var $author$project$Koncepts$Dimensionalkoncept$createValue = A2($elm$core$Basics$composeR, $author$project$Koncepts$Model$createValueKoncept, $author$project$Koncepts$Model$DimensionalValue);
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Koncepts$Koncept$mapCube = F2(
 	function (f, koncept) {
 		if (koncept.$ === 'Cube') {
 			var _v1 = koncept.a;
 			var hc = _v1.a;
 			var koncepts = _v1.b;
+			var test = A2($elm$core$Debug$log, 'mapCube', ': cube');
 			return A2(
 				$elm$core$Result$map,
 				$author$project$Koncepts$Koncept$actionToKonceptOption(koncept),
@@ -4827,14 +4829,19 @@ var $author$project$Koncepts$Mock$addDimensionalKoncept = function () {
 		]);
 	var f = F2(
 		function (hc, dimensions) {
-			return _Utils_eq(
+			if (_Utils_eq(
 				hc.name,
-				$author$project$Koncepts$Model$HyperCubeName('Kvartal och annat')) ? $elm$core$Result$Ok(
-				$author$project$Koncepts$Model$MapValue(
-					$author$project$Koncepts$Model$Cube(
-						_Utils_Tuple2(
-							hc,
-							_Utils_ap(dimensions, dims))))) : $elm$core$Result$Ok($author$project$Koncepts$Model$Ignore);
+				$author$project$Koncepts$Model$HyperCubeName('Kvartal och annat'))) {
+				var name = A2($elm$core$Debug$log, 'cube name', hc.name);
+				return $elm$core$Result$Ok(
+					$author$project$Koncepts$Model$MapValue(
+						$author$project$Koncepts$Model$Cube(
+							_Utils_Tuple2(
+								hc,
+								_Utils_ap(dimensions, dims)))));
+			} else {
+				return $elm$core$Result$Ok($author$project$Koncepts$Model$Ignore);
+			}
 		});
 	return $author$project$Koncepts$Koncept$mapCube(f);
 }();
@@ -4982,6 +4989,7 @@ var $author$project$Koncepts$Koncept$recursivefold = F3(
 									$author$project$Koncepts$Koncept$andThenMaybeAdd(parent),
 									newKoncept));
 						default:
+							var test = A2($elm$core$Debug$log, 'newKoncept 2', 'newKoncept 1');
 							var newKoncept = f(ki);
 							return $author$project$Koncepts$Koncept$mapToParent(
 								A2(
@@ -5000,6 +5008,7 @@ var $author$project$Koncepts$Koncept$recursivefold = F3(
 	});
 var $author$project$Koncepts$Koncept$fold = F2(
 	function (f, m) {
+		var test2 = A2($elm$core$Debug$log, 'fold', 'fold');
 		return $author$project$ResultExtension$foldOne(
 			A2(
 				$elm$core$Result$map,
@@ -7029,16 +7038,22 @@ var $author$project$Koncepts$DimensionalHeader$viewCube = F3(
 		var span = $author$project$Koncepts$DimensionalHeader$calculateSpanForDimensions(dimensions);
 		var cubeRows = $author$project$Koncepts$Dimensionalkoncept$calculateIndentedCubeRows(koncepts);
 		var cubeColumns = A2($author$project$Koncepts$DimensionalHeader$calculateCubeColumns, direction, dimensions);
-		var rowHeaders = A2(
-			$elm$core$List$map,
-			function (rowHeader) {
-				return A3(
-					$author$project$Koncepts$DimensionalHeader$gridIndentedRowItem,
-					cubeColumns.offset,
-					rowHeader.area,
-					$author$project$Koncepts$Dimensionalkoncept$konceptRowItemName(rowHeader.item));
-			},
-			cubeRows.rows);
+		var rowHeaders = function () {
+			var rows = A2(
+				$elm$core$Debug$log,
+				'rows ',
+				$elm$core$List$length(cubeRows.rows));
+			return A2(
+				$elm$core$List$map,
+				function (rowHeader) {
+					return A3(
+						$author$project$Koncepts$DimensionalHeader$gridIndentedRowItem,
+						cubeColumns.offset,
+						rowHeader.area,
+						$author$project$Koncepts$Dimensionalkoncept$konceptRowItemName(rowHeader.item));
+				},
+				cubeRows.rows);
+		}();
 		var columns = A2(
 			$elm$core$List$map,
 			function (header) {

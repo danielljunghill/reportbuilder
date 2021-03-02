@@ -552,8 +552,12 @@ viewCube direction hyperCube koncepts =
 
          rowHeaders: List (Html Msg)
          rowHeaders =
-            cubeRows.rows
-            |> List.map (\rowHeader -> gridIndentedRowItem cubeColumns.offset rowHeader.area (konceptRowItemName rowHeader.item))
+            let 
+               rows: Int
+               rows = Debug.log "rows " (List.length cubeRows.rows)
+            in
+               cubeRows.rows
+               |> List.map (\rowHeader -> gridIndentedRowItem cubeColumns.offset rowHeader.area (konceptRowItemName rowHeader.item))
 
 
 
@@ -574,7 +578,6 @@ viewCube direction hyperCube koncepts =
                   GridColumns s
         
     in
- 
         div (grid (gridRows direction span cubeColumns.columns) (gridColumns direction span cubeColumns.columns)) (columns ++ rowHeaders)
 
 

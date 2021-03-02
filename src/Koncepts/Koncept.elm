@@ -119,6 +119,8 @@ recursivefold f p k  =
                         |> mapToParent
                   Cube (_)->
                      let
+                        test: String 
+                        test = Debug.log "newKoncept 2" "newKoncept 1"
                         newKoncept:Result String (Maybe Koncept)
                         newKoncept = f ki 
                      in
@@ -130,12 +132,17 @@ recursivefold f p k  =
 
 fold: (Koncept -> Result String (Maybe Koncept)) -> Result String Koncept -> Result String Koncept
 fold f m =
-   recursivefold f (Ok Nothing) (m |> Result.map Just)
-   |> parentAsKoncept
-   |> Result.map (\ v -> case v of 
-                           Just vi -> Ok vi 
-                           Nothing -> Err "Empty result from fold of koncept")
-   |> ResultExtension.foldOne
+   let 
+       test2: String 
+       test2 = Debug.log "fold" "fold"
+
+   in
+      recursivefold f (Ok Nothing) (m |> Result.map Just)
+      |> parentAsKoncept
+      |> Result.map (\ v -> case v of 
+                              Just vi -> Ok vi 
+                              Nothing -> Err "Empty result from fold of koncept")
+      |> ResultExtension.foldOne
 
 
 
@@ -152,8 +159,12 @@ mapCube: (HyperCube -> List DimensionalKoncept -> Result String KonceptAction) -
 mapCube f koncept =
     case koncept of
       Cube (hc,koncepts) ->
-        f hc koncepts 
-        |> Result.map (actionToKonceptOption koncept)
+         let 
+            test: String 
+            test = Debug.log "mapCube" ": cube"
+         in
+            f hc koncepts 
+            |> Result.map (actionToKonceptOption koncept)
       _ -> koncept |> Just |> Ok 
 
 mapAbstractKoncept: (AbstractKoncept -> List Koncept -> Result String KonceptAction) -> Koncept -> Result String (Maybe Koncept)

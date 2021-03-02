@@ -61,7 +61,7 @@ addCube koncept  =
          |> HyperCube.domainCreate "Kvartal" 
          |> HyperCube.createDimensionWithDefault
          |> Closed
-         |> HyperCube.create "Kvartal och annat tjafs"  
+         |> HyperCube.create "Kvartal och annat"  
          |> (\cube -> HyperCube.addDimension cube dimRegioner)
          |> (\cube -> HyperCube.addDimension cube dimArtal)
          -- |> 
@@ -90,10 +90,14 @@ addDimensionalKoncept  =
           f: HyperCube -> List DimensionalKoncept -> Result String KonceptAction
           f hc dimensions =
                if hc.name == HyperCubeName "Kvartal och annat" then
-                  (hc,dimensions ++ dims) 
-                  |> Cube 
-                  |> MapValue
-                  |> Ok
+                  let 
+                      name : HyperCubeName
+                      name = Debug.log "cube name" hc.name
+                  in 
+                     (hc,dimensions ++ dims) 
+                     |> Cube 
+                     |> MapValue
+                     |> Ok
                else
                   Ignore 
                   |> Ok
