@@ -360,21 +360,20 @@ calculateTableHeaders direction dimensions =
          dimensions
          |> recFold totalSpanForDimensions (dimensions |> List.length |> Depth) []  
 
-type DimensionColumn = DimensionColumn (NList Member)
+type CubeColumn = CubeColumn (NList Member)
 
-type  DimensionColumns = DimensionColumns (List DimensionColumn)
 
-type alias DimensionColumnHeader =
+type alias CubeColumnHeader =
    {
          isTotal: Bool
       ,  area: Area
       ,  member: Member
    }
 
-tableHeaderToDimensionColumnHeader: TableHeader -> List DimensionColumnHeader
+tableHeaderToDimensionColumnHeader: TableHeader -> List CubeColumnHeader
 tableHeaderToDimensionColumnHeader tableHeader =
    let   
-      createDimensionColumnHeader: Bool -> DimensionHeader -> DimensionColumnHeader
+      createDimensionColumnHeader: Bool -> DimensionHeader -> CubeColumnHeader
       createDimensionColumnHeader isTotal (DimensionHeader d) =
          {
                isTotal = isTotal
@@ -383,7 +382,7 @@ tableHeaderToDimensionColumnHeader tableHeader =
          }
    in
       let
-         ch: NList DimensionColumnHeader
+         ch: NList CubeColumnHeader
          ch =
             case tableHeader of
                MemberHeader h -> h |> NList.map (createDimensionColumnHeader False)
@@ -393,17 +392,54 @@ tableHeaderToDimensionColumnHeader tableHeader =
          ch |> NList.toList
 
 
-dimensionColumns: List TableHeader -> DimensionColumns
+dimensionColumns: List TableHeader -> List CubeColumn
 dimensionColumns headers = 
   headers 
-  |> List.map (tableHeaderAsMembers >> DimensionColumn)
-  |> DimensionColumns
+  |> List.map (tableHeaderAsMembers >> CubeColumn)
 
 
-dimensionColumnHeaders: List TableHeader -> List DimensionColumnHeader 
+dimensionColumnHeaders: List TableHeader -> List CubeColumnHeader 
 dimensionColumnHeaders headers =
    headers
    |> Lists.collect tableHeaderToDimensionColumnHeader
+
+type CubeRowOffset = CubeRowOffset Offset
+
+type alias CubeColumns = 
+   {
+         offset: CubeRowOffset
+      ,  columns: List CubeColumn 
+      ,  headers: List CubeColumnHeader 
+   }
+
+
+calculateCubeColumns:  Direction ->  List Dimension -> CubeColumns  
+calculateCubeColumns direction dimensions =
+   let
+      tableHeaders: List TableHeader
+      tableHeaders = calculateTableHeaders direction dimensions
+      offset : Offset
+      offset =
+         case direction of
+            Horizontal -> 
+               dimensions 
+               |> List.length 
+               |> Start 
+               |> VerticalStart
+               |> addVerticalStartToOffset Area.emptyOffset  
+            Vertical -> 
+               dimensions 
+               |> List.length 
+               |> Start 
+               |> HorizontalStart 
+               |> addHorizontalStartToOffset Area.emptyOffset  
+   in
+      {
+            columns = dimensionColumns tableHeaders
+         ,  headers = dimensionColumnHeaders tableHeaders
+         ,  offset = offset |>  CubeRowOffset
+      }
+
 
 --------------------------------- View -----------------------------------
 
@@ -459,13 +495,34 @@ areaToAttribute area =
     in
          [ areaAttribute,style "border" "black solid 1px" ]
 
-gridItem: Area -> String -> Html Msg
-gridItem area t = 
-    div (areaToAttribute area) [ text t ]
+gridItem: Offset -> Area -> String -> Html Msg
+gridItem offset area t = 
+    let
+         areaWithOffset: Area 
+         areaWithOffset = area |> offsetArea offset
+    in
+      div (areaToAttribute areaWithOffset) [ text t ]
+
+gridColumnItem: CubeColumnOffset -> Area -> String -> Html Msg
+gridColumnItem (CubeColumnOffset offset) =
+   gridItem offset
+
+
+gridIndentedRowItem: CubeRowOffset -> Area -> String -> Html Msg
+gridIndentedRowItem (CubeRowOffset offset) area =
+   let 
+         newArea: Area
+         newArea =
+            area
+            |> Area.setHorizontalSpan (Span 1)  
+            |> Area.setHorizontalStart (Start 1)
+   in
+      gridItem offset newArea
 
 viewCube: Direction -> HyperCube -> List DimensionalKoncept  -> Html Msg
 viewCube direction hyperCube koncepts =
     let 
+
          dimensions: List Dimension 
          dimensions = 
             hyperCube.dimensions 
@@ -475,39 +532,50 @@ viewCube direction hyperCube koncepts =
          span: Span 
          span = dimensions |> calculateSpanForDimensions 
 
-         tableHeaders: List TableHeader
-         tableHeaders = 
-            dimensions 
-            |> calculateTableHeaders direction
+         -- tableHeaders: List TableHeader
+         -- tableHeaders = 
+         --    dimensions 
+         --    |> calculateTableHeaders direction
+         cubeRows: CubeRows
+         cubeRows = calculateIndentedCubeRows koncepts
 
-         columns: DimensionColumns 
-         columns = tableHeaders |> dimensionColumns 
+
+         cubeColumns: CubeColumns
+         cubeColumns = 
+            dimensions
+            |> calculateCubeColumns direction
        
-         headers: List (Html Msg) 
-         headers = 
-            tableHeaders 
-            |> dimensionColumnHeaders 
-            |> List.map (\header -> gridItem header.area header.member.name)
+         columns: List (Html Msg) 
+         columns = 
+            cubeColumns.headers 
+            |> List.map (\header -> gridColumnItem cubeRows.offset header.area header.member.name)
 
-         gridRows: Direction -> Span -> DimensionColumns -> GridRows
-         gridRows d (Span s) (DimensionColumns c)=
+         rowHeaders: List (Html Msg)
+         rowHeaders =
+            cubeRows.rows
+            |> List.map (\rowHeader -> gridIndentedRowItem cubeColumns.offset rowHeader.area (konceptRowItemName rowHeader.item))
+
+
+
+         gridRows: Direction -> Span -> List CubeColumn -> GridRows
+         gridRows d (Span s) cols  =
             case d of
                Horizontal ->
                   GridRows s
                Vertical ->
-                  GridRows (List.length c)
+                  GridRows (List.length cols)
         
-         gridColumns: Direction -> Span -> DimensionColumns -> GridColumns
-         gridColumns d (Span s) (DimensionColumns c)=
+         gridColumns: Direction -> Span -> List CubeColumn -> GridColumns
+         gridColumns d (Span s) cols =
             case d of
                Horizontal ->
-                  GridColumns (List.length c)
+                  GridColumns (List.length cols)
                Vertical ->
                   GridColumns s
         
     in
  
-        div (grid (gridRows direction span columns) (gridColumns direction span columns))  headers
+        div (grid (gridRows direction span cubeColumns.columns) (gridColumns direction span cubeColumns.columns)) (columns ++ rowHeaders)
 
 
 -- tableHeaderView: List TableColumn -> Html Msg

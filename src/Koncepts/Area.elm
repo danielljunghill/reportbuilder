@@ -93,6 +93,11 @@ verticalStartToInt = verticalStartToStart >> startInt
 intToVerticalStart: Int -> VerticalStart
 intToVerticalStart = Start >> VerticalStart
 
+verticalStartAdd: VerticalStart -> VerticalStart -> VerticalStart
+verticalStartAdd (VerticalStart (Start s1)) (VerticalStart (Start s2)) =
+   s1 + s2
+   |> Start
+   |> VerticalStart
 type HorizontalStart = HorizontalStart Start
 horizontalStartMap:  (Start -> Start) -> HorizontalStart -> HorizontalStart
 horizontalStartMap f (HorizontalStart start) =
@@ -109,6 +114,11 @@ horizontalStartToInt = horizontalStartToStart >> startInt
 intToHorizontalStart: Int -> HorizontalStart
 intToHorizontalStart = Start >> HorizontalStart
 
+horizontalStartAdd: HorizontalStart -> HorizontalStart -> HorizontalStart
+horizontalStartAdd (HorizontalStart (Start s1)) (HorizontalStart (Start s2)) =
+   s1 + s2
+   |> Start
+   |> HorizontalStart
 
 type alias Area =
    {
@@ -186,36 +196,83 @@ emptyArea =
       ,  verticalSpan = intToVerticalSpan 0
     }
 
-verticalStartOne: VerticalStart 
-verticalStartOne =  1 |> Start |> VerticalStart
+oneVerticalStart: VerticalStart 
+oneVerticalStart =  1 |> Start |> VerticalStart
 
-horizontalStartOne: HorizontalStart
-horizontalStartOne = 1 |> Start |> HorizontalStart
+oneHorizontalStart: HorizontalStart
+oneHorizontalStart = 1 |> Start |> HorizontalStart
 
-verticalSpanOne: VerticalSpan
-verticalSpanOne = 1 |> Span |> VerticalSpan
+oneVerticalSpan: VerticalSpan
+oneVerticalSpan = 1 |> Span |> VerticalSpan
 
-horizontalSpanOne: HorizontalSpan
-horizontalSpanOne = 1 |> Span |> HorizontalSpan
+oneHorizontalSpan: HorizontalSpan
+oneHorizontalSpan = 1 |> Span |> HorizontalSpan
 
-verticalStartAtLeastOne: Area -> Area
-verticalStartAtLeastOne area =
+
+zeroVerticalStart: VerticalStart 
+zeroVerticalStart =  0 |> Start |> VerticalStart
+
+zeroHorizontalStart: HorizontalStart
+zeroHorizontalStart = 0 |> Start |> HorizontalStart
+
+zeroVerticalSpan: VerticalSpan
+zeroVerticalSpan = 0 |> Span |> VerticalSpan
+
+zeroHorizontalSpan: HorizontalSpan
+zeroHorizontalSpan = 0 |> Span |> HorizontalSpan
+
+greaterThanZeroVerticalStart: Area -> Area
+greaterThanZeroVerticalStart area =
       if (area.verticalStart |> verticalStartToStart) == Start 0 then 
          area |> setVerticalStart (Start 1)
       else area
 
-horizontalStartAtLeastOne: Area -> Area
-horizontalStartAtLeastOne area =
+greaterThanZeroHorizonalStart: Area -> Area
+greaterThanZeroHorizonalStart area =
       if (area.horizontalStart |> horizontalStartToStart) == Start 0 then 
          area |> setHorizontalStart (Start 1)
       else area
-startAtLeastOne: Area -> Area
-startAtLeastOne = verticalStartAtLeastOne >> horizontalStartAtLeastOne
+
+greaterThanZeroStart: Area -> Area
+greaterThanZeroStart = greaterThanZeroVerticalStart >> greaterThanZeroHorizonalStart
 --  vs1 = 1 |> Start |> VerticalStart
 --    let hs1 = 1 |> Start |> HorizontalStart
 
+type alias Offset =
+   {
+         verticalStart: VerticalStart
+      ,  horizontalStart: HorizontalStart
+   }
+
+emptyOffset: Offset
+emptyOffset = 
+   {
+         verticalStart = zeroVerticalStart
+      ,  horizontalStart = zeroHorizontalStart
+   }
+
+addVerticalStartToOffset: Offset -> VerticalStart -> Offset 
+addVerticalStartToOffset offset vStart    =
+   let
+      startOffest : Start
+      startOffest = offset.verticalStart |> verticalStartToStart   
+      start : Start
+      start = vStart |> verticalStartToStart  
+   in
+      { offset | verticalStart = start |> startAdd startOffest |> VerticalStart }
+
+addHorizontalStartToOffset: Offset -> HorizontalStart -> Offset
+addHorizontalStartToOffset offset hStart  =
+   let
+      startOffest : Start
+      startOffest = offset.horizontalStart |> horizontalStartToStart   
+      start : Start
+      start = hStart |> horizontalStartToStart  
+   in
+      { offset | horizontalStart = start |> startAdd startOffest |> HorizontalStart }
 
 
-
-
-
+offsetArea: Offset -> Area -> Area 
+offsetArea offset area =
+      { area | verticalStart = (area.verticalStart |> verticalStartAdd offset.verticalStart) }
+      |> (\a -> { a | horizontalStart = a.horizontalStart |> horizontalStartAdd offset.horizontalStart })

@@ -106,11 +106,20 @@ type KonceptRowItem =
    AbstractRow AbstractKoncept
    | ValueRow ValueKoncept
 
+
+konceptRowItemName: KonceptRowItem -> String
+konceptRowItemName item =
+   case item of
+      AbstractRow ak -> abstractKonceptNameToString ak.name
+      ValueRow vk -> valueKonceptNameToString vk.name
+
 type alias KonceptRow = 
    {
          area: Area
       ,  item: KonceptRowItem
    }
+
+
 
 createAbstractRow: Area -> AbstractKoncept -> KonceptRow
 createAbstractRow area item =
@@ -168,7 +177,7 @@ calculateIndentedRows koncepts =
                   maxSpan - (Area.horizontalStartToInt hStart) + 1
                   |> Span 
                   |> HorizontalSpan
-            ,  verticalSpan = Area.verticalSpanOne
+            ,  verticalSpan = Area.oneVerticalSpan
             ,  verticalStart = vStart
          }
     in
@@ -178,19 +187,45 @@ calculateIndentedRows koncepts =
             case koncept of
                DimensionalAbstract (ak, childKoncepts) -> 
                   [  
-                     createAbstractRow (area Area.verticalStartOne horizontalStart) ak
+                     createAbstractRow (area Area.oneVerticalStart horizontalStart) ak
                   ] 
                   ++ (childKoncepts |> Lists.collect (recCalculateRows (Area.horizontalStartMap startIncrement horizontalStart))) 
                DimensionalValue vk -> 
                   [
-                     createValueRow (area Area.verticalStartOne horizontalStart) vk                     
+                     createValueRow (area Area.oneVerticalStart horizontalStart) vk                     
                   ] 
 
       in  
   
          koncepts 
-         |> Lists.collect (recCalculateRows Area.horizontalStartOne)
+         |> Lists.collect (recCalculateRows Area.oneHorizontalStart)
          |> Lists.mapi (\i row -> { row | area = row.area |> Area.setVerticalStart (Start (i + 1)) })  
+
+
+type CubeColumnOffset = CubeColumnOffset Offset
+
+type alias CubeRows =
+   {
+         rows: List KonceptRow
+      ,  offset: CubeColumnOffset
+
+   }
+
+
+calculateIndentedCubeRows: List DimensionalKoncept  -> CubeRows
+calculateIndentedCubeRows koncepts =
+   let 
+      offset: Offset
+      offset =
+            {
+                  verticalStart = zeroVerticalStart
+               ,  horizontalStart = oneHorizontalStart
+            } 
+   in
+      {
+            rows = calculateIndentedRows koncepts
+         ,  offset = offset |> CubeColumnOffset
+      }
 
 -- let calcSpan koncept =
 --    let rec span state (koncept: DimensionalKoncept) = 
