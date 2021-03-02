@@ -89,55 +89,64 @@ parentAsKoncept: Result String (Maybe ParentKoncept) -> Result String (Maybe Kon
 parentAsKoncept parent  =
         parent |> Result.map (\r -> r |> Maybe.map (\ (ParentKoncept k) -> k))
 
-recursivefold: (Koncept -> Result String (Maybe Koncept)) ->  Result String (Maybe ParentKoncept) ->  Result String (Maybe Koncept) ->   Result String (Maybe ParentKoncept)
+recursivefold: (Koncept -> Result String (Maybe Koncept)) ->  Result String (Maybe ParentKoncept) ->  Result String (Maybe Koncept) ->  Result String (Maybe ParentKoncept)
 recursivefold f p k  =
    let 
+
+      -- first: Result String (Maybe Koncept)
+      -- first = f k
       fmap: Result String (Maybe ParentKoncept) -> Maybe Koncept -> Result String (Maybe ParentKoncept)
       fmap parent koncept =
-         case koncept of
-            Just ki ->
-               case ki of
-                  Abstract (ak, koncepts) ->
-                     let 
-                        newKoncept: Result String (Maybe ParentKoncept)
-                        newKoncept = (ak, []) |> Abstract |> ParentKoncept |> Just |> Ok
-                        accKoncept:Result String (Maybe Koncept)   
-                        accKoncept = 
-                           koncepts 
-                           |> List.map f 
-                           |> List.foldl (\a b -> recursivefold f b a) newKoncept 
-                           |> parentAsKoncept
-                     in
-                        accKoncept |> Result.andThen (andThenMaybeAdd parent)  
-                        |> mapToParent                   
-                  Value (_) -> 
-                     let
-                        newKoncept: Result String (Maybe Koncept)  
-                        newKoncept = f ki
-                     in
-                        Result.andThen (andThenMaybeAdd parent) newKoncept
-                        |> mapToParent
-                  Cube (_)->
-                     let
-                        test: String 
-                        test = Debug.log "newKoncept 2" "newKoncept 1"
-                        newKoncept:Result String (Maybe Koncept)
-                        newKoncept = f ki 
-                     in
-                        Result.andThen (andThenMaybeAdd parent) newKoncept
-                        |> mapToParent
-            Nothing -> parent
+         let
+            koncept3 = Debug.log "recursivefold 4: " koncept
+         in
+            case koncept of
+               Just ki ->
+                  case ki of
+                     Abstract (ak, koncepts) ->
+                        let 
+                           koncept4 = Debug.log "recursivefold 5: " ak
+                           newKoncept: Result String (Maybe ParentKoncept)
+                           newKoncept = (ak, []) |> Abstract |> ParentKoncept |> Just |> Ok
+                           accKoncept:Result String (Maybe Koncept)   
+                           accKoncept = 
+                              koncepts 
+                              |> List.map f 
+                              |> List.foldl (\a b -> recursivefold f b a) newKoncept 
+                              |> parentAsKoncept
+                        in
+                           accKoncept |> Result.andThen (andThenMaybeAdd parent)  
+                           |> mapToParent                   
+                     Value (_) -> 
+                        -- let
+                        --    koncept5 = Debug.log "recursivefold 6: " koncept
+                        --    newKoncept: Result String (Maybe Koncept)  
+                        --    newKoncept = f ki
+                        -- in
+                           Result.andThen (andThenMaybeAdd parent) (ki |> Just |> Ok) 
+                           |> mapToParent
+                     Cube (_)->
+                        -- let
+                      
+                        --    test = Debug.log "recursivefold 7" ki
+                        --    newKoncept:Result String (Maybe Koncept)
+                        --    newKoncept = f ki 
+                        -- in
+                           Result.andThen (andThenMaybeAdd parent) (ki |> Just |> Ok) 
+                           |> mapToParent
+               Nothing -> parent
    in
       Result.andThen (fmap p) k
 
-fold: (Koncept -> Result String (Maybe Koncept)) -> Result String Koncept -> Result String Koncept
+fold: (Koncept -> Result String (Maybe Koncept)) -> Koncept -> Result String Koncept
 fold f m =
    let 
        test2: String 
        test2 = Debug.log "fold" "fold"
-
+       first: Result String (Maybe Koncept)
+       first = f m
    in
-      recursivefold f (Ok Nothing) (m |> Result.map Just)
+      recursivefold f (Ok Nothing) first
       |> parentAsKoncept
       |> Result.map (\ v -> case v of 
                               Just vi -> Ok vi 

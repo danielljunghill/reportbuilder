@@ -16,7 +16,7 @@ import NList as NList
 
 head: Result String Koncept
 head = 
-    "IORP2 nationell strunt"  
+    "IORP2 nationell strunt 1"  
     |> Koncept.createAbstract 
     |> Koncept.ParentKoncept  
     |> Koncept.add ("Intäkter" |> Koncept.createAbstract )
@@ -107,11 +107,11 @@ addDimensionalKoncept  =
       
 mockKoncept: Result String Koncept
 mockKoncept =
-  
    head
-   |> Koncept.fold addCube
-   |> Koncept.fold addDimensionalKoncept
-   |> addValue "Ett nytt värde"
+   |> Result.andThen (Koncept.fold addCube)
+   |> Debug.log "add dimensions"
+   |> Result.andThen (Koncept.fold addDimensionalKoncept)
+   |> addValue "Ett nytt värde 4"
 
 
 

@@ -4955,6 +4955,7 @@ var $author$project$Koncepts$Koncept$recursivefold = F3(
 	function (f, p, k) {
 		var fmap = F2(
 			function (parent, koncept) {
+				var koncept3 = A2($elm$core$Debug$log, 'recursivefold 4: ', koncept);
 				if (koncept.$ === 'Just') {
 					var ki = koncept.a;
 					switch (ki.$) {
@@ -4967,6 +4968,7 @@ var $author$project$Koncepts$Koncept$recursivefold = F3(
 									$author$project$Koncepts$Koncept$ParentKoncept(
 										$author$project$Koncepts$Model$Abstract(
 											_Utils_Tuple2(ak, _List_Nil)))));
+							var koncept4 = A2($elm$core$Debug$log, 'recursivefold 5: ', ak);
 							var accKoncept = $author$project$Koncepts$Koncept$parentAsKoncept(
 								A3(
 									$elm$core$List$foldl,
@@ -4982,20 +4984,19 @@ var $author$project$Koncepts$Koncept$recursivefold = F3(
 									$author$project$Koncepts$Koncept$andThenMaybeAdd(parent),
 									accKoncept));
 						case 'Value':
-							var newKoncept = f(ki);
 							return $author$project$Koncepts$Koncept$mapToParent(
 								A2(
 									$elm$core$Result$andThen,
 									$author$project$Koncepts$Koncept$andThenMaybeAdd(parent),
-									newKoncept));
+									$elm$core$Result$Ok(
+										$elm$core$Maybe$Just(ki))));
 						default:
-							var test = A2($elm$core$Debug$log, 'newKoncept 2', 'newKoncept 1');
-							var newKoncept = f(ki);
 							return $author$project$Koncepts$Koncept$mapToParent(
 								A2(
 									$elm$core$Result$andThen,
 									$author$project$Koncepts$Koncept$andThenMaybeAdd(parent),
-									newKoncept));
+									$elm$core$Result$Ok(
+										$elm$core$Maybe$Just(ki))));
 					}
 				} else {
 					return parent;
@@ -5009,6 +5010,7 @@ var $author$project$Koncepts$Koncept$recursivefold = F3(
 var $author$project$Koncepts$Koncept$fold = F2(
 	function (f, m) {
 		var test2 = A2($elm$core$Debug$log, 'fold', 'fold');
+		var first = f(m);
 		return $author$project$ResultExtension$foldOne(
 			A2(
 				$elm$core$Result$map,
@@ -5025,7 +5027,7 @@ var $author$project$Koncepts$Koncept$fold = F2(
 						$author$project$Koncepts$Koncept$recursivefold,
 						f,
 						$elm$core$Result$Ok($elm$core$Maybe$Nothing),
-						A2($elm$core$Result$map, $elm$core$Maybe$Just, m)))));
+						first))));
 	});
 var $author$project$Koncepts$Model$AbstractKonceptId = function (a) {
 	return {$: 'AbstractKonceptId', a: a};
@@ -5050,14 +5052,20 @@ var $author$project$Koncepts$Mock$head = A2(
 	$author$project$Koncepts$Koncept$add,
 	$author$project$Koncepts$Koncept$createAbstract('Intäkter'),
 	$author$project$Koncepts$Koncept$ParentKoncept(
-		$author$project$Koncepts$Koncept$createAbstract('IORP2 nationell strunt')));
+		$author$project$Koncepts$Koncept$createAbstract('IORP2 nationell strunt 1')));
 var $author$project$Koncepts$Mock$mockKoncept = A2(
 	$author$project$Koncepts$Mock$addValue,
-	'Ett nytt värde',
+	'Ett nytt värde 4',
 	A2(
-		$author$project$Koncepts$Koncept$fold,
-		$author$project$Koncepts$Mock$addDimensionalKoncept,
-		A2($author$project$Koncepts$Koncept$fold, $author$project$Koncepts$Mock$addCube, $author$project$Koncepts$Mock$head)));
+		$elm$core$Result$andThen,
+		$author$project$Koncepts$Koncept$fold($author$project$Koncepts$Mock$addDimensionalKoncept),
+		A2(
+			$elm$core$Debug$log,
+			'add dimensions',
+			A2(
+				$elm$core$Result$andThen,
+				$author$project$Koncepts$Koncept$fold($author$project$Koncepts$Mock$addCube),
+				$author$project$Koncepts$Mock$head))));
 var $author$project$Report$Mock$page1 = A2(
 	$elm$core$Result$map,
 	function (koncept) {
