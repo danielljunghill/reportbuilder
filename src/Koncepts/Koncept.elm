@@ -97,15 +97,11 @@ recursivefold f p k  =
       -- first = f k
       fmap: Result String (Maybe ParentKoncept) -> Maybe Koncept -> Result String (Maybe ParentKoncept)
       fmap parent koncept =
-         let
-            koncept3 = Debug.log "recursivefold 4: " koncept
-         in
             case koncept of
                Just ki ->
                   case ki of
                      Abstract (ak, koncepts) ->
                         let 
-                           koncept4 = Debug.log "recursivefold 5: " ak
                            newKoncept: Result String (Maybe ParentKoncept)
                            newKoncept = (ak, []) |> Abstract |> ParentKoncept |> Just |> Ok
                            accKoncept:Result String (Maybe Koncept)   
@@ -118,20 +114,9 @@ recursivefold f p k  =
                            accKoncept |> Result.andThen (andThenMaybeAdd parent)  
                            |> mapToParent                   
                      Value (_) -> 
-                        -- let
-                        --    koncept5 = Debug.log "recursivefold 6: " koncept
-                        --    newKoncept: Result String (Maybe Koncept)  
-                        --    newKoncept = f ki
-                        -- in
                            Result.andThen (andThenMaybeAdd parent) (ki |> Just |> Ok) 
                            |> mapToParent
                      Cube (_)->
-                        -- let
-                      
-                        --    test = Debug.log "recursivefold 7" ki
-                        --    newKoncept:Result String (Maybe Koncept)
-                        --    newKoncept = f ki 
-                        -- in
                            Result.andThen (andThenMaybeAdd parent) (ki |> Just |> Ok) 
                            |> mapToParent
                Nothing -> parent
@@ -141,8 +126,6 @@ recursivefold f p k  =
 fold: (Koncept -> Result String (Maybe Koncept)) -> Koncept -> Result String Koncept
 fold f m =
    let 
-       test2: String 
-       test2 = Debug.log "fold" "fold"
        first: Result String (Maybe Koncept)
        first = f m
    in
@@ -168,10 +151,6 @@ mapCube: (HyperCube -> List DimensionalKoncept -> Result String KonceptAction) -
 mapCube f koncept =
     case koncept of
       Cube (hc,koncepts) ->
-         let 
-            test: String 
-            test = Debug.log "mapCube" ": cube"
-         in
             f hc koncepts 
             |> Result.map (actionToKonceptOption koncept)
       _ -> koncept |> Just |> Ok 

@@ -21,10 +21,11 @@ body, html, .report-wrapper
 .page
 {
     flex-grow: inherit;
-    border: 1px black;
-    border-style: solid;
-    padding: 10px;
-    height: 100%
+    /* border: 1px black;
+    border-style: solid; */
+    /* padding: 10px; */
+    height: 100%;
+
 }
 
 .selected
@@ -44,8 +45,8 @@ body, html, .report-wrapper
  {
     padding: 10px;
     background-color:white;
-    border: 1px solid black;
-    margin-top: -1px;   
+    /* border: 1px solid black; */
+    /* margin-top: -1px;    */
  }
 
  .header.selected
@@ -54,12 +55,12 @@ body, html, .report-wrapper
      border-top: transparent;
  }
 
- .koncept.koncept
+ /* .koncept.koncept
 {
     /* display: flex;
-    flex-direction: column; */
+    flex-direction: column;
     margin-left: 20px;
-}
+} */
 
 .abstract-details
 {
@@ -94,13 +95,63 @@ body, html, .report-wrapper
     padding:3px
 }
 
+.grid-cell
+{
+    padding: 5px;
+    font-style: bold;
+    color:gray
+}
 
+.rind1
+{
+    padding: 5px 5px 5px 5px;
+    width: 300px
+}
 
+.rind2
+{
+    padding: 5px 5px 5px 15px
+}
 
+.rind3
+{
+    padding: 5px 5px 5px 25px
+}
 
+.rind4
+{
+    padding: 5px 5px 5px 35px
+}
 
+.rind5
+{
+    padding: 5px 5px 5px 45px
+}
 
+.rind6
+{
+    padding: 5px 5px 5px 55px
+}
 
+.rind7
+{
+    padding: 5px 5px 5px 65px
+}
+
+.rind8
+{
+    padding: 5px 5px 5px 75px
+}
+
+.rind9
+{
+    padding: 5px 5px 5px 85px
+}
+
+.rind10
+{
+    padding: 5px 5px 5px 95px
+}
 
 
 

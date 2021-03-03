@@ -67,7 +67,7 @@ calculateArea dimension direction area ordinal =
             vStart: VerticalStart
             vStart = 
                area.verticalStart 
-               |> verticalStartMap startIncrement --Lines.startAdd (Lines.verticalStart area.verticalLine) (Start 1)    
+               |> verticalStartMap startIncrement 
          in
             { 
                      verticalStart = vStart
@@ -75,8 +75,6 @@ calculateArea dimension direction area ordinal =
                  ,   horizontalStart = hStart
                  ,   horizontalSpan = hSpan
                  
-               --    horizontalLine = HorizontalLine (createLine hStart hSpan)  -- HorizontalLine    { span = horizontalSpan; start = horizontalstart} 
-               -- ,  verticalLine = VerticalLine (createLine vStart (Span 1))  --VerticalLine { span =  ; start = verticalStart}
             }
       Vertical ->
          let
@@ -102,19 +100,12 @@ calculateArea dimension direction area ordinal =
                  ,   verticalSpan = vSpan
                  ,   horizontalStart = hStart
                  ,   horizontalSpan = 1 |> Span |> HorizontalSpan
-                 
-               --    horizontalLine = HorizontalLine (createLine hStart (Span 1)) -- { Span = Span 1; Start = horizontalStart}
-               -- ,  verticalLine = VerticalLine (createLine vStart vSpan)--{ Span = verticalSpan ; Start = verticalStart }
+
             }
 
 calculateDefaultArea: Direction -> Depth -> Area -> Area
 calculateDefaultArea direction (Depth depth) area =
-   -- let
-   --    vl: VerticalLine
-   --    vl = area.verticalLine
-   --    hl: HorizontalLine
-   --    hl = area.horizontalLine
-   -- in
+
       case direction of
          Horizontal -> 
             -- let
@@ -127,20 +118,7 @@ calculateDefaultArea direction (Depth depth) area =
                      area.horizontalStart  
                      |> horizontalStartMap ((spanStart (\a b -> a + b) (area.horizontalSpan |> horizontalSpanToSpan)) >> Start)
                }
-            --    newVl: VerticalLine 
-            --    newVl =
-            --       vl
-            --       |> verticalSetSpan (Span depth)
-            --    newHl: HorizontalLine
-            --    newHl =
-            --       hl
-            --       |> horizontalIncrementStartWithSpan 
-            --       |> horizontalSetSpan (Span 1)
-            -- in
-            --    { 
-            --          verticalLine = newVl
-            --       ,  horizontalLine = newHl
-            --    }
+
          Vertical ->
                {
                      horizontalStart = area.horizontalStart
@@ -150,21 +128,7 @@ calculateDefaultArea direction (Depth depth) area =
                      area.verticalStart  
                      |> verticalStartMap ((spanStart (\a b -> a + b) (area.verticalSpan |> verticalSpanToSpan)) >> Start)
                }
-            -- let
-            --    newHl: HorizontalLine 
-            --    newHl =
-            --       hl
-            --       |> horizontalSetSpan (Span depth)
-            --    newVl: VerticalLine
-            --    newVl =
-            --       vl
-            --       |> verticalIncrementStartWithSpan 
-            --       |> verticalSetSpan (Span 1)
-            -- in
-            --    { 
-            --          verticalLine = newVl
-            --       ,  horizontalLine = newHl
-            --    }
+
 
 fromDimension: Direction -> Depth -> Area -> Dimension -> List Member -> (NList DimensionHeader, Maybe DimensionHeader )
 fromDimension direction depth area dimension parentMembers =
@@ -198,9 +162,6 @@ fromDimension direction depth area dimension parentMembers =
       in
          (memberHeaders, defaultMemberHeader)
 
-
--- type MemberHeader = MemberHeader DimensionHeader
--- type DefaultHeader = DefaultHeader DimensionHeader
 type TableHeader  = 
    MemberHeader (NList DimensionHeader)
    | TotalHeader (NList DimensionHeader)
@@ -217,14 +178,6 @@ tableHeaderAsMembers acc =
      headers
      |> (\ h -> h.head)
      |> (\ (DimensionHeader item)-> item.member)
-
-
--- accumulatedHeaders: TableHeader -> List DimensionHeader
--- accumulatedHeaders acc =
---    case acc of
---       MemberHeader headers -> headers |> NList.toList
---       TotalHeader headers -> headers |> NList.toList
-      
 
 
 dimensionAsTableHeader: Direction -> Depth -> Dimension -> NList DimensionHeader -> NList TableHeader
@@ -288,7 +241,7 @@ addDimensionToTableHeaders direction depth span dimension acc =
                      ,  horizontalSpan = totalSpan |> HorizontalSpan
                      ,  horizontalStart = 1 |> Start |> HorizontalStart
                   }
-                  -- { verticalLine = VerticalLine { span = Span 0, start = Start 0},  horizontalLine = HorizontalLine {span = totalSpan, start = Start 1}}
+
                Vertical ->
                   {
                         verticalSpan = totalSpan |> VerticalSpan
@@ -296,7 +249,7 @@ addDimensionToTableHeaders direction depth span dimension acc =
                      ,  horizontalSpan = 0 |> Span |> HorizontalSpan
                      ,  horizontalStart =  0 |> Start|> HorizontalStart
                   }
-                  -- { verticalLine = VerticalLine  { span = totalSpan, start = Start 1}, horizontalLine = HorizontalLine {span = Span 0, start = Start 0}}
+
    in
       case acc of
          [] -> 
@@ -475,49 +428,78 @@ grid (GridRows rows) (GridColumns cols)=
         attrRows = gridSizeAttribute "grid-template-rows" "repeat(" rows ", minmax(50px,100px))"
 
     in
-     [ attrdisplay , attrColumns]
+     [  attrdisplay , attrColumns ]
 
 
 
-areaToAttribute: Area -> List (Attribute msg)
-areaToAttribute area =
+attributeGridArea: Offset -> Area -> List (Attribute msg)
+attributeGridArea offset area =
     let 
+        areaWithOffset: Area 
+        areaWithOffset = area |> offsetArea offset
         row: String 
-        row = area.verticalStart |> verticalStartToInt |> String.fromInt |> (\s -> s )
+        row = areaWithOffset.verticalStart |> verticalStartToInt |> String.fromInt |> (\s -> s )
         col: String 
-        col = area.horizontalStart |> horizontalStartToInt |> String.fromInt |> (\s -> " / " ++ s)
+        col = areaWithOffset.horizontalStart |> horizontalStartToInt |> String.fromInt |> (\s -> " / " ++ s)
         colSpan: String 
-        colSpan = area.horizontalSpan |> horizontalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s )
+        colSpan = areaWithOffset.horizontalSpan |> horizontalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s )
         rowSpan: String 
-        rowSpan = area.verticalSpan |> verticalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s)
+        rowSpan = areaWithOffset.verticalSpan |> verticalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s)
         areaAttribute: Attribute msg   
         areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
     in
-         [ areaAttribute,style "border" "black solid 1px" ]
+         [ areaAttribute ]
 
-gridItem: Offset -> Area -> String -> Html Msg
-gridItem offset area t = 
-    let
-         areaWithOffset: Area 
-         areaWithOffset = area |> offsetArea offset
-    in
-      div (areaToAttribute areaWithOffset) [ text t ]
-
-gridColumnItem: CubeColumnOffset -> Area -> String -> Html Msg
-gridColumnItem (CubeColumnOffset offset) =
-   gridItem offset
+attrBox: List (Attribute msg)
+attrBox = [ style "border" "black 1px solid" ]
 
 
-gridIndentedRowItem: CubeRowOffset -> Area -> String -> Html Msg
-gridIndentedRowItem (CubeRowOffset offset) area =
-   let 
+attrLeftIndent: Int -> List (Attribute msg)
+attrLeftIndent indent =
+   if indent > 0 && indent < 11 then
+      [ class ("rind" ++ String.fromInt indent) ]
+   else
+      []
+
+attrIndentHorizontalStart: HorizontalStart -> List (Attribute msg)
+attrIndentHorizontalStart (HorizontalStart (Start start)) = attrLeftIndent start
+   
+addAttr: List (Attribute msg) -> List (Attribute msg) -> List (Attribute msg) 
+addAttr a1 a2 =
+   List.append a1 a2
+
+attrCell: List (Attribute msg)
+attrCell  = 
+    [ class "grid-cell" ] 
+
+
+textCell: String -> List (Attribute msg) -> Html msg
+textCell s attr  =
+   div attr [ text s ]
+
+columnCell: CubeColumnOffset -> Area -> String -> Html Msg
+columnCell (CubeColumnOffset offset) area s =
+   attributeGridArea offset area
+   |> List.append attrCell
+   |> List.append attrBox
+   |> textCell s
+
+rowCellIndented: CubeRowOffset -> Area -> String -> Html Msg
+rowCellIndented (CubeRowOffset offset) area s =
+   let        
          newArea: Area
          newArea =
             area
             |> Area.setHorizontalSpan (Span 1)  
             |> Area.setHorizontalStart (Start 1)
    in
-      gridItem offset newArea
+
+     
+      attrCell
+      |> addAttr attrBox
+      |> addAttr (attrIndentHorizontalStart area.horizontalStart)
+      |> addAttr (attributeGridArea offset newArea)
+      |> textCell s
 
 viewCube: Direction -> HyperCube -> List DimensionalKoncept  -> Html Msg
 viewCube direction hyperCube koncepts =
@@ -532,10 +514,6 @@ viewCube direction hyperCube koncepts =
          span: Span 
          span = dimensions |> calculateSpanForDimensions 
 
-         -- tableHeaders: List TableHeader
-         -- tableHeaders = 
-         --    dimensions 
-         --    |> calculateTableHeaders direction
          cubeRows: CubeRows
          cubeRows = calculateIndentedCubeRows koncepts
 
@@ -548,16 +526,12 @@ viewCube direction hyperCube koncepts =
          columns: List (Html Msg) 
          columns = 
             cubeColumns.headers 
-            |> List.map (\header -> gridColumnItem cubeRows.offset header.area header.member.name)
+            |> List.map (\header -> columnCell cubeRows.offset header.area header.member.name)
 
          rowHeaders: List (Html Msg)
          rowHeaders =
-            let 
-               rows: Int
-               rows = Debug.log "rows " (List.length cubeRows.rows)
-            in
                cubeRows.rows
-               |> List.map (\rowHeader -> gridIndentedRowItem cubeColumns.offset rowHeader.area (konceptRowItemName rowHeader.item))
+               |> List.map (\rowHeader -> rowCellIndented cubeColumns.offset rowHeader.area (konceptRowItemName rowHeader.item))
 
 
 

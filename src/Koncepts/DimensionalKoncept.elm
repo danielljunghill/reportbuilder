@@ -18,8 +18,8 @@ addValueKoncept vk parent =
       DimensionalValue _ -> Err "A Value koncept cannot be added to a dimensional value"
 
 
-createAbstract: String -> DimensionalKoncept
-createAbstract  = createAbstractKoncept >>  (\ak -> DimensionalAbstract (ak,[]))
+createAbstract: List DimensionalKoncept  -> String -> DimensionalKoncept
+createAbstract dims  = createAbstractKoncept >>  (\ak -> DimensionalAbstract (ak,dims))
 
 type ParentKoncept =  ParentKoncept DimensionalKoncept
 
@@ -100,8 +100,6 @@ fold f m =
                            Nothing -> Err "Empty result from fold of koncept")
    |> ResultExtension.foldOne
 
-
-
 type KonceptRowItem =
    AbstractRow AbstractKoncept
    | ValueRow ValueKoncept
@@ -118,8 +116,6 @@ type alias KonceptRow =
          area: Area
       ,  item: KonceptRowItem
    }
-
-
 
 createAbstractRow: Area -> AbstractKoncept -> KonceptRow
 createAbstractRow area item =

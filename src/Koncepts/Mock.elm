@@ -16,7 +16,7 @@ import NList as NList
 
 head: Result String Koncept
 head = 
-    "IORP2 nationell strunt 1"  
+    "IORP2 nationell"  
     |> Koncept.createAbstract 
     |> Koncept.ParentKoncept  
     |> Koncept.add ("Intäkter" |> Koncept.createAbstract )
@@ -84,16 +84,12 @@ addDimensionalKoncept:Koncept -> Result String (Maybe Koncept)
 addDimensionalKoncept  =
    let
       dims : List DimensionalKoncept 
-      dims = [ DimensionalKoncept.createValue "Intäkter" , DimensionalKoncept.createValue "Försäljning cyklar", DimensionalKoncept.createValue "Bidrag" ]
+      dims = [ DimensionalKoncept.createAbstract [ DimensionalKoncept.createValue "Försäljning cyklar", DimensionalKoncept.createValue "Bidrag" ] "Intäkter"  ]
    in
       let
           f: HyperCube -> List DimensionalKoncept -> Result String KonceptAction
           f hc dimensions =
                if hc.name == HyperCubeName "Kvartal och annat" then
-                  let 
-                      name : HyperCubeName
-                      name = Debug.log "cube name" hc.name
-                  in 
                      (hc,dimensions ++ dims) 
                      |> Cube 
                      |> MapValue
@@ -109,9 +105,8 @@ mockKoncept: Result String Koncept
 mockKoncept =
    head
    |> Result.andThen (Koncept.fold addCube)
-   |> Debug.log "add dimensions"
    |> Result.andThen (Koncept.fold addDimensionalKoncept)
-   |> addValue "Ett nytt värde 4"
+   -- |> addValue "Ett nytt värde 4"
 
 
 
