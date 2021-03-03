@@ -432,23 +432,39 @@ grid (GridRows rows) (GridColumns cols)=
 
 
 
-attributeGridArea: Offset -> Area -> List (Attribute msg)
-attributeGridArea offset area =
+attributeGridArea: Area -> List (Attribute msg)
+attributeGridArea  area =
     let 
-        areaWithOffset: Area 
-        areaWithOffset = area |> offsetArea offset
         row: String 
-        row = areaWithOffset.verticalStart |> verticalStartToInt |> String.fromInt |> (\s -> s )
+        row = area.verticalStart |> verticalStartToInt |> String.fromInt |> (\s -> s )
         col: String 
-        col = areaWithOffset.horizontalStart |> horizontalStartToInt |> String.fromInt |> (\s -> " / " ++ s)
+        col = area.horizontalStart |> horizontalStartToInt |> String.fromInt |> (\s -> " / " ++ s)
         colSpan: String 
-        colSpan = areaWithOffset.horizontalSpan |> horizontalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s )
+        colSpan = area.horizontalSpan |> horizontalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s )
         rowSpan: String 
-        rowSpan = areaWithOffset.verticalSpan |> verticalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s)
+        rowSpan = area.verticalSpan |> verticalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s)
         areaAttribute: Attribute msg   
         areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
     in
          [ areaAttribute ]
+
+-- attributeGridArea: Offset -> Area -> List (Attribute msg)
+-- attributeGridArea offset area =
+--     let 
+--         areaWithOffset: Area 
+--         areaWithOffset = area |> offsetArea offset
+--         row: String 
+--         row = areaWithOffset.verticalStart |> verticalStartToInt |> String.fromInt |> (\s -> s )
+--         col: String 
+--         col = areaWithOffset.horizontalStart |> horizontalStartToInt |> String.fromInt |> (\s -> " / " ++ s)
+--         colSpan: String 
+--         colSpan = areaWithOffset.horizontalSpan |> horizontalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s )
+--         rowSpan: String 
+--         rowSpan = areaWithOffset.verticalSpan |> verticalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s)
+--         areaAttribute: Attribute msg   
+--         areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
+--     in
+--          [ areaAttribute ]
 
 attrBox: List (Attribute msg)
 attrBox = [ style "border" "black 1px solid" ]
@@ -477,29 +493,66 @@ textCell: String -> List (Attribute msg) -> Html msg
 textCell s attr  =
    div attr [ text s ]
 
-columnCell: CubeColumnOffset -> Area -> String -> Html Msg
-columnCell (CubeColumnOffset offset) area s =
-   attributeGridArea offset area
+columnHeaderCell: CubeColumnOffset -> Area -> String -> Html Msg
+columnHeaderCell (CubeColumnOffset offset) area s =
+   area
+   |> offsetArea offset
+   |> attributeGridArea
    |> List.append attrCell
    |> List.append attrBox
    |> textCell s
 
-rowCellIndented: CubeRowOffset -> Area -> String -> Html Msg
-rowCellIndented (CubeRowOffset offset) area s =
+rowHeaderCellIndented: CubeRowOffset -> Area -> String -> Html Msg
+rowHeaderCellIndented (CubeRowOffset offset) area s =
    let        
          newArea: Area
          newArea =
             area
             |> Area.setHorizontalSpan (Span 1)  
             |> Area.setHorizontalStart (Start 1)
+            |> offsetArea offset
    in
 
      
       attrCell
       |> addAttr attrBox
       |> addAttr (attrIndentHorizontalStart area.horizontalStart)
-      |> addAttr (attributeGridArea offset newArea)
+      |> addAttr (attributeGridArea newArea)
       |> textCell s
+
+
+
+-- gridCells: Direction -> CubeColumnOffset -> CubeRowOffset -> CubeColumns -> CubeRows -> List (Html msg)
+-- gridCells direction (CubeColumnOffset columnOffset) (CubeRowOffset rowOffset) columns rows =
+--    let 
+--       area: Area 
+--       area = 
+--          Area.emptyArea 
+--          |> offsetArea columnOffset 
+--          |> offsetArea rowOffset
+--          |> Area.addVerticalSpan Area.oneVerticalSpan
+--          |> Area.addHorizontalSpan Area.oneHorizontalSpan
+--    in      
+--       cellRows: CubeRows -> Int -> CubeColumn -> List (Html Msg) 
+--       cellRows cubeRows col cubeColumn =
+--          let 
+--             cell: CubeRow -> (Html Msg)
+--             cell row =
+--                case direction of
+--                   Horizontal -> 
+--                      area
+--                      |> Area.addHorizontalStart (col |> Start |> HorizontalStart)
+--                      |> Area.addVerticalStart (row |> Start |> VerticalStart)
+--                      |> 
+
+--                   Vertical ->
+--                      area
+--                      |> Area.addVerticalStart (col |> Start |> HorizontalStart)
+--                      |> Area.addHorizontalStart (row |> Start |> VerticalStart)
+--          in
+
+--    columns
+--    |> Lists.mapi 
 
 viewCube: Direction -> HyperCube -> List DimensionalKoncept  -> Html Msg
 viewCube direction hyperCube koncepts =
@@ -517,7 +570,6 @@ viewCube direction hyperCube koncepts =
          cubeRows: CubeRows
          cubeRows = calculateIndentedCubeRows koncepts
 
-
          cubeColumns: CubeColumns
          cubeColumns = 
             dimensions
@@ -526,14 +578,12 @@ viewCube direction hyperCube koncepts =
          columns: List (Html Msg) 
          columns = 
             cubeColumns.headers 
-            |> List.map (\header -> columnCell cubeRows.offset header.area header.member.name)
+            |> List.map (\header -> columnHeaderCell cubeRows.offset header.area header.member.name)
 
          rowHeaders: List (Html Msg)
          rowHeaders =
                cubeRows.rows
-               |> List.map (\rowHeader -> rowCellIndented cubeColumns.offset rowHeader.area (konceptRowItemName rowHeader.item))
-
-
+               |> List.map (\rowHeader -> rowHeaderCellIndented cubeColumns.offset rowHeader.area (konceptRowItemName rowHeader.item))
 
          gridRows: Direction -> Span -> List CubeColumn -> GridRows
          gridRows d (Span s) cols  =
@@ -550,7 +600,7 @@ viewCube direction hyperCube koncepts =
                   GridColumns (List.length cols)
                Vertical ->
                   GridColumns s
-        
+               
     in
         div (grid (gridRows direction span cubeColumns.columns) (gridColumns direction span cubeColumns.columns)) (columns ++ rowHeaders)
 

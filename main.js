@@ -6867,12 +6867,54 @@ var $author$project$Koncepts$Area$spanInt = function (_v0) {
 	return span;
 };
 var $author$project$Koncepts$Area$horizontalSpanToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$horizontalSpanToSpan, $author$project$Koncepts$Area$spanInt);
+var $author$project$Koncepts$Area$verticalSpanToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$verticalSpanToSpan, $author$project$Koncepts$Area$spanInt);
+var $author$project$Koncepts$Area$verticalStartToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$verticalStartToStart, $author$project$Koncepts$Area$startInt);
+var $author$project$Koncepts$DimensionalHeader$attributeGridArea = function (area) {
+	var rowSpan = function (s) {
+		return ' / span ' + s;
+	}(
+		$elm$core$String$fromInt(
+			$author$project$Koncepts$Area$verticalSpanToInt(area.verticalSpan)));
+	var row = function (s) {
+		return s;
+	}(
+		$elm$core$String$fromInt(
+			$author$project$Koncepts$Area$verticalStartToInt(area.verticalStart)));
+	var colSpan = function (s) {
+		return ' / span ' + s;
+	}(
+		$elm$core$String$fromInt(
+			$author$project$Koncepts$Area$horizontalSpanToInt(area.horizontalSpan)));
+	var col = function (s) {
+		return ' / ' + s;
+	}(
+		$elm$core$String$fromInt(
+			$author$project$Koncepts$Area$horizontalStartToInt(area.horizontalStart)));
+	var areaAttribute = A2(
+		$elm$html$Html$Attributes$style,
+		'grid-area',
+		_Utils_ap(
+			row,
+			_Utils_ap(
+				col,
+				_Utils_ap(rowSpan, colSpan))));
+	return _List_fromArray(
+		[areaAttribute]);
+};
 var $author$project$Koncepts$Area$horizontalStartAdd = F2(
 	function (_v0, _v1) {
 		var s1 = _v0.a.a;
 		var s2 = _v1.a.a;
 		return $author$project$Koncepts$Area$HorizontalStart(
 			$author$project$Koncepts$Area$Start(s1 + s2));
+	});
+var $author$project$Koncepts$Area$addHorizontalStart = F2(
+	function (hs, area) {
+		return _Utils_update(
+			area,
+			{
+				horizontalStart: A2($author$project$Koncepts$Area$horizontalStartAdd, hs, area.horizontalStart)
+			});
 	});
 var $author$project$Koncepts$Area$verticalStartAdd = F2(
 	function (_v0, _v1) {
@@ -6881,56 +6923,20 @@ var $author$project$Koncepts$Area$verticalStartAdd = F2(
 		return $author$project$Koncepts$Area$VerticalStart(
 			$author$project$Koncepts$Area$Start(s1 + s2));
 	});
+var $author$project$Koncepts$Area$addVerticalStart = F2(
+	function (vs, area) {
+		return _Utils_update(
+			area,
+			{
+				verticalStart: A2($author$project$Koncepts$Area$verticalStartAdd, vs, area.verticalStart)
+			});
+	});
 var $author$project$Koncepts$Area$offsetArea = F2(
 	function (offset, area) {
-		return function (a) {
-			return _Utils_update(
-				a,
-				{
-					horizontalStart: A2($author$project$Koncepts$Area$horizontalStartAdd, offset.horizontalStart, a.horizontalStart)
-				});
-		}(
-			_Utils_update(
-				area,
-				{
-					verticalStart: A2($author$project$Koncepts$Area$verticalStartAdd, offset.verticalStart, area.verticalStart)
-				}));
-	});
-var $author$project$Koncepts$Area$verticalSpanToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$verticalSpanToSpan, $author$project$Koncepts$Area$spanInt);
-var $author$project$Koncepts$Area$verticalStartToInt = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$verticalStartToStart, $author$project$Koncepts$Area$startInt);
-var $author$project$Koncepts$DimensionalHeader$attributeGridArea = F2(
-	function (offset, area) {
-		var areaWithOffset = A2($author$project$Koncepts$Area$offsetArea, offset, area);
-		var col = function (s) {
-			return ' / ' + s;
-		}(
-			$elm$core$String$fromInt(
-				$author$project$Koncepts$Area$horizontalStartToInt(areaWithOffset.horizontalStart)));
-		var colSpan = function (s) {
-			return ' / span ' + s;
-		}(
-			$elm$core$String$fromInt(
-				$author$project$Koncepts$Area$horizontalSpanToInt(areaWithOffset.horizontalSpan)));
-		var row = function (s) {
-			return s;
-		}(
-			$elm$core$String$fromInt(
-				$author$project$Koncepts$Area$verticalStartToInt(areaWithOffset.verticalStart)));
-		var rowSpan = function (s) {
-			return ' / span ' + s;
-		}(
-			$elm$core$String$fromInt(
-				$author$project$Koncepts$Area$verticalSpanToInt(areaWithOffset.verticalSpan)));
-		var areaAttribute = A2(
-			$elm$html$Html$Attributes$style,
-			'grid-area',
-			_Utils_ap(
-				row,
-				_Utils_ap(
-					col,
-					_Utils_ap(rowSpan, colSpan))));
-		return _List_fromArray(
-			[areaAttribute]);
+		return A2(
+			$author$project$Koncepts$Area$addHorizontalStart,
+			offset.horizontalStart,
+			A2($author$project$Koncepts$Area$addVerticalStart, offset.verticalStart, area));
 	});
 var $author$project$Koncepts$DimensionalHeader$textCell = F2(
 	function (s, attr) {
@@ -6942,7 +6948,7 @@ var $author$project$Koncepts$DimensionalHeader$textCell = F2(
 					$elm$html$Html$text(s)
 				]));
 	});
-var $author$project$Koncepts$DimensionalHeader$columnCell = F3(
+var $author$project$Koncepts$DimensionalHeader$columnHeaderCell = F3(
 	function (_v0, area, s) {
 		var offset = _v0.a;
 		return A2(
@@ -6954,7 +6960,8 @@ var $author$project$Koncepts$DimensionalHeader$columnCell = F3(
 				A2(
 					$elm$core$List$append,
 					$author$project$Koncepts$DimensionalHeader$attrCell,
-					A2($author$project$Koncepts$DimensionalHeader$attributeGridArea, offset, area))));
+					$author$project$Koncepts$DimensionalHeader$attributeGridArea(
+						A2($author$project$Koncepts$Area$offsetArea, offset, area)))));
 	});
 var $author$project$Koncepts$DimensionalHeader$gridSizeAttribute = F4(
 	function (s1, s2, i, s3) {
@@ -7027,22 +7034,25 @@ var $author$project$Koncepts$Area$setHorizontalStart = F2(
 				horizontalStart: $author$project$Koncepts$Area$HorizontalStart(start)
 			});
 	});
-var $author$project$Koncepts$DimensionalHeader$rowCellIndented = F3(
+var $author$project$Koncepts$DimensionalHeader$rowHeaderCellIndented = F3(
 	function (_v0, area, s) {
 		var offset = _v0.a;
 		var newArea = A2(
-			$author$project$Koncepts$Area$setHorizontalStart,
-			$author$project$Koncepts$Area$Start(1),
+			$author$project$Koncepts$Area$offsetArea,
+			offset,
 			A2(
-				$author$project$Koncepts$Area$setHorizontalSpan,
-				$author$project$Koncepts$Area$Span(1),
-				area));
+				$author$project$Koncepts$Area$setHorizontalStart,
+				$author$project$Koncepts$Area$Start(1),
+				A2(
+					$author$project$Koncepts$Area$setHorizontalSpan,
+					$author$project$Koncepts$Area$Span(1),
+					area)));
 		return A2(
 			$author$project$Koncepts$DimensionalHeader$textCell,
 			s,
 			A2(
 				$author$project$Koncepts$DimensionalHeader$addAttr,
-				A2($author$project$Koncepts$DimensionalHeader$attributeGridArea, offset, newArea),
+				$author$project$Koncepts$DimensionalHeader$attributeGridArea(newArea),
 				A2(
 					$author$project$Koncepts$DimensionalHeader$addAttr,
 					$author$project$Koncepts$DimensionalHeader$attrIndentHorizontalStart(area.horizontalStart),
@@ -7079,7 +7089,7 @@ var $author$project$Koncepts$DimensionalHeader$viewCube = F3(
 			$elm$core$List$map,
 			function (rowHeader) {
 				return A3(
-					$author$project$Koncepts$DimensionalHeader$rowCellIndented,
+					$author$project$Koncepts$DimensionalHeader$rowHeaderCellIndented,
 					cubeColumns.offset,
 					rowHeader.area,
 					$author$project$Koncepts$Dimensionalkoncept$konceptRowItemName(rowHeader.item));
@@ -7088,7 +7098,7 @@ var $author$project$Koncepts$DimensionalHeader$viewCube = F3(
 		var columns = A2(
 			$elm$core$List$map,
 			function (header) {
-				return A3($author$project$Koncepts$DimensionalHeader$columnCell, cubeRows.offset, header.area, header.member.name);
+				return A3($author$project$Koncepts$DimensionalHeader$columnHeaderCell, cubeRows.offset, header.area, header.member.name);
 			},
 			cubeColumns.headers);
 		return A2(
