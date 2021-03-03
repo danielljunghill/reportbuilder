@@ -358,6 +358,8 @@ dimensionColumnHeaders headers =
 
 type CubeRowOffset = CubeRowOffset Offset
 
+cubeRowOffsetToOffset: CubeRowOffset -> Offset
+cubeRowOffsetToOffset (CubeRowOffset offset) = offset
 type alias CubeColumns = 
    {
          offset: CubeRowOffset
@@ -522,37 +524,49 @@ rowHeaderCellIndented (CubeRowOffset offset) area s =
 
 
 
--- gridCells: Direction -> CubeColumnOffset -> CubeRowOffset -> CubeColumns -> CubeRows -> List (Html msg)
--- gridCells direction (CubeColumnOffset columnOffset) (CubeRowOffset rowOffset) columns rows =
---    let 
---       area: Area 
---       area = 
---          Area.emptyArea 
---          |> offsetArea columnOffset 
---          |> offsetArea rowOffset
---          |> Area.addVerticalSpan Area.oneVerticalSpan
---          |> Area.addHorizontalSpan Area.oneHorizontalSpan
---    in      
---       cellRows: CubeRows -> Int -> CubeColumn -> List (Html Msg) 
---       cellRows cubeRows col cubeColumn =
---          let 
---             cell: CubeRow -> (Html Msg)
---             cell row =
---                case direction of
---                   Horizontal -> 
---                      area
---                      |> Area.addHorizontalStart (col |> Start |> HorizontalStart)
---                      |> Area.addVerticalStart (row |> Start |> VerticalStart)
---                      |> 
+gridCells: Direction -> CubeColumns -> CubeRows -> List (Html Msg)
+gridCells direction columns rows =
+   let 
+      area: Area 
+      area = 
+         Area.emptyArea 
+         |> offsetArea (cubeRowOffsetToOffset columns.offset) 
+         |> offsetArea (cubeColumnOffsetToOffset rows.offset)
+         |> Area.addVerticalSpan Area.oneVerticalSpan
+         |> Area.addHorizontalSpan Area.oneHorizontalSpan
+         
+   in  
+      let    
+         cellRows: List KonceptRow -> Int -> CubeColumn -> List (Html Msg) 
+         cellRows cubeRows columnIndex cubeColumn =
+            let 
+               cell: Int -> KonceptRow ->  (Html Msg)
+               cell rowIndex row    =
+                  case direction of
+                     Horizontal -> 
+                        area
+                        |> Area.addHorizontalStart (columnIndex |> Start |> HorizontalStart)
+                        |> Area.addVerticalStart (rowIndex |> Start |> VerticalStart)
+                        |> attributeGridArea 
+                        |> addAttr attrCell
+                        |> addAttr attrBox
+                        |> textCell "h"
 
---                   Vertical ->
---                      area
---                      |> Area.addVerticalStart (col |> Start |> HorizontalStart)
---                      |> Area.addHorizontalStart (row |> Start |> VerticalStart)
---          in
-
---    columns
---    |> Lists.mapi 
+                     Vertical ->
+                        area
+                        |> Area.addVerticalStart (columnIndex |> Start |> VerticalStart)
+                        |> Area.addHorizontalStart (rowIndex |> Start |> HorizontalStart)
+                        |> attributeGridArea 
+                        |> addAttr attrCell
+                        |> addAttr attrBox
+                        |> textCell "v"
+            in
+               cubeRows
+               |> Lists.mapi (\i row-> cell (i + 1) row)
+      in
+         columns.columns
+         |> Lists.mapi (\i col -> (cellRows rows.rows) (i + 1) col)
+         |> List.concat
 
 viewCube: Direction -> HyperCube -> List DimensionalKoncept  -> Html Msg
 viewCube direction hyperCube koncepts =
@@ -580,6 +594,10 @@ viewCube direction hyperCube koncepts =
             cubeColumns.headers 
             |> List.map (\header -> columnHeaderCell cubeRows.offset header.area header.member.name)
 
+         cells: List (Html Msg) 
+         cells = 
+            gridCells direction cubeColumns cubeRows
+
          rowHeaders: List (Html Msg)
          rowHeaders =
                cubeRows.rows
@@ -600,9 +618,11 @@ viewCube direction hyperCube koncepts =
                   GridColumns (List.length cols)
                Vertical ->
                   GridColumns s
+
+         
                
     in
-        div (grid (gridRows direction span cubeColumns.columns) (gridColumns direction span cubeColumns.columns)) (columns ++ rowHeaders)
+        div (grid (gridRows direction span cubeColumns.columns) (gridColumns direction span cubeColumns.columns)) (columns ++ rowHeaders ++ cells)
 
 
 -- tableHeaderView: List TableColumn -> Html Msg

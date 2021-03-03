@@ -6985,6 +6985,144 @@ var $author$project$Koncepts$DimensionalHeader$grid = F2(
 		return _List_fromArray(
 			[attrdisplay, attrColumns]);
 	});
+var $author$project$Koncepts$DimensionalHeader$addAttr = F2(
+	function (a1, a2) {
+		return A2($elm$core$List$append, a1, a2);
+	});
+var $author$project$Koncepts$Area$horizontalSpanAdd = F2(
+	function (_v0, _v1) {
+		var s1 = _v0.a.a;
+		var s2 = _v1.a.a;
+		return $author$project$Koncepts$Area$HorizontalSpan(
+			$author$project$Koncepts$Area$Span(s1 + s2));
+	});
+var $author$project$Koncepts$Area$addHorizontalSpan = F2(
+	function (hs, area) {
+		return _Utils_update(
+			area,
+			{
+				horizontalSpan: A2($author$project$Koncepts$Area$horizontalSpanAdd, hs, area.horizontalSpan)
+			});
+	});
+var $author$project$Koncepts$Area$verticalSpanAdd = F2(
+	function (_v0, _v1) {
+		var s1 = _v0.a.a;
+		var s2 = _v1.a.a;
+		return $author$project$Koncepts$Area$VerticalSpan(
+			$author$project$Koncepts$Area$Span(s1 + s2));
+	});
+var $author$project$Koncepts$Area$addVerticalSpan = F2(
+	function (vs, area) {
+		return _Utils_update(
+			area,
+			{
+				verticalSpan: A2($author$project$Koncepts$Area$verticalSpanAdd, vs, area.verticalSpan)
+			});
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $author$project$Koncepts$Dimensionalkoncept$cubeColumnOffsetToOffset = function (_v0) {
+	var offset = _v0.a;
+	return offset;
+};
+var $author$project$Koncepts$DimensionalHeader$cubeRowOffsetToOffset = function (_v0) {
+	var offset = _v0.a;
+	return offset;
+};
+var $author$project$Koncepts$Area$intToHorizontalSpan = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Span, $author$project$Koncepts$Area$HorizontalSpan);
+var $author$project$Koncepts$Area$intToHorizontalStart = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Start, $author$project$Koncepts$Area$HorizontalStart);
+var $author$project$Koncepts$Area$intToVerticalSpan = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Span, $author$project$Koncepts$Area$VerticalSpan);
+var $author$project$Koncepts$Area$intToVerticalStart = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Start, $author$project$Koncepts$Area$VerticalStart);
+var $author$project$Koncepts$Area$emptyArea = {
+	horizontalSpan: $author$project$Koncepts$Area$intToHorizontalSpan(0),
+	horizontalStart: $author$project$Koncepts$Area$intToHorizontalStart(0),
+	verticalSpan: $author$project$Koncepts$Area$intToVerticalSpan(0),
+	verticalStart: $author$project$Koncepts$Area$intToVerticalStart(0)
+};
+var $author$project$Koncepts$Area$oneHorizontalSpan = $author$project$Koncepts$Area$HorizontalSpan(
+	$author$project$Koncepts$Area$Span(1));
+var $author$project$Koncepts$DimensionalHeader$gridCells = F3(
+	function (direction, columns, rows) {
+		var area = A2(
+			$author$project$Koncepts$Area$addHorizontalSpan,
+			$author$project$Koncepts$Area$oneHorizontalSpan,
+			A2(
+				$author$project$Koncepts$Area$addVerticalSpan,
+				$author$project$Koncepts$Area$oneVerticalSpan,
+				A2(
+					$author$project$Koncepts$Area$offsetArea,
+					$author$project$Koncepts$Dimensionalkoncept$cubeColumnOffsetToOffset(rows.offset),
+					A2(
+						$author$project$Koncepts$Area$offsetArea,
+						$author$project$Koncepts$DimensionalHeader$cubeRowOffsetToOffset(columns.offset),
+						$author$project$Koncepts$Area$emptyArea))));
+		var cellRows = F3(
+			function (cubeRows, columnIndex, cubeColumn) {
+				var cell = F2(
+					function (rowIndex, row) {
+						if (direction.$ === 'Horizontal') {
+							return A2(
+								$author$project$Koncepts$DimensionalHeader$textCell,
+								'h',
+								A2(
+									$author$project$Koncepts$DimensionalHeader$addAttr,
+									$author$project$Koncepts$DimensionalHeader$attrBox,
+									A2(
+										$author$project$Koncepts$DimensionalHeader$addAttr,
+										$author$project$Koncepts$DimensionalHeader$attrCell,
+										$author$project$Koncepts$DimensionalHeader$attributeGridArea(
+											A2(
+												$author$project$Koncepts$Area$addVerticalStart,
+												$author$project$Koncepts$Area$VerticalStart(
+													$author$project$Koncepts$Area$Start(rowIndex)),
+												A2(
+													$author$project$Koncepts$Area$addHorizontalStart,
+													$author$project$Koncepts$Area$HorizontalStart(
+														$author$project$Koncepts$Area$Start(columnIndex)),
+													area))))));
+						} else {
+							return A2(
+								$author$project$Koncepts$DimensionalHeader$textCell,
+								'v',
+								A2(
+									$author$project$Koncepts$DimensionalHeader$addAttr,
+									$author$project$Koncepts$DimensionalHeader$attrBox,
+									A2(
+										$author$project$Koncepts$DimensionalHeader$addAttr,
+										$author$project$Koncepts$DimensionalHeader$attrCell,
+										$author$project$Koncepts$DimensionalHeader$attributeGridArea(
+											A2(
+												$author$project$Koncepts$Area$addHorizontalStart,
+												$author$project$Koncepts$Area$HorizontalStart(
+													$author$project$Koncepts$Area$Start(rowIndex)),
+												A2(
+													$author$project$Koncepts$Area$addVerticalStart,
+													$author$project$Koncepts$Area$VerticalStart(
+														$author$project$Koncepts$Area$Start(columnIndex)),
+													area))))));
+						}
+					});
+				return A2(
+					$author$project$Lists$mapi,
+					F2(
+						function (i, row) {
+							return A2(cell, i + 1, row);
+						}),
+					cubeRows);
+			});
+		return $elm$core$List$concat(
+			A2(
+				$author$project$Lists$mapi,
+				F2(
+					function (i, col) {
+						return A2(
+							cellRows(rows.rows),
+							i + 1,
+							col);
+					}),
+				columns.columns));
+	});
 var $author$project$Koncepts$Model$hyperDimensionAsDimension = function (hyperDimension) {
 	if (hyperDimension.$ === 'Opened') {
 		var dimension = hyperDimension.a;
@@ -7003,10 +7141,6 @@ var $author$project$Koncepts$Dimensionalkoncept$konceptRowItemName = function (i
 		return $author$project$Koncepts$Model$valueKonceptNameToString(vk.name);
 	}
 };
-var $author$project$Koncepts$DimensionalHeader$addAttr = F2(
-	function (a1, a2) {
-		return A2($elm$core$List$append, a1, a2);
-	});
 var $author$project$Koncepts$DimensionalHeader$attrLeftIndent = function (indent) {
 	return ((indent > 0) && (indent < 11)) ? _List_fromArray(
 		[
@@ -7101,13 +7235,16 @@ var $author$project$Koncepts$DimensionalHeader$viewCube = F3(
 				return A3($author$project$Koncepts$DimensionalHeader$columnHeaderCell, cubeRows.offset, header.area, header.member.name);
 			},
 			cubeColumns.headers);
+		var cells = A3($author$project$Koncepts$DimensionalHeader$gridCells, direction, cubeColumns, cubeRows);
 		return A2(
 			$elm$html$Html$div,
 			A2(
 				$author$project$Koncepts$DimensionalHeader$grid,
 				A3(gridRows, direction, span, cubeColumns.columns),
 				A3(gridColumns, direction, span, cubeColumns.columns)),
-			_Utils_ap(columns, rowHeaders));
+			_Utils_ap(
+				columns,
+				_Utils_ap(rowHeaders, cells)));
 	});
 var $author$project$Koncepts$View$divKoncept = function (koncept) {
 	switch (koncept.$) {

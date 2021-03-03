@@ -200,6 +200,9 @@ calculateIndentedRows koncepts =
 
 type CubeColumnOffset = CubeColumnOffset Offset
 
+cubeColumnOffsetToOffset: CubeColumnOffset -> Offset
+cubeColumnOffsetToOffset (CubeColumnOffset offset) = offset
+ 
 type alias CubeRows =
    {
          rows: List KonceptRow
