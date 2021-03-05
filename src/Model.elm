@@ -1,6 +1,7 @@
 module Model exposing (..)
 import Report.Model as Report
 import Report.Model exposing (..)
+import Prime exposing (..)
 
 
 type alias ReportModel =

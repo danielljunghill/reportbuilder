@@ -3,8 +3,10 @@ import Browser
 import Html exposing (..)
 import Html.Attributes exposing (class)
 import Html.Events exposing (..)
+import Platform.Cmd
 
 import Report.Model exposing (..)
+
 import Report.View as Report
 import Report.Mock as Report 
 import Koncepts.Model exposing (..)
@@ -13,17 +15,23 @@ import Model
 import Model exposing (..)
 import Msg exposing (..)
 import ResultExtension exposing (..)
+import Msg
 main : Program () Model Msg
 main =
-  Browser.sandbox { init = init, update = update, view = view }
+  Browser.element
+     {   
+            init = \flags -> (initialModel, Cmd.none)
+          , update = update
+          , view = view
+          , subscriptions = \_ -> Sub.none }
 
-init: Model.Model
-init = Nothing |> Model.update Report.mockReport 
+initialModel: Model.Model
+initialModel = Nothing |> Model.update Report.mockReport 
 
-update : Msg -> Model.Model  -> Model.Model 
+update : Msg -> Model.Model  -> (Model.Model, Cmd Msg) 
 update msg model =
    case msg of
-      _ -> model
+      _ -> (model, Cmd.none)
 --   case msg of
 --     Select ki -> 
 --         let

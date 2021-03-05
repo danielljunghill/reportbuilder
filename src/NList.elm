@@ -1,4 +1,5 @@
 module NList exposing (..)
+
 import Lists exposing (..)
 
 type alias NList a =
@@ -6,6 +7,8 @@ type alias NList a =
          head: a
       ,  tail: List a
    }
+
+
 
 create: a -> NList a
 create a =

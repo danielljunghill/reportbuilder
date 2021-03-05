@@ -12,10 +12,10 @@ idValue (Id v) = v
 
 
 type alias Report = { 
-    name: String,
-    id: Id,
-    description: String,
-    pages: List Page
+        name: String
+    ,   id: Id
+    ,   description: String
+    ,   pages: List Page
     }
 
 

@@ -2,22 +2,34 @@ module Koncepts.Model exposing (..)
 import Id exposing (..)
 import Id
 import NList exposing (..)
+import Prime exposing (..)
+
 -- import Events.Custom exposing (onClickStopPropagation)
+type Factor = Factor Int
+
+factorFromPrime: Prime -> Factor
+factorFromPrime prime =
+  prime.numbers.head |> Factor
 
 
 -- Koncepts
 type ValueKonceptId = ValueKonceptId  Id
 type ValueKonceptName = ValueKonceptName String
+-- type Factor = Factor Int
 
 valueKonceptNameToString: ValueKonceptName -> String
-valueKonceptNameToString (ValueKonceptName name) =
-   name
+valueKonceptNameToString (ValueKonceptName name) = name
 type alias ValueKoncept =
     {
             name: ValueKonceptName
         ,   id: ValueKonceptId
         ,   selected: Bool
+        ,   factor: Factor
     }
+
+
+
+
 type AbstractKonceptName = AbstractKonceptName String
 
 abstractKonceptNameToString: AbstractKonceptName -> String
@@ -36,7 +48,7 @@ type DomainName = DomainName String
 domainNameToString: DomainName -> String
 domainNameToString (DomainName name) = name
 
-type Factor = Factor Int
+
 type alias Member =
    {
          id : Id
@@ -121,12 +133,27 @@ type Koncept =
     | Abstract  (AbstractKoncept, List Koncept)
     | Value ValueKoncept
 
-createValueKonceptWithSelection: Bool -> String -> ValueKoncept   
-createValueKonceptWithSelection selected name  =
-        {
-                id = Id.create() |> ValueKonceptId 
-            ,   name = name |> ValueKonceptName
-            ,   selected = selected }
+
+createValueKonceptWithSelection: Prime -> Bool -> String -> ValueKoncept
+createValueKonceptWithSelection  prime selected name  =  
+        let 
+            newValueKoncept: ValueKoncept
+            newValueKoncept = 
+                {
+                        name = name |> ValueKonceptName
+                    ,   id = Id.create() |> ValueKonceptId
+                    ,   selected = selected
+                    ,   factor = factorFromPrime prime }
+        in 
+            newValueKoncept
+            
+
+-- createValueKonceptWithSelection: Bool -> String -> ValueKoncept   
+-- createValueKonceptWithSelection selected name  =
+--         {
+--                 id = Id.create() |> ValueKonceptId 
+--             ,   name = name |> ValueKonceptName
+--             ,   selected = selected }
 
 createAbstractKonceptWithSelection: Bool -> String -> AbstractKoncept
 createAbstractKonceptWithSelection selected name  =  
@@ -136,8 +163,8 @@ createAbstractKonceptWithSelection selected name  =
                 ,    selected = selected               
         } 
 
-createValueKoncept: String -> ValueKoncept   
-createValueKoncept = createValueKonceptWithSelection False
+createValueKoncept:Prime -> String ->  ValueKoncept
+createValueKoncept  prime = createValueKonceptWithSelection  prime False
 
 
 createAbstractKoncept: String -> AbstractKoncept

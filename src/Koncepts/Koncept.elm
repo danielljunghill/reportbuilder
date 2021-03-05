@@ -4,10 +4,11 @@ import Id exposing (..)
 import ResultExtension exposing (..)
 import Result
 import List
+import Prime exposing (..)
+import Prime
 
-
-createValue: String -> Koncept   
-createValue = createValueKoncept >> Value
+createValue: Prime -> String -> Koncept  
+createValue prime = (createValueKoncept prime) >> Value
 
 addValue : ValueKoncept -> Koncept -> Result String Koncept
 addValue k p =

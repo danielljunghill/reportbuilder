@@ -5,11 +5,13 @@ import ResultExtension
 import Koncepts.Area exposing (..)
 import Koncepts.Area as Area
 import Lists
+import Prime exposing (..)
 
 
 
-createValue: String -> DimensionalKoncept
-createValue = createValueKoncept >> DimensionalValue
+createValue: Prime  -> String -> DimensionalKoncept 
+createValue  prime  = (createValueKoncept prime) >> DimensionalValue
+
 
 addValueKoncept:  ValueKoncept -> DimensionalKoncept -> Result String DimensionalKoncept
 addValueKoncept vk parent = 

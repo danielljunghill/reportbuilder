@@ -10,8 +10,14 @@ import Koncepts.DimensionalHeader
 import Json.Decode exposing (string)
 import NList exposing (..)
 import NList as NList
+import Prime exposing (..)
+import Prime 
 
 
+prime1:Prime
+prime1 =  Prime.init
+prime2 = Prime.generatePrime prime1
+prime3 = Debug.log "prime3" Prime.generatePrime prime2
 
 
 head: Result String Koncept
@@ -25,7 +31,7 @@ addValue: String -> Result String Koncept -> Result String Koncept
 addValue name koncept =
     koncept
     |> Result.map Koncept.ParentKoncept 
-    |> Result.andThen (name |> Koncept.createValue |> Koncept.add)
+    |> Result.andThen (name |> Koncept.createValue prime1 |> Koncept.add)
 
 addAbstract: String -> Result String Koncept -> Result String Koncept
 addAbstract name koncept =
@@ -80,11 +86,16 @@ addCube koncept  =
          in
             Koncept.mapAbstractKoncept f koncept
 
+-- prime2: Prime
+-- prime2 = Prime.generatePrime prime1
+-- prime3: Prime
+-- prime3 = Prime.generatePrime prime2
+
 addDimensionalKoncept:Koncept -> Result String (Maybe Koncept) 
 addDimensionalKoncept  =
    let
       dims : List DimensionalKoncept 
-      dims = [ DimensionalKoncept.createAbstract [ DimensionalKoncept.createValue "Försäljning cyklar", DimensionalKoncept.createValue "Bidrag" ] "Intäkter"  ]
+      dims = [ DimensionalKoncept.createAbstract [ DimensionalKoncept.createValue prime2 "Försäljning cyklar", DimensionalKoncept.createValue prime3 "Bidrag" ] "Intäkter"  ]
    in
       let
           f: HyperCube -> List DimensionalKoncept -> Result String KonceptAction

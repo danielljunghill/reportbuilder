@@ -274,7 +274,7 @@ addVerticalStartToOffset offset vStart    =
    in
       { offset | verticalStart = start |> startAdd startOffest |> VerticalStart }
 
-addHorizontalStartToOffset: Offset -> HorizontalStart -> Offset
+addHorizontalStartToOffset: Offset -> HorizontalStart -> Offset 
 addHorizontalStartToOffset offset hStart  =
    let
       startOffest : Start

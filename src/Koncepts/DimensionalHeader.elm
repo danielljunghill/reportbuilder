@@ -450,23 +450,6 @@ attributeGridArea  area =
     in
          [ areaAttribute ]
 
--- attributeGridArea: Offset -> Area -> List (Attribute msg)
--- attributeGridArea offset area =
---     let 
---         areaWithOffset: Area 
---         areaWithOffset = area |> offsetArea offset
---         row: String 
---         row = areaWithOffset.verticalStart |> verticalStartToInt |> String.fromInt |> (\s -> s )
---         col: String 
---         col = areaWithOffset.horizontalStart |> horizontalStartToInt |> String.fromInt |> (\s -> " / " ++ s)
---         colSpan: String 
---         colSpan = areaWithOffset.horizontalSpan |> horizontalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s )
---         rowSpan: String 
---         rowSpan = areaWithOffset.verticalSpan |> verticalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s)
---         areaAttribute: Attribute msg   
---         areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
---     in
---          [ areaAttribute ]
 
 attrBox: List (Attribute msg)
 attrBox = [ style "border" "black 1px solid" ]
@@ -550,7 +533,7 @@ gridCells direction columns rows =
                         |> attributeGridArea 
                         |> addAttr attrCell
                         |> addAttr attrBox
-                        |> textCell "h"
+                        |> textCell ""
 
                      Vertical ->
                         area
@@ -559,7 +542,7 @@ gridCells direction columns rows =
                         |> attributeGridArea 
                         |> addAttr attrCell
                         |> addAttr attrBox
-                        |> textCell "v"
+                        |> textCell ""
             in
                cubeRows
                |> Lists.mapi (\i row-> cell (i + 1) row)
