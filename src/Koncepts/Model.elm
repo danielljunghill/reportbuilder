@@ -56,19 +56,19 @@ type alias Member =
       , factor: Factor
    }
 
-createMember: Factor -> String -> Member
-createMember factor name =
+createMember: Prime -> String -> Member
+createMember prime name =
    {
          id = Id.create()
-      ,  factor = factor
+      ,  factor = prime |> factorFromPrime
       ,  name = name
    }
 type DomainMember = DomainMember Member
 
-createDomainMember: Factor -> String -> DomainMember
-createDomainMember factor name =
-   createMember factor name 
-   |> DomainMember
+createDomainMember: Prime -> String -> DomainMember
+createDomainMember prime  =
+   createMember prime  
+   >> DomainMember
 
 domainMemberToString: DomainMember -> String
 domainMemberToString (DomainMember member) = member.name
@@ -79,10 +79,10 @@ type alias Domain =
     }
 
 type DefaultMember = DefaultMember Member  
-createDefaultMember: Factor -> String -> DefaultMember
-createDefaultMember factor name =
-   createMember factor name 
-   |> DefaultMember
+createDefaultMember: Prime -> String -> DefaultMember
+createDefaultMember prime  =
+   createMember prime  
+   >> DefaultMember
 
 type Dimension =
      DimensionWithDefault  (DefaultMember,Domain)
