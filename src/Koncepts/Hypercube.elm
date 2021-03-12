@@ -118,6 +118,6 @@ create name dimension =
 
         }
 
-addDimension: HyperCube -> HyperDimension -> HyperCube
-addDimension hyperCube dimension =
+addDimension: HyperDimension -> HyperCube -> HyperCube
+addDimension dimension hyperCube  =
    { hyperCube | dimensions = NList.append hyperCube.dimensions [ dimension ]}

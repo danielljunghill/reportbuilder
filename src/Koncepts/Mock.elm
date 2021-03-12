@@ -12,13 +12,15 @@ import NList exposing (..)
 import NList as NList
 import Prime exposing (..)
 import Prime 
+import Koncepts.Hypercube exposing (..)
 
 
-prime1:Prime
-prime1 =  Prime.init
-prime2 = Prime.generatePrime prime1
-prime3 = Debug.log "prime3" Prime.generatePrime prime2
+firstPrime:Prime
+firstPrime =  Prime.init
 
+-- konceptRevenues: PrimeResult Koncept
+-- konceptRevenues =
+--    Koncept.createValue firstPrime 
 
 head: Result String Koncept
 head = 
@@ -27,11 +29,11 @@ head =
     |> Koncept.ParentKoncept  
     |> Koncept.add ("Intäkter" |> Koncept.createAbstract )
 
-addValue: String -> Result String Koncept -> Result String Koncept
-addValue name koncept =
-    koncept
-    |> Result.map Koncept.ParentKoncept 
-    |> Result.andThen (name |> Koncept.createValue prime1 |> Koncept.add)
+-- addValue: String -> Result String Koncept -> Result String Koncept
+-- addValue name koncept =
+--     koncept
+--     |> Result.map Koncept.ParentKoncept 
+--     |> Result.andThen (name |> Koncept.createValue firstPrime |> Koncept.add)
 
 addAbstract: String -> Result String Koncept -> Result String Koncept
 addAbstract name koncept =
@@ -39,53 +41,58 @@ addAbstract name koncept =
     |> Result.map Koncept.ParentKoncept 
     |> Result.andThen (name |> Koncept.createAbstract |> Koncept.add)
 
-addCube: Koncept -> Result String (Maybe Koncept)
-addCube koncept  =
-      let
-        regioner: NList String
-        regioner = NList.create2 "Sverige"  ["Norge"]
-        dimRegioner: HyperDimension
-        dimRegioner = 
-            regioner 
-            |> HyperCube.domainCreate "Region" 
-            |> HyperCube.createDimensionWithDefault
-            |> Closed
+regions: PrimeResult HyperDimension
+regions = 
+   firstPrime
+   |> createDimensionWithDefault (DomainName "Region") (NList.create2 "Sverige" ["Norge"]) 
+   |> mapPrimeResult Closed
 
-        artal: NList String
-        artal = NList.create2 "2020"  ["2021"]
-        dimArtal: HyperDimension
-        dimArtal = 
-            artal 
-            |> HyperCube.domainCreate "Artal" 
-            |> HyperCube.createDimensionWithDefault
-            |> Closed
-        kvartal: NList String
-        kvartal = NList.create2 "kv1"  ["kv2", "kv3","kv4"]
-        hyperCube: HyperCube
-        hyperCube = 
-         kvartal
-         |> HyperCube.domainCreate "Kvartal" 
-         |> HyperCube.createDimensionWithDefault
-         |> Closed
-         |> HyperCube.create "Kvartal och annat"  
-         |> (\cube -> HyperCube.addDimension cube dimRegioner)
-         |> (\cube -> HyperCube.addDimension cube dimArtal)
+years: PrimeResult HyperDimension
+years = 
+   regions.prime
+   |> createDimensionWithDefault (DomainName "Artal") (NList.create2 "2020" ["2021"]) 
+   |> mapPrimeResult Closed
+
+quarters: PrimeResult HyperDimension
+quarters = 
+   years.prime
+   |> createDimensionWithDefault (DomainName "Kvartal") (NList.create2 "kv1"  ["kv2", "kv3","kv4"]) 
+   |> mapPrimeResult Closed
+
+addCube: Koncept -> Result String (Maybe Koncept)
+addCube  koncept  =  
+   let 
+      hyperCube: HyperCube
+      hyperCube = 
+         quarters.result
+         |> HyperCube.create "Kvartal och annat" 
+         |> HyperCube.addDimension years.result 
+         |> HyperCube.addDimension regions.result 
          -- |> 
         
+   in
+      let
+         f: AbstractKoncept -> List Koncept -> Result String KonceptAction
+         f ak koncepts =
+            if ak.name == (AbstractKonceptName "Intäkter") then
+               (ak, koncepts ++ ([ Cube (hyperCube, []) ]))
+               |> Abstract
+               |> MapValue
+               |> Ok
+            else
+               Ignore |> Ok            
       in
-         let
-            f: AbstractKoncept -> List Koncept -> Result String KonceptAction
-            f ak koncepts =
-               if ak.name == (AbstractKonceptName "Intäkter") then
-                  (ak, koncepts ++ ([ Cube (hyperCube, []) ]))
-                  |> Abstract
-                  |> MapValue
-                  |> Ok
-               else
-                  Ignore |> Ok            
-         in
-            Koncept.mapAbstractKoncept f koncept
+         Koncept.mapAbstractKoncept f koncept
 
+dimKonceptBikes: PrimeResult DimensionalKoncept
+dimKonceptBikes =
+   quarters.prime
+   |> DimensionalKoncept.createValue "Försäljning cyklar"
+
+dimKonceptSubsidies: PrimeResult DimensionalKoncept
+dimKonceptSubsidies =
+   dimKonceptBikes.prime
+   |> DimensionalKoncept.createValue "Bidrag"
 -- prime2: Prime
 -- prime2 = Prime.generatePrime prime1
 -- prime3: Prime
@@ -95,7 +102,7 @@ addDimensionalKoncept:Koncept -> Result String (Maybe Koncept)
 addDimensionalKoncept  =
    let
       dims : List DimensionalKoncept 
-      dims = [ DimensionalKoncept.createAbstract [ DimensionalKoncept.createValue prime2 "Försäljning cyklar", DimensionalKoncept.createValue prime3 "Bidrag" ] "Intäkter"  ]
+      dims = [ DimensionalKoncept.createAbstract [ dimKonceptBikes.result , dimKonceptSubsidies.result ] "Intäkter"  ]
    in
       let
           f: HyperCube -> List DimensionalKoncept -> Result String KonceptAction

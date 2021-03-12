@@ -5181,9 +5181,6 @@ var $author$project$Koncepts$Model$Abstract = function (a) {
 var $author$project$Koncepts$Model$AbstractKonceptName = function (a) {
 	return {$: 'AbstractKonceptName', a: a};
 };
-var $author$project$Koncepts$Model$Closed = function (a) {
-	return {$: 'Closed', a: a};
-};
 var $author$project$Koncepts$Model$Cube = function (a) {
 	return {$: 'Cube', a: a};
 };
@@ -5200,7 +5197,7 @@ var $author$project$NList$append = F2(
 			});
 	});
 var $author$project$Koncepts$Hypercube$addDimension = F2(
-	function (hyperCube, dimension) {
+	function (dimension, hyperCube) {
 		return _Utils_update(
 			hyperCube,
 			{
@@ -5227,70 +5224,6 @@ var $author$project$Koncepts$Hypercube$create = F2(
 			id: $author$project$Koncepts$Model$HyperCubeId(
 				$author$project$Id$create(_Utils_Tuple0)),
 			name: $author$project$Koncepts$Model$HyperCubeName(name)
-		};
-	});
-var $author$project$NList$create2 = F2(
-	function (m, l) {
-		return {head: m, tail: l};
-	});
-var $author$project$Koncepts$Model$DimensionWithDefault = function (a) {
-	return {$: 'DimensionWithDefault', a: a};
-};
-var $author$project$Koncepts$Model$Factor = function (a) {
-	return {$: 'Factor', a: a};
-};
-var $author$project$Koncepts$Model$DefaultMember = function (a) {
-	return {$: 'DefaultMember', a: a};
-};
-var $author$project$Koncepts$Model$createMember = F2(
-	function (factor, name) {
-		return {
-			factor: factor,
-			id: $author$project$Id$create(_Utils_Tuple0),
-			name: name
-		};
-	});
-var $author$project$Koncepts$Model$createDefaultMember = F2(
-	function (factor, name) {
-		return $author$project$Koncepts$Model$DefaultMember(
-			A2($author$project$Koncepts$Model$createMember, factor, name));
-	});
-var $author$project$Koncepts$Hypercube$createDimensionWithDefault = function (domain) {
-	return $author$project$Koncepts$Model$DimensionWithDefault(
-		_Utils_Tuple2(
-			A2(
-				$author$project$Koncepts$Model$createDefaultMember,
-				$author$project$Koncepts$Model$Factor(1),
-				'Total'),
-			domain));
-};
-var $author$project$Koncepts$Model$DomainName = function (a) {
-	return {$: 'DomainName', a: a};
-};
-var $author$project$Koncepts$Model$DomainMember = function (a) {
-	return {$: 'DomainMember', a: a};
-};
-var $author$project$Koncepts$Model$createDomainMember = F2(
-	function (factor, name) {
-		return $author$project$Koncepts$Model$DomainMember(
-			A2($author$project$Koncepts$Model$createMember, factor, name));
-	});
-var $author$project$NList$map = F2(
-	function (f, m) {
-		return {
-			head: f(m.head),
-			tail: A2($elm$core$List$map, f, m.tail)
-		};
-	});
-var $author$project$Koncepts$Hypercube$domainCreate = F2(
-	function (name, members) {
-		return {
-			members: A2(
-				$author$project$NList$map,
-				$author$project$Koncepts$Model$createDomainMember(
-					$author$project$Koncepts$Model$Factor(1)),
-				members),
-			name: $author$project$Koncepts$Model$DomainName(name)
 		};
 	});
 var $author$project$Koncepts$Koncept$actionToKonceptOption = F2(
@@ -5320,136 +5253,47 @@ var $author$project$Koncepts$Koncept$mapAbstractKoncept = F2(
 				$elm$core$Maybe$Just(koncept));
 		}
 	});
-var $author$project$Koncepts$Mock$addCube = function (koncept) {
-	var regioner = A2(
-		$author$project$NList$create2,
-		'Sverige',
-		_List_fromArray(
-			['Norge']));
-	var kvartal = A2(
-		$author$project$NList$create2,
-		'kv1',
-		_List_fromArray(
-			['kv2', 'kv3', 'kv4']));
-	var dimRegioner = $author$project$Koncepts$Model$Closed(
-		$author$project$Koncepts$Hypercube$createDimensionWithDefault(
-			A2($author$project$Koncepts$Hypercube$domainCreate, 'Region', regioner)));
-	var artal = A2(
-		$author$project$NList$create2,
-		'2020',
-		_List_fromArray(
-			['2021']));
-	var dimArtal = $author$project$Koncepts$Model$Closed(
-		$author$project$Koncepts$Hypercube$createDimensionWithDefault(
-			A2($author$project$Koncepts$Hypercube$domainCreate, 'Artal', artal)));
-	var hyperCube = function (cube) {
-		return A2($author$project$Koncepts$Hypercube$addDimension, cube, dimArtal);
-	}(
-		function (cube) {
-			return A2($author$project$Koncepts$Hypercube$addDimension, cube, dimRegioner);
-		}(
-			A2(
-				$author$project$Koncepts$Hypercube$create,
-				'Kvartal och annat',
-				$author$project$Koncepts$Model$Closed(
-					$author$project$Koncepts$Hypercube$createDimensionWithDefault(
-						A2($author$project$Koncepts$Hypercube$domainCreate, 'Kvartal', kvartal))))));
-	var f = F2(
-		function (ak, koncepts) {
-			return _Utils_eq(
-				ak.name,
-				$author$project$Koncepts$Model$AbstractKonceptName('Intäkter')) ? $elm$core$Result$Ok(
-				$author$project$Koncepts$Model$MapValue(
-					$author$project$Koncepts$Model$Abstract(
-						_Utils_Tuple2(
-							ak,
-							_Utils_ap(
-								koncepts,
-								_List_fromArray(
-									[
-										$author$project$Koncepts$Model$Cube(
-										_Utils_Tuple2(hyperCube, _List_Nil))
-									])))))) : $elm$core$Result$Ok($author$project$Koncepts$Model$Ignore);
-		});
-	return A2($author$project$Koncepts$Koncept$mapAbstractKoncept, f, koncept);
+var $author$project$Koncepts$Model$Closed = function (a) {
+	return {$: 'Closed', a: a};
 };
-var $author$project$Koncepts$Model$DimensionalAbstract = function (a) {
-	return {$: 'DimensionalAbstract', a: a};
+var $author$project$Koncepts$Model$DomainName = function (a) {
+	return {$: 'DomainName', a: a};
+};
+var $author$project$NList$create2 = F2(
+	function (m, l) {
+		return {head: m, tail: l};
+	});
+var $author$project$Koncepts$Model$DimensionWithDefault = function (a) {
+	return {$: 'DimensionWithDefault', a: a};
+};
+var $author$project$Koncepts$Model$DefaultMember = function (a) {
+	return {$: 'DefaultMember', a: a};
 };
 var $elm$core$Basics$composeR = F3(
 	function (f, g, x) {
 		return g(
 			f(x));
 	});
-var $author$project$Koncepts$Model$AbstractKonceptId = function (a) {
-	return {$: 'AbstractKonceptId', a: a};
-};
-var $author$project$Koncepts$Model$createAbstractKonceptWithSelection = F2(
-	function (selected, name) {
+var $author$project$Koncepts$Model$createMember = F2(
+	function (name, factor) {
 		return {
-			id: $author$project$Koncepts$Model$AbstractKonceptId(
-				$author$project$Id$create(_Utils_Tuple0)),
-			name: $author$project$Koncepts$Model$AbstractKonceptName(name),
-			selected: selected
+			factor: factor,
+			id: $author$project$Id$create(_Utils_Tuple0),
+			name: name
 		};
 	});
-var $author$project$Koncepts$Model$createAbstractKoncept = $author$project$Koncepts$Model$createAbstractKonceptWithSelection(false);
-var $author$project$Koncepts$Dimensionalkoncept$createAbstract = function (dims) {
+var $author$project$Koncepts$Model$createDefaultMember = function (name) {
 	return A2(
 		$elm$core$Basics$composeR,
-		$author$project$Koncepts$Model$createAbstractKoncept,
-		function (ak) {
-			return $author$project$Koncepts$Model$DimensionalAbstract(
-				_Utils_Tuple2(ak, dims));
-		});
+		$author$project$Koncepts$Model$createMember(name),
+		$author$project$Koncepts$Model$DefaultMember);
 };
-var $author$project$Koncepts$Model$DimensionalValue = function (a) {
-	return {$: 'DimensionalValue', a: a};
-};
-var $author$project$Koncepts$Model$ValueKonceptId = function (a) {
-	return {$: 'ValueKonceptId', a: a};
-};
-var $author$project$Koncepts$Model$ValueKonceptName = function (a) {
-	return {$: 'ValueKonceptName', a: a};
+var $author$project$Koncepts$Model$Factor = function (a) {
+	return {$: 'Factor', a: a};
 };
 var $author$project$Koncepts$Model$factorFromPrime = function (prime) {
 	return $author$project$Koncepts$Model$Factor(prime.numbers.head);
 };
-var $author$project$Koncepts$Model$createValueKonceptWithSelection = F3(
-	function (prime, selected, name) {
-		var newValueKoncept = {
-			factor: $author$project$Koncepts$Model$factorFromPrime(prime),
-			id: $author$project$Koncepts$Model$ValueKonceptId(
-				$author$project$Id$create(_Utils_Tuple0)),
-			name: $author$project$Koncepts$Model$ValueKonceptName(name),
-			selected: selected
-		};
-		return newValueKoncept;
-	});
-var $author$project$Koncepts$Model$createValueKoncept = function (prime) {
-	return A2($author$project$Koncepts$Model$createValueKonceptWithSelection, prime, false);
-};
-var $author$project$Koncepts$Dimensionalkoncept$createValue = function (prime) {
-	return A2(
-		$elm$core$Basics$composeR,
-		$author$project$Koncepts$Model$createValueKoncept(prime),
-		$author$project$Koncepts$Model$DimensionalValue);
-};
-var $author$project$Koncepts$Koncept$mapCube = F2(
-	function (f, koncept) {
-		if (koncept.$ === 'Cube') {
-			var _v1 = koncept.a;
-			var hc = _v1.a;
-			var koncepts = _v1.b;
-			return A2(
-				$elm$core$Result$map,
-				$author$project$Koncepts$Koncept$actionToKonceptOption(koncept),
-				A2(f, hc, koncepts));
-		} else {
-			return $elm$core$Result$Ok(
-				$elm$core$Maybe$Just(koncept));
-		}
-	});
 var $author$project$NList$toList = function (m) {
 	return _Utils_ap(
 		_List_fromArray(
@@ -5543,22 +5387,248 @@ var $author$project$Prime$generatePrime = function (prime) {
 		return recGetNextPrimeNumber(nr + 1);
 	}
 };
+var $author$project$Koncepts$Hypercube$createDefaultMemberWithPrime = F2(
+	function (name, prime) {
+		return {
+			prime: $author$project$Prime$generatePrime(prime),
+			result: A2(
+				$author$project$Koncepts$Model$createDefaultMember,
+				'Total',
+				$author$project$Koncepts$Model$factorFromPrime(prime))
+		};
+	});
+var $author$project$Koncepts$Model$createDomain = F2(
+	function (name, m) {
+		return {members: m, name: name};
+	});
+var $author$project$Koncepts$Model$DomainMember = function (a) {
+	return {$: 'DomainMember', a: a};
+};
+var $author$project$Prime$createPrimeResult = F2(
+	function (m, prime) {
+		return {prime: prime, result: m};
+	});
+var $author$project$Prime$mapPrimeResult = F2(
+	function (f, m) {
+		var result = f(m.result);
+		return {prime: m.prime, result: result};
+	});
+var $author$project$Koncepts$Hypercube$createMembersWithPrime = F2(
+	function (memberNames, firstPrime) {
+		var addNewMember = F2(
+			function (result, m) {
+				return A2(
+					$author$project$Prime$mapPrimeResult,
+					function (r) {
+						return _Utils_ap(
+							_List_fromArray(
+								[r]),
+							m.result);
+					},
+					result);
+			});
+		var recCreateMembers = F2(
+			function (members, prime) {
+				if (!members.b) {
+					return A2($author$project$Prime$createPrimeResult, _List_Nil, prime);
+				} else {
+					var head = members.a;
+					var tail = members.b;
+					var newMember = $author$project$Koncepts$Model$DomainMember(
+						A2(
+							$author$project$Koncepts$Model$createMember,
+							head,
+							$author$project$Koncepts$Model$factorFromPrime(prime)));
+					var newResult = A2(
+						$author$project$Prime$createPrimeResult,
+						newMember,
+						$author$project$Prime$generatePrime(prime));
+					return A2(
+						addNewMember,
+						newResult,
+						A2(recCreateMembers, tail, newResult.prime));
+				}
+			});
+		var tailMembers = A2(
+			recCreateMembers,
+			memberNames.tail,
+			$author$project$Prime$generatePrime(firstPrime));
+		var firstMember = $author$project$Koncepts$Model$DomainMember(
+			A2(
+				$author$project$Koncepts$Model$createMember,
+				memberNames.head,
+				$author$project$Koncepts$Model$factorFromPrime(firstPrime)));
+		return A2(
+			$author$project$Prime$mapPrimeResult,
+			function (m) {
+				return A2($author$project$NList$create2, firstMember, m);
+			},
+			tailMembers);
+	});
+var $author$project$Koncepts$Hypercube$createDimensionWithDefault = F3(
+	function (name, members, prime) {
+		var defaultMember = A2($author$project$Koncepts$Hypercube$createDefaultMemberWithPrime, 'Total', prime);
+		var domain = A2(
+			$author$project$Prime$mapPrimeResult,
+			$author$project$Koncepts$Model$createDomain(name),
+			A2($author$project$Koncepts$Hypercube$createMembersWithPrime, members, defaultMember.prime));
+		return A2(
+			$author$project$Prime$mapPrimeResult,
+			function (d) {
+				return $author$project$Koncepts$Model$DimensionWithDefault(
+					_Utils_Tuple2(defaultMember.result, d));
+			},
+			domain);
+	});
 var $author$project$Prime$init = {
 	numbers: $author$project$NList$create(2)
 };
-var $author$project$Koncepts$Mock$prime1 = $author$project$Prime$init;
-var $author$project$Koncepts$Mock$prime2 = $author$project$Prime$generatePrime($author$project$Koncepts$Mock$prime1);
-var $author$project$Koncepts$Mock$prime3 = A3($elm$core$Debug$log, 'prime3', $author$project$Prime$generatePrime, $author$project$Koncepts$Mock$prime2);
+var $author$project$Koncepts$Mock$firstPrime = $author$project$Prime$init;
+var $author$project$Koncepts$Mock$regions = A2(
+	$author$project$Prime$mapPrimeResult,
+	$author$project$Koncepts$Model$Closed,
+	A3(
+		$author$project$Koncepts$Hypercube$createDimensionWithDefault,
+		$author$project$Koncepts$Model$DomainName('Region'),
+		A2(
+			$author$project$NList$create2,
+			'Sverige',
+			_List_fromArray(
+				['Norge'])),
+		$author$project$Koncepts$Mock$firstPrime));
+var $author$project$Koncepts$Mock$years = A2(
+	$author$project$Prime$mapPrimeResult,
+	$author$project$Koncepts$Model$Closed,
+	A3(
+		$author$project$Koncepts$Hypercube$createDimensionWithDefault,
+		$author$project$Koncepts$Model$DomainName('Artal'),
+		A2(
+			$author$project$NList$create2,
+			'2020',
+			_List_fromArray(
+				['2021'])),
+		$author$project$Koncepts$Mock$regions.prime));
+var $author$project$Koncepts$Mock$quarters = A2(
+	$author$project$Prime$mapPrimeResult,
+	$author$project$Koncepts$Model$Closed,
+	A3(
+		$author$project$Koncepts$Hypercube$createDimensionWithDefault,
+		$author$project$Koncepts$Model$DomainName('Kvartal'),
+		A2(
+			$author$project$NList$create2,
+			'kv1',
+			_List_fromArray(
+				['kv2', 'kv3', 'kv4'])),
+		$author$project$Koncepts$Mock$years.prime));
+var $author$project$Koncepts$Mock$addCube = function (koncept) {
+	var hyperCube = A2(
+		$author$project$Koncepts$Hypercube$addDimension,
+		$author$project$Koncepts$Mock$regions.result,
+		A2(
+			$author$project$Koncepts$Hypercube$addDimension,
+			$author$project$Koncepts$Mock$years.result,
+			A2($author$project$Koncepts$Hypercube$create, 'Kvartal och annat', $author$project$Koncepts$Mock$quarters.result)));
+	var f = F2(
+		function (ak, koncepts) {
+			return _Utils_eq(
+				ak.name,
+				$author$project$Koncepts$Model$AbstractKonceptName('Intäkter')) ? $elm$core$Result$Ok(
+				$author$project$Koncepts$Model$MapValue(
+					$author$project$Koncepts$Model$Abstract(
+						_Utils_Tuple2(
+							ak,
+							_Utils_ap(
+								koncepts,
+								_List_fromArray(
+									[
+										$author$project$Koncepts$Model$Cube(
+										_Utils_Tuple2(hyperCube, _List_Nil))
+									])))))) : $elm$core$Result$Ok($author$project$Koncepts$Model$Ignore);
+		});
+	return A2($author$project$Koncepts$Koncept$mapAbstractKoncept, f, koncept);
+};
+var $author$project$Koncepts$Model$DimensionalAbstract = function (a) {
+	return {$: 'DimensionalAbstract', a: a};
+};
+var $author$project$Koncepts$Model$AbstractKonceptId = function (a) {
+	return {$: 'AbstractKonceptId', a: a};
+};
+var $author$project$Koncepts$Model$createAbstractKonceptWithSelection = F2(
+	function (selected, name) {
+		return {
+			id: $author$project$Koncepts$Model$AbstractKonceptId(
+				$author$project$Id$create(_Utils_Tuple0)),
+			name: $author$project$Koncepts$Model$AbstractKonceptName(name),
+			selected: selected
+		};
+	});
+var $author$project$Koncepts$Model$createAbstractKoncept = $author$project$Koncepts$Model$createAbstractKonceptWithSelection(false);
+var $author$project$Koncepts$Dimensionalkoncept$createAbstract = function (dims) {
+	return A2(
+		$elm$core$Basics$composeR,
+		$author$project$Koncepts$Model$createAbstractKoncept,
+		function (ak) {
+			return $author$project$Koncepts$Model$DimensionalAbstract(
+				_Utils_Tuple2(ak, dims));
+		});
+};
+var $author$project$Koncepts$Model$DimensionalValue = function (a) {
+	return {$: 'DimensionalValue', a: a};
+};
+var $author$project$Koncepts$Model$ValueKonceptId = function (a) {
+	return {$: 'ValueKonceptId', a: a};
+};
+var $author$project$Koncepts$Model$ValueKonceptName = function (a) {
+	return {$: 'ValueKonceptName', a: a};
+};
+var $author$project$Koncepts$Model$createValueKonceptWithSelection = F3(
+	function (selected, name, factor) {
+		var newValueKoncept = {
+			factor: factor,
+			id: $author$project$Koncepts$Model$ValueKonceptId(
+				$author$project$Id$create(_Utils_Tuple0)),
+			name: $author$project$Koncepts$Model$ValueKonceptName(name),
+			selected: selected
+		};
+		return newValueKoncept;
+	});
+var $author$project$Koncepts$Model$createValueKoncept = $author$project$Koncepts$Model$createValueKonceptWithSelection(false);
+var $author$project$Koncepts$Dimensionalkoncept$createValue = F2(
+	function (name, prime) {
+		var koncept = $author$project$Koncepts$Model$DimensionalValue(
+			A2(
+				$author$project$Koncepts$Model$createValueKoncept,
+				name,
+				$author$project$Koncepts$Model$factorFromPrime(prime)));
+		return A2(
+			$author$project$Prime$createPrimeResult,
+			koncept,
+			$author$project$Prime$generatePrime(prime));
+	});
+var $author$project$Koncepts$Mock$dimKonceptBikes = A2($author$project$Koncepts$Dimensionalkoncept$createValue, 'Försäljning cyklar', $author$project$Koncepts$Mock$quarters.prime);
+var $author$project$Koncepts$Mock$dimKonceptSubsidies = A2($author$project$Koncepts$Dimensionalkoncept$createValue, 'Bidrag', $author$project$Koncepts$Mock$dimKonceptBikes.prime);
+var $author$project$Koncepts$Koncept$mapCube = F2(
+	function (f, koncept) {
+		if (koncept.$ === 'Cube') {
+			var _v1 = koncept.a;
+			var hc = _v1.a;
+			var koncepts = _v1.b;
+			return A2(
+				$elm$core$Result$map,
+				$author$project$Koncepts$Koncept$actionToKonceptOption(koncept),
+				A2(f, hc, koncepts));
+		} else {
+			return $elm$core$Result$Ok(
+				$elm$core$Maybe$Just(koncept));
+		}
+	});
 var $author$project$Koncepts$Mock$addDimensionalKoncept = function () {
 	var dims = _List_fromArray(
 		[
 			A2(
 			$author$project$Koncepts$Dimensionalkoncept$createAbstract,
 			_List_fromArray(
-				[
-					A2($author$project$Koncepts$Dimensionalkoncept$createValue, $author$project$Koncepts$Mock$prime2, 'Försäljning cyklar'),
-					A2($author$project$Koncepts$Dimensionalkoncept$createValue, $author$project$Koncepts$Mock$prime3, 'Bidrag')
-				]),
+				[$author$project$Koncepts$Mock$dimKonceptBikes.result, $author$project$Koncepts$Mock$dimKonceptSubsidies.result]),
 			'Intäkter')
 		]);
 	var f = F2(
@@ -6538,6 +6608,13 @@ var $author$project$Lists$collect = F2(
 			}
 		};
 		return recCollect(m);
+	});
+var $author$project$NList$map = F2(
+	function (f, m) {
+		return {
+			head: f(m.head),
+			tail: A2($elm$core$List$map, f, m.tail)
+		};
 	});
 var $author$project$Koncepts$DimensionalHeader$addDimensionToTableHeaders = F5(
 	function (direction, depth, span, dimension, acc) {
