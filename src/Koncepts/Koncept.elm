@@ -7,8 +7,19 @@ import List
 import Prime exposing (..)
 import Prime
 
-createValue: Prime -> String -> Koncept  
-createValue prime = (createValueKoncept prime) >> Value
+createValue: Prime -> String -> PrimeResult Koncept  
+createValue prime name = 
+   let
+      koncept: Koncept
+      koncept =
+         prime
+         |> factorFromPrime
+         |> createValueKoncept name 
+         |> Value
+   in 
+      prime
+      |> generatePrime 
+      |> createPrimeResult koncept 
 
 addValue : ValueKoncept -> Koncept -> Result String Koncept
 addValue k p =

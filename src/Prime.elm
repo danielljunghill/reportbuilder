@@ -1,4 +1,4 @@
-module Prime exposing (Prime, generatePrime, PrimeNumberGenerator(..), generator, init)
+module Prime exposing (Prime, generatePrime, PrimeNumberGenerator(..), init, PrimeResult, mapPrimeResult, createPrimeResult)
 import NList exposing (..)
 import Basics.Extra exposing (..)
 
@@ -60,10 +60,30 @@ generatePrime prime  =
                 in
                     recGetNextPrimeNumber (nr + 1)
 
-generator = PrimeNumberGenerator generatePrime
+type alias PrimeResult a = 
+    {
+            result: a
+        ,   prime: Prime
+    }
 
+createPrimeResult: a -> Prime -> PrimeResult a
+createPrimeResult m prime =
+    {
+            result = m
+        ,   prime = prime 
+    }
 
+mapPrimeResult: (a -> b) -> PrimeResult a -> PrimeResult b
+mapPrimeResult f m =
+    let
+        result: b
+        result = f m.result
+    in 
+       {
+                prime = m.prime
+           ,    result = result    
+       }
 
+---
 
--- let(_,a) = nextPrime [ 2 ; 3; 5; 7]
--- List.head a
+---

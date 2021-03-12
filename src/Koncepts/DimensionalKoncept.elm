@@ -9,8 +9,19 @@ import Prime exposing (..)
 
 
 
-createValue: Prime  -> String -> DimensionalKoncept 
-createValue  prime  = (createValueKoncept prime) >> DimensionalValue
+createValue: String -> Prime -> PrimeResult DimensionalKoncept   
+createValue name prime  = 
+   let
+      koncept: DimensionalKoncept
+      koncept =
+         prime
+         |> factorFromPrime
+         |> createValueKoncept name 
+         |> DimensionalValue
+   in 
+      prime
+      |> generatePrime 
+      |> createPrimeResult koncept 
 
 
 addValueKoncept:  ValueKoncept -> DimensionalKoncept -> Result String DimensionalKoncept

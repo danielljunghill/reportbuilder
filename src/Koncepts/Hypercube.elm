@@ -5,40 +5,76 @@ import Koncepts.Model exposing (..)
 import NList exposing(..)
 import NList as NList
 import Prime exposing (..)
-
+import Tuple exposing (..)
 ---
 
 ---
-createMembers: Prime -> List String -> (Prime, List DomainMember)
-createMembers firstPrime m  =
+createMembersWithPrime:  NList String  -> Prime ->  PrimeResult (NList DomainMember )
+createMembersWithPrime memberNames firstPrime   =
     let
-        addNewMember: DomainMember -> (Prime, List DomainMember) -> (Prime, List DomainMember)
-        addNewMember m1 (p,m2) = (p, [ m1 ] ++ m2)
-        recCreateMembers: Prime -> List String  -> (Prime,List DomainMember)
-        recCreateMembers prime members =
+        addNewMember: PrimeResult DomainMember -> PrimeResult (List DomainMember) -> PrimeResult (List DomainMember)
+        addNewMember result m  = 
+            result 
+            |> mapPrimeResult (\r -> [ r ] ++ m.result)
+        recCreateMembers: List String  -> Prime -> PrimeResult (List DomainMember)
+        recCreateMembers members prime  =
             case members of
                 [] -> 
                     -- let
                     --     emptyMembers: List Member
                     --     emptyMembers = []
                     -- in
-                    (prime,[])
+                    createPrimeResult [] prime
                 head :: tail ->
                     let
                         newMember: DomainMember
                         newMember =
-                             head
-                             |> createMember prime 
+                             prime
+                             |> factorFromPrime
+                             |> createMember head 
                              |> DomainMember
-                        newPrime: Prime
-                        newPrime = generatePrime prime                        
+
+                        newResult: PrimeResult DomainMember
+                        newResult =
+                            prime
+                            |> generatePrime
+                            |> createPrimeResult newMember
+      
+
                     in
-                      addNewMember newMember (recCreateMembers newPrime tail)
+                      addNewMember newResult (recCreateMembers tail newResult.prime)
     in
-        m
-        |> recCreateMembers firstPrime 
+        let 
+            firstMember: DomainMember
+            firstMember = 
+                  firstPrime
+                  |> factorFromPrime
+                  |> (createMember memberNames.head) 
+                  |> DomainMember
 
+            tailMembers: PrimeResult (List DomainMember)
+            tailMembers = 
+                firstPrime
+                |> generatePrime
+                |> recCreateMembers memberNames.tail 
 
+        in
+            tailMembers
+            |> mapPrimeResult (\m -> NList.create2 firstMember m)
+         
+            
+
+createDefaultMemberWithPrime: String -> Prime -> PrimeResult DefaultMember
+createDefaultMemberWithPrime name prime  =
+    {
+            prime = generatePrime prime 
+        ,   result =  
+                    prime 
+                    |> factorFromPrime 
+                    |> createDefaultMember "Total" 
+        }
+
+-- createHyperDimensionWithDefault: String -> NList 
 
 domainCreate: String -> NList DomainMember -> Domain
 domainCreate name members =
@@ -53,9 +89,21 @@ domainAddMember : DomainMember -> Domain ->  Domain
 domainAddMember member domain  =
       {  domain | members =  NList.append domain.members [ member ] }
 
-createDimensionWithDefault: Prime -> Domain -> Dimension
-createDimensionWithDefault prime domain =
-    DimensionWithDefault (createDefaultMember prime "Total", domain)
+createDimensionWithDefault: DomainName -> NList String -> Prime -> PrimeResult Dimension
+createDimensionWithDefault name members prime  =
+    let
+        defaultMember: PrimeResult DefaultMember 
+        defaultMember =  
+            prime 
+            |> createDefaultMemberWithPrime "Total"  
+        domain: PrimeResult Domain
+        domain = 
+            defaultMember.prime
+            |> createMembersWithPrime members
+            |> mapPrimeResult (createDomain name)
+    in 
+        domain
+        |> mapPrimeResult (\d -> DimensionWithDefault (defaultMember.result, d))
 
 createDimensionWithoutDefault: Domain -> Dimension
 createDimensionWithoutDefault domain =
