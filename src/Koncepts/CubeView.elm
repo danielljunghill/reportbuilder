@@ -88,6 +88,11 @@ attrCell: List (Attribute msg)
 attrCell  = 
     [ class "grid-cell" ] 
 
+attrSelected: Bool -> List (Attribute msg)
+attrSelected selected =
+     if selected then  [ class "grid-cell-selected" ]  else []
+    
+
 
 textCell: String -> List (Attribute Msg) -> Html Msg
 textCell s attr  =
@@ -112,14 +117,26 @@ attrOnClickCell (CubeColumn members) row attr =
 
       
 
-columnHeaderCell: CubeColumnOffset -> Area -> String -> Html Msg
-columnHeaderCell (CubeColumnOffset offset) area s =
-   area
+-- columnHeaderCell: CubeColumnOffset -> Area -> String -> Html Msg
+-- columnHeaderCell (CubeColumnOffset offset) area s =
+--    area
+--    |> offsetArea offset
+--    |> attributeGridArea
+--    |> List.append attrCell
+--    |> List.append attrBox
+--    |> textCell s
+
+
+columnHeaderCell: CubeColumnOffset -> CubeColumnHeader -> Html Msg
+columnHeaderCell (CubeColumnOffset offset) colunmHeader =
+   colunmHeader.area
    |> offsetArea offset
    |> attributeGridArea
    |> List.append attrCell
    |> List.append attrBox
-   |> textCell s
+   |> List.append (attrSelected colunmHeader.isSelected)
+   |> textCell colunmHeader.member.name
+
 
 rowHeaderCellIndented: CubeRowOffset -> Area -> String -> Html Msg
 rowHeaderCellIndented (CubeRowOffset offset) area s =
@@ -217,7 +234,7 @@ viewCube direction hyperCube koncepts selection =
          columns: List (Html Msg) 
          columns = 
             cubeColumns.headers 
-            |> List.map (\header -> columnHeaderCell cubeRows.offset header.area header.member.name)
+            |> List.map (\header -> columnHeaderCell cubeRows.offset header)
 
          cells: List (Html Msg) 
          cells = 

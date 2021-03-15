@@ -335,6 +335,8 @@ tableHeaderToDimensionColumnHeader selection tableHeader   =
       createDimensionColumnHeader: List Member -> Bool -> DimensionHeader -> CubeColumnHeader
       createDimensionColumnHeader selectedMembers isTotal (DimensionHeader d) =
          let 
+               test = Debug.log "selectedMembers" selectedMembers
+               test1 = Debug.log  "factor" d.member.head.factor
                filteredMembers: List Member
                filteredMembers = 
                   selectedMembers 

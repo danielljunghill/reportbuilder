@@ -63,14 +63,11 @@ pageButton  =
 view : Model.Model -> Html Msg
 view model =
    let
-      let
-      
-      in
       modelToHtml: Report -> Html Msg
       modelToHtml report =
            div [ class "report-wrapper"]
             [
-            Report.toHtml Nothing report,
+            Report.toHtml (tryGetSelectedCell model) report,
             div [] [ konceptButton report,  pageButton]
             ]
    in

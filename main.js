@@ -5307,6 +5307,7 @@ var $author$project$NList$addFirst = F2(
 			tail: $author$project$NList$toList(m)
 		};
 	});
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Prime$tryGetLastNumber = function (numbers) {
 	if (!numbers.b) {
 		return $elm$core$Maybe$Nothing;
@@ -5316,75 +5317,71 @@ var $author$project$Prime$tryGetLastNumber = function (numbers) {
 		return $elm$core$Maybe$Just(head);
 	}
 };
-var $elm$core$Debug$log = _Debug_log;
-var $elm$core$Basics$modBy = _Basics_modBy;
-var $elm_community$basics_extra$Basics$Extra$safeModBy = F2(
-	function (modulus, x) {
-		return (!modulus) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(
-			A2($elm$core$Basics$modBy, modulus, x));
+var $author$project$Prime$bFactorOfA = F2(
+	function (a, b) {
+		var test5 = A2($elm$core$Debug$log, '5: a * b', a) * b;
+		var test4 = A2($elm$core$Debug$log, '4: b * (a // b)', b) * ((a / b) | 0);
+		var test3 = A2($elm$core$Debug$log, 'a//b', (a / b) | 0);
+		var test2 = A2($elm$core$Debug$log, 'b', b);
+		var test1 = A2($elm$core$Debug$log, 'a', a);
+		var answer = A2(
+			$elm$core$Debug$log,
+			'isFactprPf',
+			_Utils_eq(b * ((a / b) | 0), a));
+		return (a > 100) ? true : answer;
 	});
-var $author$project$Prime$trytNumberAsPrime = F2(
+var $author$project$Prime$tryNumberAsPrime = F2(
 	function (n, numbers) {
-		trytNumberAsPrime:
+		tryNumberAsPrime:
 		while (true) {
 			if (!numbers.b) {
 				return $elm$core$Maybe$Just(n);
 			} else {
 				var head = numbers.a;
 				var tail = numbers.b;
-				var isFactorIn = F2(
-					function (taljare, namnare) {
-						var test = A2($elm$core$Debug$log, 'namnare', namnare);
-						var _v1 = A2($elm_community$basics_extra$Basics$Extra$safeModBy, taljare, namnare);
-						if (_v1.$ === 'Just') {
-							var v = _v1.a;
-							return !v;
-						} else {
-							return true;
-						}
-					});
-				if (A2(isFactorIn, n, head)) {
+				if (A2($author$project$Prime$bFactorOfA, n, head)) {
 					return $elm$core$Maybe$Nothing;
 				} else {
 					var $temp$n = n,
 						$temp$numbers = tail;
 					n = $temp$n;
 					numbers = $temp$numbers;
-					continue trytNumberAsPrime;
+					continue tryNumberAsPrime;
 				}
 			}
 		}
 	});
 var $author$project$Prime$generatePrime = function (prime) {
-	var numbers = $author$project$NList$toList(prime.numbers);
+	var numbers = A2(
+		$elm$core$Debug$log,
+		'numbers',
+		$author$project$NList$toList(prime.numbers));
 	var _v0 = $author$project$Prime$tryGetLastNumber(numbers);
 	if (_v0.$ === 'Nothing') {
-		return _Utils_update(
-			prime,
-			{
-				numbers: $author$project$NList$create(2)
-			});
+		return {
+			numbers: $author$project$NList$create(2)
+		};
 	} else {
 		var nr = _v0.a;
-		var recGetNextPrimeNumber = function (nnr) {
-			recGetNextPrimeNumber:
+		var recGetNextPrime = function (number) {
+			recGetNextPrime:
 			while (true) {
-				var _v1 = A2($author$project$Prime$trytNumberAsPrime, nnr, numbers);
+				var _v1 = A2($author$project$Prime$tryNumberAsPrime, number, numbers);
 				if (_v1.$ === 'Just') {
-					var pn = _v1.a;
+					var nextNr = _v1.a;
 					return _Utils_update(
 						prime,
 						{
-							numbers: A2($author$project$NList$addFirst, pn, prime.numbers)
+							numbers: A2($author$project$NList$addFirst, nextNr, prime.numbers)
 						});
 				} else {
-					var $temp$nnr = nnr + 1;
-					nnr = $temp$nnr;
-					continue recGetNextPrimeNumber;
+					var $temp$number = number + 1;
+					number = $temp$number;
+					continue recGetNextPrime;
 				}
 			}
 		};
-		return recGetNextPrimeNumber(nr + 1);
+		return recGetNextPrime(nr + 1);
 	}
 };
 var $author$project$Koncepts$Hypercube$createDefaultMemberWithPrime = F2(
@@ -6760,6 +6757,8 @@ var $author$project$Koncepts$CubeDimension$tableHeaderToDimensionColumnHeader = 
 		var createDimensionColumnHeader = F3(
 			function (selectedMembers, isTotal, _v1) {
 				var d = _v1.a;
+				var test1 = A2($elm$core$Debug$log, 'factor', d.member.head.factor);
+				var test = A2($elm$core$Debug$log, 'selectedMembers', selectedMembers);
 				var filteredMembers = A2(
 					$elm$core$List$filter,
 					function (ff) {
@@ -7080,6 +7079,12 @@ var $author$project$Koncepts$CubeView$attrCell = _List_fromArray(
 	[
 		$elm$html$Html$Attributes$class('grid-cell')
 	]);
+var $author$project$Koncepts$CubeView$attrSelected = function (selected) {
+	return selected ? _List_fromArray(
+		[
+			$elm$html$Html$Attributes$class('grid-cell-selected')
+		]) : _List_Nil;
+};
 var $author$project$Koncepts$Area$spanInt = function (_v0) {
 	var span = _v0.a;
 	return span;
@@ -7166,20 +7171,23 @@ var $author$project$Koncepts$CubeView$textCell = F2(
 					$elm$html$Html$text(s)
 				]));
 	});
-var $author$project$Koncepts$CubeView$columnHeaderCell = F3(
-	function (_v0, area, s) {
+var $author$project$Koncepts$CubeView$columnHeaderCell = F2(
+	function (_v0, colunmHeader) {
 		var offset = _v0.a;
 		return A2(
 			$author$project$Koncepts$CubeView$textCell,
-			s,
+			colunmHeader.member.name,
 			A2(
 				$elm$core$List$append,
-				$author$project$Koncepts$CubeView$attrBox,
+				$author$project$Koncepts$CubeView$attrSelected(colunmHeader.isSelected),
 				A2(
 					$elm$core$List$append,
-					$author$project$Koncepts$CubeView$attrCell,
-					$author$project$Koncepts$CubeView$attributeGridArea(
-						A2($author$project$Koncepts$Area$offsetArea, offset, area)))));
+					$author$project$Koncepts$CubeView$attrBox,
+					A2(
+						$elm$core$List$append,
+						$author$project$Koncepts$CubeView$attrCell,
+						$author$project$Koncepts$CubeView$attributeGridArea(
+							A2($author$project$Koncepts$Area$offsetArea, offset, colunmHeader.area))))));
 	});
 var $author$project$Koncepts$CubeView$gridSizeAttribute = F4(
 	function (s1, s2, i, s3) {
@@ -7494,7 +7502,7 @@ var $author$project$Koncepts$CubeView$viewCube = F4(
 		var columns = A2(
 			$elm$core$List$map,
 			function (header) {
-				return A3($author$project$Koncepts$CubeView$columnHeaderCell, cubeRows.offset, header.area, header.member.name);
+				return A2($author$project$Koncepts$CubeView$columnHeaderCell, cubeRows.offset, header);
 			},
 			cubeColumns.headers);
 		var cells = A3($author$project$Koncepts$CubeView$gridCells, direction, cubeColumns, cubeRows);
@@ -7600,6 +7608,49 @@ var $author$project$Report$View$toHtml = F2(
 					]),
 				pagesHtml));
 	});
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$Model$tryGetReportModel = function (model) {
+	switch (model.$) {
+		case 'NoReportWithError':
+			return $elm$core$Maybe$Nothing;
+		case 'ReportWithError':
+			var _v1 = model.a;
+			var rm = _v1.b;
+			return $elm$core$Maybe$Just(rm);
+		default:
+			var rm = model.a;
+			return $elm$core$Maybe$Just(rm);
+	}
+};
+var $author$project$Model$tryGetSelectedCellFromReportModel = function (model) {
+	var _v0 = model.selectedItem;
+	if (_v0.$ === 'Just') {
+		var item = _v0.a;
+		if (item.$ === 'SelectedCell') {
+			var _v2 = item.a;
+			var v = _v2.a;
+			var m = _v2.b;
+			return $elm$core$Maybe$Just(
+				_Utils_Tuple2(v, m));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Model$tryGetSelectedCell = A2(
+	$elm$core$Basics$composeR,
+	$author$project$Model$tryGetReportModel,
+	$elm$core$Maybe$andThen($author$project$Model$tryGetSelectedCellFromReportModel));
 var $author$project$Main$view = function (model) {
 	var modelToHtml = function (report) {
 		return A2(
@@ -7610,7 +7661,10 @@ var $author$project$Main$view = function (model) {
 				]),
 			_List_fromArray(
 				[
-					A2($author$project$Report$View$toHtml, $elm$core$Maybe$Nothing, report),
+					A2(
+					$author$project$Report$View$toHtml,
+					$author$project$Model$tryGetSelectedCell(model),
+					report),
 					A2(
 					$elm$html$Html$div,
 					_List_Nil,
