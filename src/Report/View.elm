@@ -6,15 +6,17 @@ import Html exposing (..)
 import Msg exposing (..)
 import Report.Model exposing (..)
 import Html.Attributes exposing(..)
+import List
+import Koncepts.Model exposing(..)
 
-toHtml: Report -> Html Msg            
-toHtml report = 
+toHtml: Maybe (ValueKoncept, List Member) -> Report -> Html Msg            
+toHtml selection report = 
     let
         pages: List (Html Msg) 
         pages =
             report.pages
             |> List.filter (\page -> page.selected)
-            |> List.map Pages.toHtml
+            |> List.map (Pages.toHtml selection)
 
         headers: List (Html Msg)
         headers =
@@ -30,4 +32,4 @@ toHtml report =
     in
 
         List.append [ text report.name ] pagesHtml
-        |> div [class "Report"] 
+        |> div [class "Report"]   

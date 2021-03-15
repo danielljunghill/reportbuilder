@@ -15,7 +15,7 @@ import Model
 import Model exposing (..)
 import Msg exposing (..)
 import ResultExtension exposing (..)
-import Msg
+
 main : Program () Model Msg
 main =
   Browser.element
@@ -28,9 +28,14 @@ main =
 initialModel: Model.Model
 initialModel = Nothing |> Model.update Report.mockReport 
 
+
 update : Msg -> Model.Model  -> (Model.Model, Cmd Msg) 
 update msg model =
    case msg of
+      Select item -> 
+           model 
+           |> selectItem item
+           |> (\m -> (m, Cmd.none))
       _ -> (model, Cmd.none)
 --   case msg of
 --     Select ki -> 
@@ -54,16 +59,18 @@ konceptButton  _ =
 pageButton:  Html Msg
 pageButton  = 
   button [ AddPage |> onClick ] [ text "add Page" ] 
-    
 
 view : Model.Model -> Html Msg
 view model =
    let
+      let
+      
+      in
       modelToHtml: Report -> Html Msg
       modelToHtml report =
            div [ class "report-wrapper"]
             [
-            Report.toHtml report,
+            Report.toHtml Nothing report,
             div [] [ konceptButton report,  pageButton]
             ]
    in

@@ -8,13 +8,13 @@ import Koncepts.Model exposing (..)
 import Koncepts.View as KonceptView
 import Msg exposing (..)
 
-toHtml: Page ->  Html Msg            
-toHtml page = 
+toHtml: Maybe (ValueKoncept, List Member) -> Page ->  Html Msg            
+toHtml selection page = 
     let
         koncepts: List (Html Msg) 
         koncepts =
             page.koncepts
-            |> List.map KonceptView.toHtml
+            |> List.map (KonceptView.toHtml selection)
     in
 
         -- List.append [ text page.name] sections

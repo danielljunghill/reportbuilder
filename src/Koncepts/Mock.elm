@@ -3,10 +3,10 @@ import Koncepts.Model exposing (..)
 import Koncepts.Koncept as Koncept
 import Koncepts.Hypercube as HyperCube 
 import Koncepts.Koncept exposing (KonceptAction)
-import Koncepts.Dimensionalkoncept as DimensionalKoncept
+import Koncepts.CubeKoncept as CubeKoncept
 import Array exposing (foldr)
 import Koncepts.Area
-import Koncepts.DimensionalHeader
+import Koncepts.CubeDimension
 import Json.Decode exposing (string)
 import NList exposing (..)
 import NList as NList
@@ -87,12 +87,12 @@ addCube  koncept  =
 dimKonceptBikes: PrimeResult DimensionalKoncept
 dimKonceptBikes =
    quarters.prime
-   |> DimensionalKoncept.createValue "Försäljning cyklar"
+   |> CubeKoncept.createValue "Försäljning cyklar"
 
 dimKonceptSubsidies: PrimeResult DimensionalKoncept
 dimKonceptSubsidies =
    dimKonceptBikes.prime
-   |> DimensionalKoncept.createValue "Bidrag"
+   |> CubeKoncept.createValue "Bidrag"
 -- prime2: Prime
 -- prime2 = Prime.generatePrime prime1
 -- prime3: Prime
@@ -102,7 +102,7 @@ addDimensionalKoncept:Koncept -> Result String (Maybe Koncept)
 addDimensionalKoncept  =
    let
       dims : List DimensionalKoncept 
-      dims = [ DimensionalKoncept.createAbstract [ dimKonceptBikes.result , dimKonceptSubsidies.result ] "Intäkter"  ]
+      dims = [ CubeKoncept.createAbstract [ dimKonceptBikes.result , dimKonceptSubsidies.result ] "Intäkter"  ]
    in
       let
           f: HyperCube -> List DimensionalKoncept -> Result String KonceptAction

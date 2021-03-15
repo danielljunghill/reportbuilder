@@ -54,5 +54,3 @@ addKoncepts koncepts page  =
 
 
 
-
-

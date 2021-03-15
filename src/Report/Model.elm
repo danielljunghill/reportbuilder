@@ -1,6 +1,5 @@
 module Report.Model exposing (..)
 
-import Page.View exposing (..)
 import Page.Model as Page
 import Koncepts.Model exposing (..)
 import Page.Model exposing (..)

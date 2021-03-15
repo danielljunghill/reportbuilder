@@ -6,6 +6,7 @@ import Result
 import List
 import Prime exposing (..)
 import Prime
+import NList exposing(..)
 
 createValue: Prime -> String -> PrimeResult Koncept  
 createValue prime name = 
@@ -183,4 +184,3 @@ mapValueKoncept f koncept =
          f vk
          |> Result.map (actionToKonceptOption koncept)
       _ -> koncept |> Just |> Ok 
-

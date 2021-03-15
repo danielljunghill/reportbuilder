@@ -1,4 +1,4 @@
-module Koncepts.Dimensionalkoncept exposing (..)
+module Koncepts.CubeKoncept exposing (..)
 import Koncepts.Model exposing(createValueKoncept, ValueKoncept, createAbstractKoncept)
 import Koncepts.Model exposing (..)
 import ResultExtension

@@ -8,7 +8,7 @@ import Koncepts.Model as Koncept
 import Koncepts.Model exposing (..)
 import Msg 
 import Msg exposing (..)
-import Koncepts.DimensionalHeader exposing (..)
+import Koncepts.CubeView exposing (..)
 import Koncepts.Area exposing (..)
 
 
@@ -64,23 +64,23 @@ divValueKoncept vk =
       div [class "koncept", class "value"] 
        [ valueKonceptDetails vk ]
 
-divKoncept : Koncept ->  Html Msg
-divKoncept koncept =
+divKoncept : Maybe (ValueKoncept, List Member) -> Koncept -> Html Msg
+divKoncept selection koncept    =
   case koncept of
     Value vk ->
         divValueKoncept vk
     Abstract (ak,kl) ->
         kl 
-        |> List.map divKoncept 
+        |> List.map (divKoncept selection)
         |> divAbstractKoncept ak
     Cube (hc,dk) ->
         div [] 
             [ 
                     hc.name |> Koncept.hyperCubeNameToString |> text
-                ,   viewCube Horizontal hc dk
+                ,   viewCube Horizontal hc dk selection
             ]
  
 
 
-toHtml: Koncept  ->  Html Msg             
-toHtml = divKoncept
+toHtml: Maybe (ValueKoncept, List Member) -> Koncept  ->  Html Msg             
+toHtml selection  = divKoncept selection
