@@ -69,3 +69,29 @@ maxInt: List Int  -> Maybe Int
 maxInt = maxBy (\a b -> a > b)             
 
 
+contains: a -> List a -> Bool
+contains n l =
+   let
+      recContains m =
+         case m of
+         [] -> False
+         head :: tail ->
+            if head == n then True 
+            else recContains tail
+   in
+      recContains l
+
+
+foldi: (Int -> a -> state -> state) -> state -> List a ->  state
+foldi f s m =
+   let
+      recFoldi i state l =
+         case l of
+         [] ->  state
+         head :: tail ->
+            let
+               newState = f i head state
+            in
+               recFoldi (i + 1) newState tail
+   in 
+      recFoldi 0 s m

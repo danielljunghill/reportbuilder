@@ -117,6 +117,16 @@ type KonceptRowItem =
    AbstractRow AbstractKoncept
    | ValueRow ValueKoncept
 
+tryGetValueKoncept kri =
+   case kri of
+      AbstractRow _ -> Nothing
+      ValueRow vk -> Just vk
+
+konceptRowFactor: KonceptRowItem -> Maybe Factor
+konceptRowFactor item =
+   case item of
+      AbstractRow _ -> Nothing
+      ValueRow vk -> Just vk.factor
 
 konceptRowItemName: KonceptRowItem -> String
 konceptRowItemName item =

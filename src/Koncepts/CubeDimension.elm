@@ -317,6 +317,7 @@ calculateTableHeaders direction dimensions =
          |> recFold totalSpanForDimensions (dimensions |> List.length |> Depth) []  
 
 type CubeColumn = CubeColumn (NList Member)
+cubeColumnMembers (CubeColumn members) = members
 
 type alias CubeColumnHeader =
    {
@@ -335,19 +336,19 @@ tableHeaderToDimensionColumnHeader selection tableHeader   =
       createDimensionColumnHeader: List Member -> Bool -> DimensionHeader -> CubeColumnHeader
       createDimensionColumnHeader selectedMembers isTotal (DimensionHeader d) =
          let 
-               test = Debug.log "selectedMembers" selectedMembers
-               test1 = Debug.log  "factor" d.member.head.factor
+               selectedFactors = selectedMembers |> List.map (\v -> v.factor)
                filteredMembers: List Member
-               filteredMembers = 
-                  selectedMembers 
-                  |> List.filter (\ff -> ff.factor ==  d.member.head.factor)            
+               filteredMembers =
+                  d.member 
+                  |> NList.toList
+                  |> List.filter (\m -> (Lists.contains m.factor selectedFactors))     
          in
 
          {
                isTotal = isTotal
             ,  area = d.area
             ,  member = d.member.head  
-            ,  isSelected = ((List.length selectedMembers) /= (List.length filteredMembers))
+            ,  isSelected = ((List.length filteredMembers) == (NList.length d.member))
          }
    in
       let

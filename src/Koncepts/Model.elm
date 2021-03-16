@@ -6,6 +6,7 @@ import Prime exposing (..)
 
 -- import Events.Custom exposing (onClickStopPropagation)
 type Factor = Factor Int
+factorToInt (Factor i) = i
 
 factorFromPrime: Prime -> Factor 
 factorFromPrime prime =

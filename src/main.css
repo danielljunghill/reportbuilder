@@ -97,45 +97,48 @@ body, html, .report-wrapper
 
 .grid-cell
 {
-    padding: 5px;
-    font-style: bold;
-    color:gray
+    padding: 10px;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    text-align: center;
+    color:black
 }
 
 .grid-cell-selected
 {
-    color: red;
+    color: darkblue;
+    background-color: lightgrey;
+
 }
 
 .rind1
 {
-    padding: 5px 5px 5px 5px;
-    width: 300px
+    padding: 5px 0px 5px 5px;
+    min-width: 300px;
 }
 
 .rind2
 {
-    padding: 5px 5px 5px 15px
+    padding: 5px 0px 5px 15px
 }
 
 .rind3
 {
-    padding: 5px 5px 5px 25px
+    padding: 5px 0px 5px 25px
 }
 
 .rind4
 {
-    padding: 5px 5px 5px 35px
+    padding: 5px 0px 5px 35px
 }
 
 .rind5
 {
-    padding: 5px 5px 5px 45px
+    padding: 5px 0px 5px 45px
 }
 
 .rind6
 {
-    padding: 5px 5px 5px 55px
+    padding: 5px 0px 5px 55px
 }
 
 .rind7

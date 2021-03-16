@@ -67,7 +67,7 @@ addCube  koncept  =
          quarters.result
          |> HyperCube.create "Kvartal och annat" 
          |> HyperCube.addDimension years.result 
-         |> HyperCube.addDimension regions.result 
+         -- |> HyperCube.addDimension regions.result 
          -- |> 
         
    in
@@ -86,7 +86,7 @@ addCube  koncept  =
 
 dimKonceptBikes: PrimeResult DimensionalKoncept
 dimKonceptBikes =
-   quarters.prime
+   years.prime
    |> CubeKoncept.createValue "Försäljning cyklar"
 
 dimKonceptSubsidies: PrimeResult DimensionalKoncept
