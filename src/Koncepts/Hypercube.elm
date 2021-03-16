@@ -14,8 +14,8 @@ createMembersWithPrime memberNames firstPrime   =
     let
         addNewMember: PrimeResult DomainMember -> PrimeResult (List DomainMember) -> PrimeResult (List DomainMember)
         addNewMember result m  = 
-            result 
-            |> mapPrimeResult (\r -> [ r ] ++ m.result)
+            m 
+            |> mapPrimeResult (\r ->  [ result.result ] ++ r )
         recCreateMembers: List String  -> Prime -> PrimeResult (List DomainMember)
         recCreateMembers members prime  =
             case members of
@@ -48,6 +48,7 @@ createMembersWithPrime memberNames firstPrime   =
             firstMember: DomainMember
             firstMember = 
                   firstPrime
+                  |> Debug.log "firstPrime"
                   |> factorFromPrime
                   |> (createMember memberNames.head) 
                   |> DomainMember
@@ -57,9 +58,10 @@ createMembersWithPrime memberNames firstPrime   =
                 firstPrime
                 |> generatePrime
                 |> recCreateMembers memberNames.tail 
-
+                |> Debug.log "tailMembers"
         in
             tailMembers
+            |> Debug.log "tailMembers"
             |> mapPrimeResult (\m -> NList.create2 firstMember m)
          
             

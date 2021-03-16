@@ -45,18 +45,21 @@ regions: PrimeResult HyperDimension
 regions = 
    firstPrime
    |> createDimensionWithDefault (DomainName "Region") (NList.create2 "Sverige" ["Norge"]) 
+   |> Debug.log "regions"
    |> mapPrimeResult Closed
 
-years: PrimeResult HyperDimension
-years = 
-   regions.prime
-   |> createDimensionWithDefault (DomainName "Artal") (NList.create2 "2020" ["2021"]) 
-   |> mapPrimeResult Closed
+-- years: PrimeResult HyperDimension
+-- years = 
+--    regions.prime
+--    |> createDimensionWithDefault (DomainName "Artal") (NList.create2 "2020" ["2021"]) 
+--    |> Debug.log "years"
+--    |> mapPrimeResult Closed
 
 quarters: PrimeResult HyperDimension
 quarters = 
-   years.prime
-   |> createDimensionWithDefault (DomainName "Kvartal") (NList.create2 "kv1"  ["kv2", "kv3","kv4"]) 
+   regions.prime
+   |> createDimensionWithDefault (DomainName "Kvartal") (NList.create2 "kv1"  ["kv2", "kv3","kv4"])
+   |> Debug.log "quarters"
    |> mapPrimeResult Closed
 
 addCube: Koncept -> Result String (Maybe Koncept)
@@ -66,8 +69,8 @@ addCube  koncept  =
       hyperCube = 
          quarters.result
          |> HyperCube.create "Kvartal och annat" 
-         |> HyperCube.addDimension years.result 
-         -- |> HyperCube.addDimension regions.result 
+         -- |> HyperCube.addDimension years.result 
+         |> HyperCube.addDimension regions.result 
          -- |> 
         
    in
@@ -86,13 +89,15 @@ addCube  koncept  =
 
 dimKonceptBikes: PrimeResult DimensionalKoncept
 dimKonceptBikes =
-   years.prime
-   |> CubeKoncept.createValue "Försäljning cyklar"
+   quarters.prime
 
+   |> CubeKoncept.createValue "Försäljning cyklar"
+   |> Debug.log "dimKonceptBikes"
 dimKonceptSubsidies: PrimeResult DimensionalKoncept
 dimKonceptSubsidies =
    dimKonceptBikes.prime
    |> CubeKoncept.createValue "Bidrag"
+   |> Debug.log "dimKonceptSubsidies"
 -- prime2: Prime
 -- prime2 = Prime.generatePrime prime1
 -- prime3: Prime

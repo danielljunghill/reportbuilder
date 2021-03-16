@@ -5392,6 +5392,7 @@ var $author$project$Prime$createPrimeResult = F2(
 	function (m, prime) {
 		return {prime: prime, result: m};
 	});
+var $elm$core$Debug$log = _Debug_log;
 var $author$project$Prime$mapPrimeResult = F2(
 	function (f, m) {
 		var result = f(m.result);
@@ -5406,10 +5407,10 @@ var $author$project$Koncepts$Hypercube$createMembersWithPrime = F2(
 					function (r) {
 						return _Utils_ap(
 							_List_fromArray(
-								[r]),
-							m.result);
+								[result.result]),
+							r);
 					},
-					result);
+					m);
 			});
 		var recCreateMembers = F2(
 			function (members, prime) {
@@ -5434,20 +5435,24 @@ var $author$project$Koncepts$Hypercube$createMembersWithPrime = F2(
 				}
 			});
 		var tailMembers = A2(
-			recCreateMembers,
-			memberNames.tail,
-			$author$project$Prime$generatePrime(firstPrime));
+			$elm$core$Debug$log,
+			'tailMembers',
+			A2(
+				recCreateMembers,
+				memberNames.tail,
+				$author$project$Prime$generatePrime(firstPrime)));
 		var firstMember = $author$project$Koncepts$Model$DomainMember(
 			A2(
 				$author$project$Koncepts$Model$createMember,
 				memberNames.head,
-				$author$project$Koncepts$Model$factorFromPrime(firstPrime)));
+				$author$project$Koncepts$Model$factorFromPrime(
+					A2($elm$core$Debug$log, 'firstPrime', firstPrime))));
 		return A2(
 			$author$project$Prime$mapPrimeResult,
 			function (m) {
 				return A2($author$project$NList$create2, firstMember, m);
 			},
-			tailMembers);
+			A2($elm$core$Debug$log, 'tailMembers', tailMembers));
 	});
 var $author$project$Koncepts$Hypercube$createDimensionWithDefault = F3(
 	function (name, members, prime) {
@@ -5471,43 +5476,37 @@ var $author$project$Koncepts$Mock$firstPrime = $author$project$Prime$init;
 var $author$project$Koncepts$Mock$regions = A2(
 	$author$project$Prime$mapPrimeResult,
 	$author$project$Koncepts$Model$Closed,
-	A3(
-		$author$project$Koncepts$Hypercube$createDimensionWithDefault,
-		$author$project$Koncepts$Model$DomainName('Region'),
-		A2(
-			$author$project$NList$create2,
-			'Sverige',
-			_List_fromArray(
-				['Norge'])),
-		$author$project$Koncepts$Mock$firstPrime));
-var $author$project$Koncepts$Mock$years = A2(
-	$author$project$Prime$mapPrimeResult,
-	$author$project$Koncepts$Model$Closed,
-	A3(
-		$author$project$Koncepts$Hypercube$createDimensionWithDefault,
-		$author$project$Koncepts$Model$DomainName('Artal'),
-		A2(
-			$author$project$NList$create2,
-			'2020',
-			_List_fromArray(
-				['2021'])),
-		$author$project$Koncepts$Mock$regions.prime));
+	A2(
+		$elm$core$Debug$log,
+		'regions',
+		A3(
+			$author$project$Koncepts$Hypercube$createDimensionWithDefault,
+			$author$project$Koncepts$Model$DomainName('Region'),
+			A2(
+				$author$project$NList$create2,
+				'Sverige',
+				_List_fromArray(
+					['Norge'])),
+			$author$project$Koncepts$Mock$firstPrime)));
 var $author$project$Koncepts$Mock$quarters = A2(
 	$author$project$Prime$mapPrimeResult,
 	$author$project$Koncepts$Model$Closed,
-	A3(
-		$author$project$Koncepts$Hypercube$createDimensionWithDefault,
-		$author$project$Koncepts$Model$DomainName('Kvartal'),
-		A2(
-			$author$project$NList$create2,
-			'kv1',
-			_List_fromArray(
-				['kv2', 'kv3', 'kv4'])),
-		$author$project$Koncepts$Mock$years.prime));
+	A2(
+		$elm$core$Debug$log,
+		'quarters',
+		A3(
+			$author$project$Koncepts$Hypercube$createDimensionWithDefault,
+			$author$project$Koncepts$Model$DomainName('Kvartal'),
+			A2(
+				$author$project$NList$create2,
+				'kv1',
+				_List_fromArray(
+					['kv2', 'kv3', 'kv4'])),
+			$author$project$Koncepts$Mock$regions.prime)));
 var $author$project$Koncepts$Mock$addCube = function (koncept) {
 	var hyperCube = A2(
 		$author$project$Koncepts$Hypercube$addDimension,
-		$author$project$Koncepts$Mock$years.result,
+		$author$project$Koncepts$Mock$regions.result,
 		A2($author$project$Koncepts$Hypercube$create, 'Kvartal och annat', $author$project$Koncepts$Mock$quarters.result));
 	var f = F2(
 		function (ak, koncepts) {
@@ -5586,8 +5585,14 @@ var $author$project$Koncepts$CubeKoncept$createValue = F2(
 			koncept,
 			$author$project$Prime$generatePrime(prime));
 	});
-var $author$project$Koncepts$Mock$dimKonceptBikes = A2($author$project$Koncepts$CubeKoncept$createValue, 'Försäljning cyklar', $author$project$Koncepts$Mock$years.prime);
-var $author$project$Koncepts$Mock$dimKonceptSubsidies = A2($author$project$Koncepts$CubeKoncept$createValue, 'Bidrag', $author$project$Koncepts$Mock$dimKonceptBikes.prime);
+var $author$project$Koncepts$Mock$dimKonceptBikes = A2(
+	$elm$core$Debug$log,
+	'dimKonceptBikes',
+	A2($author$project$Koncepts$CubeKoncept$createValue, 'Försäljning cyklar', $author$project$Koncepts$Mock$quarters.prime));
+var $author$project$Koncepts$Mock$dimKonceptSubsidies = A2(
+	$elm$core$Debug$log,
+	'dimKonceptSubsidies',
+	A2($author$project$Koncepts$CubeKoncept$createValue, 'Bidrag', $author$project$Koncepts$Mock$dimKonceptBikes.prime));
 var $author$project$Koncepts$Koncept$mapCube = F2(
 	function (f, koncept) {
 		if (koncept.$ === 'Cube') {
