@@ -82,7 +82,7 @@ contains n l =
       recContains l
 
 
-foldi: (Int -> a -> state -> state) -> state -> List a ->  state
+foldi: (Int -> state -> a -> state) -> state -> List a ->  state
 foldi f s m =
    let
       recFoldi i state l =
@@ -90,7 +90,7 @@ foldi f s m =
          [] ->  state
          head :: tail ->
             let
-               newState = f i head state
+               newState = f i state head 
             in
                recFoldi (i + 1) newState tail
    in 

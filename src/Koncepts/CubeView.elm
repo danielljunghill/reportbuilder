@@ -105,6 +105,8 @@ attrCellPathToSelection = attrSelected "grid-cell-selected"
 attrSelectedCell: Bool -> List (Attribute msg)
 attrSelectedCell = attrSelected "grid-cell-selected"
 
+attrMemberCell: Bool -> List (Attribute msg)
+attrMemberCell = attrSelected "grid-cell-member"
 
 textCell: String -> List (Attribute Msg) -> Html Msg
 textCell s attr  =
@@ -194,6 +196,7 @@ factorFromValueAndMembers: ValueKoncept -> List Member -> Int
 factorFromValueAndMembers vk =
    factorFromMemberList >> (factorFromValue vk)
 
+-- TODO: Add
 trySelectCell: Maybe (ValueKoncept, List Member) -> KonceptRow -> CubeColumn -> List (Attribute Msg)
 trySelectCell selection row (CubeColumn cellMembers) =
    case selection of
@@ -204,71 +207,140 @@ trySelectCell selection row (CubeColumn cellMembers) =
                let
                    productSelection = factorFromValueAndMembers vk members
                    productCell = factorFromValueAndMembers vkCell (cellMembers |> NList.toList)
-                   
-                   log = 
-                        if productSelection ==  productCell then
-                           let
-                              test1 = Debug.log "selection " (vk,members) 
-                              test2 = Debug.log "cell " (vkCell, cellMembers|> NList.toList)
-                           in
-                              1
-                        else
-                              1
-
-               
                in
 
                attrSelectedCell (productSelection ==  productCell) ---(factor == vk.factor && members.head.factor == member.factor)
             Nothing -> []
-        
+
+trySelectMemberCell:  Maybe (ValueKoncept, List Member) -> KonceptRow -> CubeColumn -> List (Attribute Msg)
+trySelectMemberCell selection row (CubeColumn cellMembers) =
+   case selection of
+      Nothing -> []
+      Just (vk,members) -> 
+          case tryGetValueKoncept row.item of
+            Just vkCell -> 
+               let
+                   productSelection = factorFromMemberList members
+                   productCell = factorFromMemberList (cellMembers |> NList.toList)
+               in
+
+               attrMemberCell ((productSelection ==  productCell) || vkCell.factor == vk.factor)  ---(factor == vk.factor && members.head.factor == member.factor)
+            Nothing -> []
+
+
+
+
+
+cell: Direction -> Area -> Maybe (ValueKoncept, List Member) -> Int -> CubeColumn -> Int -> KonceptRow -> List (Html Msg) -> List (Html Msg)
+cell direction area selection columnIndex column rowIndex row state  =
+   let 
+      newCell: Html Msg
+      newCell =
+         case direction of
+            Horizontal -> 
+               area
+               |> Area.addHorizontalStart (columnIndex |> Start |> HorizontalStart)
+               |> Area.addVerticalStart (rowIndex |> Start |> VerticalStart)
+               |> attributeGridArea 
+               |> addAttr attrCell
+               |> addAttr attrBox
+               |> addAttr (trySelectCell selection row column)  
+               |> addAttr (trySelectMemberCell selection row column)  
+               |> attrOnClickCell column row                      
+               |> textCell ""
+
+            Vertical ->
+               area
+               |> Area.addVerticalStart (columnIndex |> Start |> VerticalStart)
+               |> Area.addHorizontalStart (rowIndex |> Start |> HorizontalStart)
+               |> attributeGridArea 
+               |> addAttr attrCell
+               |> addAttr attrBox
+               |> addAttr (trySelectCell selection row column)  
+               |> addAttr (trySelectMemberCell selection row column)  
+               |> attrOnClickCell column row
+               |> textCell ""
+   in
+      [ newCell ] ++ state
+
 
 gridCells: Direction -> Maybe (ValueKoncept, List Member) -> CubeColumns -> CubeRows -> List (Html Msg)
-gridCells direction selection columns rows =
+gridCells direction selection cubeColumns cubeRows =
    let 
       area: Area 
       area = 
          Area.emptyArea 
-         |> offsetArea (cubeRowOffsetToOffset columns.offset) 
-         |> offsetArea (cubeColumnOffsetToOffset rows.offset)
+         |> offsetArea (cubeRowOffsetToOffset cubeColumns.offset) 
+         |> offsetArea (cubeColumnOffsetToOffset cubeRows.offset)
          |> Area.addVerticalSpan Area.oneVerticalSpan
          |> Area.addHorizontalSpan Area.oneHorizontalSpan
-
    in  
       let    
-         cellRows: List KonceptRow -> Int -> CubeColumn -> List (Html Msg) 
-         cellRows cubeRows columnIndex cubeColumn =
+         cells: List KonceptRow -> Int -> CubeColumn -> List (List (Html Msg)) -> List (List (Html Msg)) 
+         cells rows columnIndex cubeColumn acc =
             let 
-               cell: Int -> KonceptRow ->  (Html Msg)
-               cell rowIndex row    =
-                  case direction of
-                     Horizontal -> 
-                        area
-                        |> Area.addHorizontalStart (columnIndex |> Start |> HorizontalStart)
-                        |> Area.addVerticalStart (rowIndex |> Start |> VerticalStart)
-                        |> attributeGridArea 
-                        |> addAttr attrCell
-                        |> addAttr attrBox
-                        |> addAttr (trySelectCell selection row cubeColumn)  
-                        |> attrOnClickCell cubeColumn row                      
-                        |> textCell ""
-
-                     Vertical ->
-                        area
-                        |> Area.addVerticalStart (columnIndex |> Start |> VerticalStart)
-                        |> Area.addHorizontalStart (rowIndex |> Start |> HorizontalStart)
-                        |> attributeGridArea 
-                        |> addAttr attrCell
-                        |> addAttr attrBox
-                        |> addAttr (trySelectCell selection row cubeColumn)  
-                        |> attrOnClickCell cubeColumn row
-                        |> textCell ""
+               newState: List (Html Msg)
+               newState = 
+                   -- fold over rows (KonceptRow)
+                   rows
+                   |> Lists.foldi (\i state row-> cell direction area selection columnIndex cubeColumn (i + 1) row state) []
+              
             in
-               cubeRows
-               |> Lists.mapi (\i row-> cell (i + 1) row)
+               [ newState ] ++ acc
+              
       in
-         columns.columns
-         |> Lists.mapi (\i col -> (cellRows rows.rows) (i + 1) col)
+         --- fold over columns
+         cubeColumns.columns
+         |> Lists.foldi (\i state col -> (cells cubeRows.rows) (i + 1) col state) []
          |> List.concat
+
+-- gridCells: Direction -> Maybe (ValueKoncept, List Member) -> CubeColumns -> CubeRows -> List (Html Msg)
+-- gridCells direction selection columns rows =
+--    let 
+--       area: Area 
+--       area = 
+--          Area.emptyArea 
+--          |> offsetArea (cubeRowOffsetToOffset columns.offset) 
+--          |> offsetArea (cubeColumnOffsetToOffset rows.offset)
+--          |> Area.addVerticalSpan Area.oneVerticalSpan
+--          |> Area.addHorizontalSpan Area.oneHorizontalSpan
+
+--    in  
+--       let    
+--          cellRows: List KonceptRow -> Int -> CubeColumn -> List (Html Msg) 
+--          cellRows cubeRows columnIndex cubeColumn =
+--             let 
+--                cell: Int -> KonceptRow ->  (Html Msg)
+--                cell rowIndex row    =
+--                   case direction of
+--                      Horizontal -> 
+--                         area
+--                         |> Area.addHorizontalStart (columnIndex |> Start |> HorizontalStart)
+--                         |> Area.addVerticalStart (rowIndex |> Start |> VerticalStart)
+--                         |> attributeGridArea 
+--                         |> addAttr attrCell
+--                         |> addAttr attrBox
+--                         |> addAttr (trySelectCell selection row cubeColumn)  
+--                         |> attrOnClickCell cubeColumn row                      
+--                         |> textCell ""
+
+--                      Vertical ->
+--                         area
+--                         |> Area.addVerticalStart (columnIndex |> Start |> VerticalStart)
+--                         |> Area.addHorizontalStart (rowIndex |> Start |> HorizontalStart)
+--                         |> attributeGridArea 
+--                         |> addAttr attrCell
+--                         |> addAttr attrBox
+--                         |> addAttr (trySelectCell selection row cubeColumn)  
+--                         |> attrOnClickCell cubeColumn row
+--                         |> textCell ""
+--             in
+--                cubeRows
+--                |> Lists.mapi (\i row-> cell (i + 1) row)
+--       in
+--          columns.columns
+--          |> Lists.mapi (\i col -> (cellRows rows.rows) (i + 1) col)
+--          |> List.concat
 
 viewCube: Direction -> HyperCube -> List DimensionalKoncept -> Maybe (ValueKoncept, List Member) -> Html Msg
 viewCube direction hyperCube koncepts selection =

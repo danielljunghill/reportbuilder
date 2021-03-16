@@ -7222,10 +7222,6 @@ var $author$project$Koncepts$CubeView$grid = F2(
 		return _List_fromArray(
 			[attrdisplay, attrColumns]);
 	});
-var $author$project$Koncepts$CubeView$addAttr = F2(
-	function (a1, a2) {
-		return A2($elm$core$List$append, a1, a2);
-	});
 var $author$project$Koncepts$Area$horizontalSpanAdd = F2(
 	function (_v0, _v1) {
 		var s1 = _v0.a.a;
@@ -7256,6 +7252,10 @@ var $author$project$Koncepts$Area$addVerticalSpan = F2(
 				verticalSpan: A2($author$project$Koncepts$Area$verticalSpanAdd, vs, area.verticalSpan)
 			});
 	});
+var $author$project$Koncepts$CubeView$addAttr = F2(
+	function (a1, a2) {
+		return A2($elm$core$List$append, a1, a2);
+	});
 var $author$project$Model$SelectedCell = function (a) {
 	return {$: 'SelectedCell', a: a};
 };
@@ -7280,29 +7280,6 @@ var $author$project$Koncepts$CubeView$attrOnClickCell = F3(
 				attr);
 		}
 	});
-var $elm$core$List$concat = function (lists) {
-	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
-};
-var $author$project$Koncepts$CubeKoncept$cubeColumnOffsetToOffset = function (_v0) {
-	var offset = _v0.a;
-	return offset;
-};
-var $author$project$Koncepts$CubeDimension$cubeRowOffsetToOffset = function (_v0) {
-	var offset = _v0.a;
-	return offset;
-};
-var $author$project$Koncepts$Area$intToHorizontalSpan = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Span, $author$project$Koncepts$Area$HorizontalSpan);
-var $author$project$Koncepts$Area$intToHorizontalStart = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Start, $author$project$Koncepts$Area$HorizontalStart);
-var $author$project$Koncepts$Area$intToVerticalSpan = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Span, $author$project$Koncepts$Area$VerticalSpan);
-var $author$project$Koncepts$Area$intToVerticalStart = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Start, $author$project$Koncepts$Area$VerticalStart);
-var $author$project$Koncepts$Area$emptyArea = {
-	horizontalSpan: $author$project$Koncepts$Area$intToHorizontalSpan(0),
-	horizontalStart: $author$project$Koncepts$Area$intToHorizontalStart(0),
-	verticalSpan: $author$project$Koncepts$Area$intToVerticalSpan(0),
-	verticalStart: $author$project$Koncepts$Area$intToVerticalStart(0)
-};
-var $author$project$Koncepts$Area$oneHorizontalSpan = $author$project$Koncepts$Area$HorizontalSpan(
-	$author$project$Koncepts$Area$Span(1));
 var $author$project$Koncepts$CubeView$attrSelectedCell = $author$project$Koncepts$CubeView$attrSelected('grid-cell-selected');
 var $author$project$Koncepts$Model$factorToInt = function (_v0) {
 	var i = _v0.a;
@@ -7333,7 +7310,6 @@ var $author$project$Koncepts$CubeView$factorFromValueAndMembers = function (vk) 
 		$author$project$Koncepts$CubeView$factorFromMemberList,
 		$author$project$Koncepts$CubeView$factorFromValue(vk));
 };
-var $elm$core$Debug$log = _Debug_log;
 var $author$project$Koncepts$CubeKoncept$tryGetValueKoncept = function (kri) {
 	if (kri.$ === 'AbstractRow') {
 		return $elm$core$Maybe$Nothing;
@@ -7359,23 +7335,6 @@ var $author$project$Koncepts$CubeView$trySelectCell = F3(
 					$author$project$Koncepts$CubeView$factorFromValueAndMembers,
 					vkCell,
 					$author$project$NList$toList(cellMembers));
-				var log = function () {
-					if (_Utils_eq(productSelection, productCell)) {
-						var test2 = A2(
-							$elm$core$Debug$log,
-							'cell ',
-							_Utils_Tuple2(
-								vkCell,
-								$author$project$NList$toList(cellMembers)));
-						var test1 = A2(
-							$elm$core$Debug$log,
-							'selection ',
-							_Utils_Tuple2(vk, members));
-						return 1;
-					} else {
-						return 1;
-					}
-				}();
 				return $author$project$Koncepts$CubeView$attrSelectedCell(
 					_Utils_eq(productSelection, productCell));
 			} else {
@@ -7383,8 +7342,148 @@ var $author$project$Koncepts$CubeView$trySelectCell = F3(
 			}
 		}
 	});
+var $author$project$Koncepts$CubeView$attrMemberCell = $author$project$Koncepts$CubeView$attrSelected('grid-cell-member');
+var $author$project$Koncepts$CubeView$trySelectMemberCell = F3(
+	function (selection, row, _v0) {
+		var cellMembers = _v0.a;
+		if (selection.$ === 'Nothing') {
+			return _List_Nil;
+		} else {
+			var _v2 = selection.a;
+			var vk = _v2.a;
+			var members = _v2.b;
+			var _v3 = $author$project$Koncepts$CubeKoncept$tryGetValueKoncept(row.item);
+			if (_v3.$ === 'Just') {
+				var vkCell = _v3.a;
+				var productSelection = $author$project$Koncepts$CubeView$factorFromMemberList(members);
+				var productCell = $author$project$Koncepts$CubeView$factorFromMemberList(
+					$author$project$NList$toList(cellMembers));
+				return $author$project$Koncepts$CubeView$attrMemberCell(
+					_Utils_eq(productSelection, productCell) || _Utils_eq(vkCell.factor, vk.factor));
+			} else {
+				return _List_Nil;
+			}
+		}
+	});
+var $author$project$Koncepts$CubeView$cell = F8(
+	function (direction, area, selection, columnIndex, column, rowIndex, row, state) {
+		var newCell = function () {
+			if (direction.$ === 'Horizontal') {
+				return A2(
+					$author$project$Koncepts$CubeView$textCell,
+					'',
+					A3(
+						$author$project$Koncepts$CubeView$attrOnClickCell,
+						column,
+						row,
+						A2(
+							$author$project$Koncepts$CubeView$addAttr,
+							A3($author$project$Koncepts$CubeView$trySelectMemberCell, selection, row, column),
+							A2(
+								$author$project$Koncepts$CubeView$addAttr,
+								A3($author$project$Koncepts$CubeView$trySelectCell, selection, row, column),
+								A2(
+									$author$project$Koncepts$CubeView$addAttr,
+									$author$project$Koncepts$CubeView$attrBox,
+									A2(
+										$author$project$Koncepts$CubeView$addAttr,
+										$author$project$Koncepts$CubeView$attrCell,
+										$author$project$Koncepts$CubeView$attributeGridArea(
+											A2(
+												$author$project$Koncepts$Area$addVerticalStart,
+												$author$project$Koncepts$Area$VerticalStart(
+													$author$project$Koncepts$Area$Start(rowIndex)),
+												A2(
+													$author$project$Koncepts$Area$addHorizontalStart,
+													$author$project$Koncepts$Area$HorizontalStart(
+														$author$project$Koncepts$Area$Start(columnIndex)),
+													area)))))))));
+			} else {
+				return A2(
+					$author$project$Koncepts$CubeView$textCell,
+					'',
+					A3(
+						$author$project$Koncepts$CubeView$attrOnClickCell,
+						column,
+						row,
+						A2(
+							$author$project$Koncepts$CubeView$addAttr,
+							A3($author$project$Koncepts$CubeView$trySelectMemberCell, selection, row, column),
+							A2(
+								$author$project$Koncepts$CubeView$addAttr,
+								A3($author$project$Koncepts$CubeView$trySelectCell, selection, row, column),
+								A2(
+									$author$project$Koncepts$CubeView$addAttr,
+									$author$project$Koncepts$CubeView$attrBox,
+									A2(
+										$author$project$Koncepts$CubeView$addAttr,
+										$author$project$Koncepts$CubeView$attrCell,
+										$author$project$Koncepts$CubeView$attributeGridArea(
+											A2(
+												$author$project$Koncepts$Area$addHorizontalStart,
+												$author$project$Koncepts$Area$HorizontalStart(
+													$author$project$Koncepts$Area$Start(rowIndex)),
+												A2(
+													$author$project$Koncepts$Area$addVerticalStart,
+													$author$project$Koncepts$Area$VerticalStart(
+														$author$project$Koncepts$Area$Start(columnIndex)),
+													area)))))))));
+			}
+		}();
+		return _Utils_ap(
+			_List_fromArray(
+				[newCell]),
+			state);
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
+};
+var $author$project$Koncepts$CubeKoncept$cubeColumnOffsetToOffset = function (_v0) {
+	var offset = _v0.a;
+	return offset;
+};
+var $author$project$Koncepts$CubeDimension$cubeRowOffsetToOffset = function (_v0) {
+	var offset = _v0.a;
+	return offset;
+};
+var $author$project$Koncepts$Area$intToHorizontalSpan = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Span, $author$project$Koncepts$Area$HorizontalSpan);
+var $author$project$Koncepts$Area$intToHorizontalStart = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Start, $author$project$Koncepts$Area$HorizontalStart);
+var $author$project$Koncepts$Area$intToVerticalSpan = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Span, $author$project$Koncepts$Area$VerticalSpan);
+var $author$project$Koncepts$Area$intToVerticalStart = A2($elm$core$Basics$composeR, $author$project$Koncepts$Area$Start, $author$project$Koncepts$Area$VerticalStart);
+var $author$project$Koncepts$Area$emptyArea = {
+	horizontalSpan: $author$project$Koncepts$Area$intToHorizontalSpan(0),
+	horizontalStart: $author$project$Koncepts$Area$intToHorizontalStart(0),
+	verticalSpan: $author$project$Koncepts$Area$intToVerticalSpan(0),
+	verticalStart: $author$project$Koncepts$Area$intToVerticalStart(0)
+};
+var $author$project$Lists$foldi = F3(
+	function (f, s, m) {
+		var recFoldi = F3(
+			function (i, state, l) {
+				recFoldi:
+				while (true) {
+					if (!l.b) {
+						return state;
+					} else {
+						var head = l.a;
+						var tail = l.b;
+						var newState = A3(f, i, state, head);
+						var $temp$i = i + 1,
+							$temp$state = newState,
+							$temp$l = tail;
+						i = $temp$i;
+						state = $temp$state;
+						l = $temp$l;
+						continue recFoldi;
+					}
+				}
+			});
+		return A3(recFoldi, 0, s, m);
+	});
+var $author$project$Koncepts$Area$oneHorizontalSpan = $author$project$Koncepts$Area$HorizontalSpan(
+	$author$project$Koncepts$Area$Span(1));
 var $author$project$Koncepts$CubeView$gridCells = F4(
-	function (direction, selection, columns, rows) {
+	function (direction, selection, cubeColumns, cubeRows) {
 		var area = A2(
 			$author$project$Koncepts$Area$addHorizontalSpan,
 			$author$project$Koncepts$Area$oneHorizontalSpan,
@@ -7393,90 +7492,39 @@ var $author$project$Koncepts$CubeView$gridCells = F4(
 				$author$project$Koncepts$Area$oneVerticalSpan,
 				A2(
 					$author$project$Koncepts$Area$offsetArea,
-					$author$project$Koncepts$CubeKoncept$cubeColumnOffsetToOffset(rows.offset),
+					$author$project$Koncepts$CubeKoncept$cubeColumnOffsetToOffset(cubeRows.offset),
 					A2(
 						$author$project$Koncepts$Area$offsetArea,
-						$author$project$Koncepts$CubeDimension$cubeRowOffsetToOffset(columns.offset),
+						$author$project$Koncepts$CubeDimension$cubeRowOffsetToOffset(cubeColumns.offset),
 						$author$project$Koncepts$Area$emptyArea))));
-		var cellRows = F3(
-			function (cubeRows, columnIndex, cubeColumn) {
-				var cell = F2(
-					function (rowIndex, row) {
-						if (direction.$ === 'Horizontal') {
-							return A2(
-								$author$project$Koncepts$CubeView$textCell,
-								'',
-								A3(
-									$author$project$Koncepts$CubeView$attrOnClickCell,
-									cubeColumn,
-									row,
-									A2(
-										$author$project$Koncepts$CubeView$addAttr,
-										A3($author$project$Koncepts$CubeView$trySelectCell, selection, row, cubeColumn),
-										A2(
-											$author$project$Koncepts$CubeView$addAttr,
-											$author$project$Koncepts$CubeView$attrBox,
-											A2(
-												$author$project$Koncepts$CubeView$addAttr,
-												$author$project$Koncepts$CubeView$attrCell,
-												$author$project$Koncepts$CubeView$attributeGridArea(
-													A2(
-														$author$project$Koncepts$Area$addVerticalStart,
-														$author$project$Koncepts$Area$VerticalStart(
-															$author$project$Koncepts$Area$Start(rowIndex)),
-														A2(
-															$author$project$Koncepts$Area$addHorizontalStart,
-															$author$project$Koncepts$Area$HorizontalStart(
-																$author$project$Koncepts$Area$Start(columnIndex)),
-															area))))))));
-						} else {
-							return A2(
-								$author$project$Koncepts$CubeView$textCell,
-								'',
-								A3(
-									$author$project$Koncepts$CubeView$attrOnClickCell,
-									cubeColumn,
-									row,
-									A2(
-										$author$project$Koncepts$CubeView$addAttr,
-										A3($author$project$Koncepts$CubeView$trySelectCell, selection, row, cubeColumn),
-										A2(
-											$author$project$Koncepts$CubeView$addAttr,
-											$author$project$Koncepts$CubeView$attrBox,
-											A2(
-												$author$project$Koncepts$CubeView$addAttr,
-												$author$project$Koncepts$CubeView$attrCell,
-												$author$project$Koncepts$CubeView$attributeGridArea(
-													A2(
-														$author$project$Koncepts$Area$addHorizontalStart,
-														$author$project$Koncepts$Area$HorizontalStart(
-															$author$project$Koncepts$Area$Start(rowIndex)),
-														A2(
-															$author$project$Koncepts$Area$addVerticalStart,
-															$author$project$Koncepts$Area$VerticalStart(
-																$author$project$Koncepts$Area$Start(columnIndex)),
-															area))))))));
-						}
-					});
-				return A2(
-					$author$project$Lists$mapi,
-					F2(
-						function (i, row) {
-							return A2(cell, i + 1, row);
+		var cells = F4(
+			function (rows, columnIndex, cubeColumn, acc) {
+				var newState = A3(
+					$author$project$Lists$foldi,
+					F3(
+						function (i, state, row) {
+							return A8($author$project$Koncepts$CubeView$cell, direction, area, selection, columnIndex, cubeColumn, i + 1, row, state);
 						}),
-					cubeRows);
+					_List_Nil,
+					rows);
+				return _Utils_ap(
+					_List_fromArray(
+						[newState]),
+					acc);
 			});
 		return $elm$core$List$concat(
-			A2(
-				$author$project$Lists$mapi,
-				F2(
-					function (i, col) {
-						return A2(
-							cellRows(rows.rows),
+			A3(
+				$author$project$Lists$foldi,
+				F3(
+					function (i, state, col) {
+						return A3(
+							cells(cubeRows.rows),
 							i + 1,
-							col);
+							col,
+							state);
 					}),
-				columns.columns));
+				_List_Nil,
+				cubeColumns.columns));
 	});
 var $author$project$Koncepts$Model$hyperDimensionAsDimension = function (hyperDimension) {
 	if (hyperDimension.$ === 'Opened') {
