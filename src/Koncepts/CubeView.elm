@@ -192,48 +192,76 @@ factorFromValue vk mv =
    |> factorToInt
    |> (\i -> i * mv)
 
-factorFromValueAndMembers: ValueKoncept -> List Member -> Int
-factorFromValueAndMembers vk =
+factorFromSelection: ValueKoncept -> List Member -> Int
+factorFromSelection vk =
    factorFromMemberList >> (factorFromValue vk)
 
 -- TODO: Add
-trySelectCell: Maybe (ValueKoncept, List Member) -> KonceptRow -> CubeColumn -> List (Attribute Msg)
-trySelectCell selection row (CubeColumn cellMembers) =
+trySelectCell: Bool -> Maybe (ValueKoncept, List Member) -> KonceptRow -> CubeColumn -> List (Attribute Msg)
+trySelectCell skip selection row (CubeColumn cellMembers) =
+   if skip then []
+   else
+      let
+         result =
+            case selection of
+               Nothing -> []
+               Just (vk,members) -> 
+                  case tryGetValueKoncept row.item of
+                     Just vkCell -> 
+                        let
+                           productSelection = factorFromSelection vk members
+                           productCell = factorFromSelection vkCell (cellMembers |> NList.toList)
+                        in
+
+                        attrSelectedCell (productSelection ==  productCell) ---(factor == vk.factor && members.head.factor == member.factor)
+                     Nothing -> []
+      in
+         result
+
+trySelectMemberCell: Bool -> Maybe (ValueKoncept, List Member) -> KonceptRow -> CubeColumn -> List (Attribute Msg)
+trySelectMemberCell skip selection row (CubeColumn cellMembers) =
+   if skip then []
+   else
+      let 
+         result =
+            case selection of
+               Nothing -> []
+               Just (vk,members) -> 
+                  case tryGetValueKoncept row.item of
+                     Just vkCell -> 
+                        let
+                           productSelection = factorFromMemberList members
+                           productCell = factorFromMemberList (cellMembers |> NList.toList)
+                        in
+
+                        attrMemberCell ((productSelection ==  productCell) || vkCell.factor == vk.factor)  ---(factor == vk.factor && members.head.factor == member.factor)
+                     Nothing -> []
+      in
+         result
+
+calculateIfCellIsSelected: Maybe (ValueKoncept, List Member) -> KonceptRow -> CubeColumn -> Bool
+calculateIfCellIsSelected selection konceptRow (CubeColumn cellMembers) =
    case selection of
-      Nothing -> []
+      Nothing -> False
       Just (vk,members) -> 
-          case tryGetValueKoncept row.item of
+          case tryGetValueKoncept konceptRow.item of
             Just vkCell -> 
                let
-                   productSelection = factorFromValueAndMembers vk members
-                   productCell = factorFromValueAndMembers vkCell (cellMembers |> NList.toList)
+                   productSelection = factorFromSelection vk members
+                   productCell = factorFromSelection vkCell (cellMembers |> NList.toList)
                in
+               productSelection == productCell ---(factor == vk.factor && members.head.factor == member.factor)
+            Nothing -> False
 
-               attrSelectedCell (productSelection ==  productCell) ---(factor == vk.factor && members.head.factor == member.factor)
-            Nothing -> []
-
-trySelectMemberCell:  Maybe (ValueKoncept, List Member) -> KonceptRow -> CubeColumn -> List (Attribute Msg)
-trySelectMemberCell selection row (CubeColumn cellMembers) =
-   case selection of
-      Nothing -> []
-      Just (vk,members) -> 
-          case tryGetValueKoncept row.item of
-            Just vkCell -> 
-               let
-                   productSelection = factorFromMemberList members
-                   productCell = factorFromMemberList (cellMembers |> NList.toList)
-               in
-
-               attrMemberCell ((productSelection ==  productCell) || vkCell.factor == vk.factor)  ---(factor == vk.factor && members.head.factor == member.factor)
-            Nothing -> []
-
-
-
-
-
-cell: Direction -> Area -> Maybe (ValueKoncept, List Member) -> Int -> CubeColumn -> Int -> KonceptRow -> List (Html Msg) -> List (Html Msg)
+cell: Direction -> Area -> Maybe (ValueKoncept, List Member) -> Int -> CubeColumn -> Int -> KonceptRow -> (Bool,List (Html Msg)) -> (Bool,List (Html Msg))
 cell direction area selection columnIndex column rowIndex row state  =
    let 
+       
+      skipSelection = first state
+      newSelectionState = 
+         if (first state) then True
+         else calculateIfCellIsSelected selection row column
+
       newCell: Html Msg
       newCell =
          case direction of
@@ -244,8 +272,8 @@ cell direction area selection columnIndex column rowIndex row state  =
                |> attributeGridArea 
                |> addAttr attrCell
                |> addAttr attrBox
-               |> addAttr (trySelectCell selection row column)  
-               |> addAttr (trySelectMemberCell selection row column)  
+               |> addAttr (trySelectCell skipSelection selection row column)  
+               |> addAttr (trySelectMemberCell skipSelection selection row column)  
                |> attrOnClickCell column row                      
                |> textCell ""
 
@@ -256,12 +284,13 @@ cell direction area selection columnIndex column rowIndex row state  =
                |> attributeGridArea 
                |> addAttr attrCell
                |> addAttr attrBox
-               |> addAttr (trySelectCell selection row column)  
-               |> addAttr (trySelectMemberCell selection row column)  
+               |> addAttr (trySelectCell skipSelection selection row column)  
+               |> addAttr (trySelectMemberCell skipSelection selection row column)  
                |> attrOnClickCell column row
                |> textCell ""
    in
-      [ newCell ] ++ state
+
+      (newSelectionState, [ newCell ] ++ (second state))
 
 
 gridCells: Direction -> Maybe (ValueKoncept, List Member) -> CubeColumns -> CubeRows -> List (Html Msg)
@@ -270,28 +299,31 @@ gridCells direction selection cubeColumns cubeRows =
       area: Area 
       area = 
          Area.emptyArea 
+         -- add offset for columns and rows
          |> offsetArea (cubeRowOffsetToOffset cubeColumns.offset) 
          |> offsetArea (cubeColumnOffsetToOffset cubeRows.offset)
          |> Area.addVerticalSpan Area.oneVerticalSpan
          |> Area.addHorizontalSpan Area.oneHorizontalSpan
    in  
       let    
-         cells: List KonceptRow -> Int -> CubeColumn -> List (List (Html Msg)) -> List (List (Html Msg)) 
+         cells: List KonceptRow -> Int -> CubeColumn -> (Bool,List (List (Html Msg))) -> (Bool,List (List (Html Msg)))
          cells rows columnIndex cubeColumn acc =
             let 
-               newState: List (Html Msg)
+               selected = first acc
+               newState: (Bool, List (Html Msg))
                newState = 
                    -- fold over rows (KonceptRow)
                    rows
-                   |> Lists.foldi (\i state row-> cell direction area selection columnIndex cubeColumn (i + 1) row state) []
+                   |> Lists.foldi (\i state row-> cell direction area selection columnIndex cubeColumn (i + 1) row state) (selected,[])
               
             in
-               [ newState ] ++ acc
+               (first newState, [ second newState ] ++ (second acc))
               
       in
          --- fold over columns
          cubeColumns.columns
-         |> Lists.foldi (\i state col -> (cells cubeRows.rows) (i + 1) col state) []
+         |> Lists.foldi (\i state col -> (cells cubeRows.rows) (i + 1) col state) (False,[])
+         |> (\(_,result) -> result)
          |> List.concat
 
 -- gridCells: Direction -> Maybe (ValueKoncept, List Member) -> CubeColumns -> CubeRows -> List (Html Msg)

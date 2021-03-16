@@ -7280,7 +7280,6 @@ var $author$project$Koncepts$CubeView$attrOnClickCell = F3(
 				attr);
 		}
 	});
-var $author$project$Koncepts$CubeView$attrSelectedCell = $author$project$Koncepts$CubeView$attrSelected('grid-cell-selected');
 var $author$project$Koncepts$Model$factorToInt = function (_v0) {
 	var i = _v0.a;
 	return i;
@@ -7304,7 +7303,7 @@ var $author$project$Koncepts$CubeView$factorFromValue = F2(
 		}(
 			$author$project$Koncepts$Model$factorToInt(vk.factor));
 	});
-var $author$project$Koncepts$CubeView$factorFromValueAndMembers = function (vk) {
+var $author$project$Koncepts$CubeView$factorFromSelection = function (vk) {
 	return A2(
 		$elm$core$Basics$composeR,
 		$author$project$Koncepts$CubeView$factorFromMemberList,
@@ -7318,55 +7317,95 @@ var $author$project$Koncepts$CubeKoncept$tryGetValueKoncept = function (kri) {
 		return $elm$core$Maybe$Just(vk);
 	}
 };
-var $author$project$Koncepts$CubeView$trySelectCell = F3(
-	function (selection, row, _v0) {
+var $author$project$Koncepts$CubeView$calculateIfCellIsSelected = F3(
+	function (selection, konceptRow, _v0) {
 		var cellMembers = _v0.a;
 		if (selection.$ === 'Nothing') {
-			return _List_Nil;
+			return false;
 		} else {
 			var _v2 = selection.a;
 			var vk = _v2.a;
 			var members = _v2.b;
-			var _v3 = $author$project$Koncepts$CubeKoncept$tryGetValueKoncept(row.item);
+			var _v3 = $author$project$Koncepts$CubeKoncept$tryGetValueKoncept(konceptRow.item);
 			if (_v3.$ === 'Just') {
 				var vkCell = _v3.a;
-				var productSelection = A2($author$project$Koncepts$CubeView$factorFromValueAndMembers, vk, members);
+				var productSelection = A2($author$project$Koncepts$CubeView$factorFromSelection, vk, members);
 				var productCell = A2(
-					$author$project$Koncepts$CubeView$factorFromValueAndMembers,
+					$author$project$Koncepts$CubeView$factorFromSelection,
 					vkCell,
 					$author$project$NList$toList(cellMembers));
-				return $author$project$Koncepts$CubeView$attrSelectedCell(
-					_Utils_eq(productSelection, productCell));
+				return _Utils_eq(productSelection, productCell);
 			} else {
-				return _List_Nil;
+				return false;
 			}
 		}
 	});
-var $author$project$Koncepts$CubeView$attrMemberCell = $author$project$Koncepts$CubeView$attrSelected('grid-cell-member');
-var $author$project$Koncepts$CubeView$trySelectMemberCell = F3(
-	function (selection, row, _v0) {
+var $author$project$Koncepts$CubeView$attrSelectedCell = $author$project$Koncepts$CubeView$attrSelected('grid-cell-selected');
+var $author$project$Koncepts$CubeView$trySelectCell = F4(
+	function (skip, selection, row, _v0) {
 		var cellMembers = _v0.a;
-		if (selection.$ === 'Nothing') {
+		if (skip) {
 			return _List_Nil;
 		} else {
-			var _v2 = selection.a;
-			var vk = _v2.a;
-			var members = _v2.b;
-			var _v3 = $author$project$Koncepts$CubeKoncept$tryGetValueKoncept(row.item);
-			if (_v3.$ === 'Just') {
-				var vkCell = _v3.a;
-				var productSelection = $author$project$Koncepts$CubeView$factorFromMemberList(members);
-				var productCell = $author$project$Koncepts$CubeView$factorFromMemberList(
-					$author$project$NList$toList(cellMembers));
-				return $author$project$Koncepts$CubeView$attrMemberCell(
-					_Utils_eq(productSelection, productCell) || _Utils_eq(vkCell.factor, vk.factor));
-			} else {
-				return _List_Nil;
-			}
+			var result = function () {
+				if (selection.$ === 'Nothing') {
+					return _List_Nil;
+				} else {
+					var _v2 = selection.a;
+					var vk = _v2.a;
+					var members = _v2.b;
+					var _v3 = $author$project$Koncepts$CubeKoncept$tryGetValueKoncept(row.item);
+					if (_v3.$ === 'Just') {
+						var vkCell = _v3.a;
+						var productSelection = A2($author$project$Koncepts$CubeView$factorFromSelection, vk, members);
+						var productCell = A2(
+							$author$project$Koncepts$CubeView$factorFromSelection,
+							vkCell,
+							$author$project$NList$toList(cellMembers));
+						return $author$project$Koncepts$CubeView$attrSelectedCell(
+							_Utils_eq(productSelection, productCell));
+					} else {
+						return _List_Nil;
+					}
+				}
+			}();
+			return result;
+		}
+	});
+var $author$project$Koncepts$CubeView$attrMemberCell = $author$project$Koncepts$CubeView$attrSelected('grid-cell-member');
+var $author$project$Koncepts$CubeView$trySelectMemberCell = F4(
+	function (skip, selection, row, _v0) {
+		var cellMembers = _v0.a;
+		if (skip) {
+			return _List_Nil;
+		} else {
+			var result = function () {
+				if (selection.$ === 'Nothing') {
+					return _List_Nil;
+				} else {
+					var _v2 = selection.a;
+					var vk = _v2.a;
+					var members = _v2.b;
+					var _v3 = $author$project$Koncepts$CubeKoncept$tryGetValueKoncept(row.item);
+					if (_v3.$ === 'Just') {
+						var vkCell = _v3.a;
+						var productSelection = $author$project$Koncepts$CubeView$factorFromMemberList(members);
+						var productCell = $author$project$Koncepts$CubeView$factorFromMemberList(
+							$author$project$NList$toList(cellMembers));
+						return $author$project$Koncepts$CubeView$attrMemberCell(
+							_Utils_eq(productSelection, productCell) || _Utils_eq(vkCell.factor, vk.factor));
+					} else {
+						return _List_Nil;
+					}
+				}
+			}();
+			return result;
 		}
 	});
 var $author$project$Koncepts$CubeView$cell = F8(
 	function (direction, area, selection, columnIndex, column, rowIndex, row, state) {
+		var skipSelection = state.a;
+		var newSelectionState = state.a ? true : A3($author$project$Koncepts$CubeView$calculateIfCellIsSelected, selection, row, column);
 		var newCell = function () {
 			if (direction.$ === 'Horizontal') {
 				return A2(
@@ -7378,10 +7417,10 @@ var $author$project$Koncepts$CubeView$cell = F8(
 						row,
 						A2(
 							$author$project$Koncepts$CubeView$addAttr,
-							A3($author$project$Koncepts$CubeView$trySelectMemberCell, selection, row, column),
+							A4($author$project$Koncepts$CubeView$trySelectMemberCell, skipSelection, selection, row, column),
 							A2(
 								$author$project$Koncepts$CubeView$addAttr,
-								A3($author$project$Koncepts$CubeView$trySelectCell, selection, row, column),
+								A4($author$project$Koncepts$CubeView$trySelectCell, skipSelection, selection, row, column),
 								A2(
 									$author$project$Koncepts$CubeView$addAttr,
 									$author$project$Koncepts$CubeView$attrBox,
@@ -7408,10 +7447,10 @@ var $author$project$Koncepts$CubeView$cell = F8(
 						row,
 						A2(
 							$author$project$Koncepts$CubeView$addAttr,
-							A3($author$project$Koncepts$CubeView$trySelectMemberCell, selection, row, column),
+							A4($author$project$Koncepts$CubeView$trySelectMemberCell, skipSelection, selection, row, column),
 							A2(
 								$author$project$Koncepts$CubeView$addAttr,
-								A3($author$project$Koncepts$CubeView$trySelectCell, selection, row, column),
+								A4($author$project$Koncepts$CubeView$trySelectCell, skipSelection, selection, row, column),
 								A2(
 									$author$project$Koncepts$CubeView$addAttr,
 									$author$project$Koncepts$CubeView$attrBox,
@@ -7430,10 +7469,12 @@ var $author$project$Koncepts$CubeView$cell = F8(
 													area)))))))));
 			}
 		}();
-		return _Utils_ap(
-			_List_fromArray(
-				[newCell]),
-			state);
+		return _Utils_Tuple2(
+			newSelectionState,
+			_Utils_ap(
+				_List_fromArray(
+					[newCell]),
+				state.b));
 	});
 var $elm$core$List$concat = function (lists) {
 	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
@@ -7499,32 +7540,39 @@ var $author$project$Koncepts$CubeView$gridCells = F4(
 						$author$project$Koncepts$Area$emptyArea))));
 		var cells = F4(
 			function (rows, columnIndex, cubeColumn, acc) {
+				var selected = acc.a;
 				var newState = A3(
 					$author$project$Lists$foldi,
 					F3(
 						function (i, state, row) {
 							return A8($author$project$Koncepts$CubeView$cell, direction, area, selection, columnIndex, cubeColumn, i + 1, row, state);
 						}),
-					_List_Nil,
+					_Utils_Tuple2(selected, _List_Nil),
 					rows);
-				return _Utils_ap(
-					_List_fromArray(
-						[newState]),
-					acc);
+				return _Utils_Tuple2(
+					newState.a,
+					_Utils_ap(
+						_List_fromArray(
+							[newState.b]),
+						acc.b));
 			});
 		return $elm$core$List$concat(
-			A3(
-				$author$project$Lists$foldi,
-				F3(
-					function (i, state, col) {
-						return A3(
-							cells(cubeRows.rows),
-							i + 1,
-							col,
-							state);
-					}),
-				_List_Nil,
-				cubeColumns.columns));
+			function (_v0) {
+				var result = _v0.b;
+				return result;
+			}(
+				A3(
+					$author$project$Lists$foldi,
+					F3(
+						function (i, state, col) {
+							return A3(
+								cells(cubeRows.rows),
+								i + 1,
+								col,
+								state);
+						}),
+					_Utils_Tuple2(false, _List_Nil),
+					cubeColumns.columns)));
 	});
 var $author$project$Koncepts$Model$hyperDimensionAsDimension = function (hyperDimension) {
 	if (hyperDimension.$ === 'Opened') {
