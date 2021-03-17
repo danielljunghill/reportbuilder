@@ -5488,6 +5488,21 @@ var $author$project$Koncepts$Mock$regions = A2(
 				_List_fromArray(
 					['Norge'])),
 			$author$project$Koncepts$Mock$firstPrime)));
+var $author$project$Koncepts$Mock$years = A2(
+	$author$project$Prime$mapPrimeResult,
+	$author$project$Koncepts$Model$Closed,
+	A2(
+		$elm$core$Debug$log,
+		'years',
+		A3(
+			$author$project$Koncepts$Hypercube$createDimensionWithDefault,
+			$author$project$Koncepts$Model$DomainName('Artal'),
+			A2(
+				$author$project$NList$create2,
+				'2020',
+				_List_fromArray(
+					['2021'])),
+			$author$project$Koncepts$Mock$regions.prime)));
 var $author$project$Koncepts$Mock$quarters = A2(
 	$author$project$Prime$mapPrimeResult,
 	$author$project$Koncepts$Model$Closed,
@@ -5502,12 +5517,15 @@ var $author$project$Koncepts$Mock$quarters = A2(
 				'kv1',
 				_List_fromArray(
 					['kv2', 'kv3', 'kv4'])),
-			$author$project$Koncepts$Mock$regions.prime)));
+			$author$project$Koncepts$Mock$years.prime)));
 var $author$project$Koncepts$Mock$addCube = function (koncept) {
 	var hyperCube = A2(
 		$author$project$Koncepts$Hypercube$addDimension,
 		$author$project$Koncepts$Mock$regions.result,
-		A2($author$project$Koncepts$Hypercube$create, 'Kvartal och annat', $author$project$Koncepts$Mock$quarters.result));
+		A2(
+			$author$project$Koncepts$Hypercube$addDimension,
+			$author$project$Koncepts$Mock$years.result,
+			A2($author$project$Koncepts$Hypercube$create, 'Kvartal och annat', $author$project$Koncepts$Mock$quarters.result)));
 	var f = F2(
 		function (ak, koncepts) {
 			return _Utils_eq(

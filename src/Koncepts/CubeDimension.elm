@@ -38,12 +38,18 @@ createDimensionHeader a pm m  =
    createDimensionHeaderItem a pm m 
    |> DimensionHeader
 
+--- Calculate span
+-- calculateSpan: Dimension -> Span -> Span
+-- calculateSpan dimension (Span span)   =
+--    case dimension of
+--       DimensionWithDefault (_, domain) -> (span - 1) // (domain.members |> NList.length) |> Span
+--       DimensionWithoutDefault (domain) -> span // (domain.members |> NList.length) |> Span
+   
 calculateSpan: Dimension -> Span -> Span
 calculateSpan dimension (Span span)   =
    case dimension of
-      DimensionWithDefault (_, domain) -> (span - 1) // (domain.members |> NList.length) |> Span
+      DimensionWithDefault (_, domain) -> span // ((domain.members |> NList.length) + 1) |> Span
       DimensionWithoutDefault (domain) -> span // (domain.members |> NList.length) |> Span
-   
 
 calculateStart: Int -> Span -> Start -> Start
 calculateStart ordinal (Span span) (Start start)  =
@@ -133,7 +139,7 @@ calculateDefaultArea direction (Depth depth) area =
                }
 
 
-fromDimension: Direction -> Depth -> Area -> Dimension -> List Member -> (NList DimensionHeader, Maybe DimensionHeader )
+fromDimension: Direction -> Depth -> Area -> Dimension -> List Member -> NList DimensionHeader
 fromDimension direction depth area dimension parentMembers =
                 
       let
@@ -163,7 +169,10 @@ fromDimension direction depth area dimension parentMembers =
                md 
                |> createDimensionHeader (calculateDefaultArea direction depth (getLastArea memberHeaders)) parentMembers)
       in
-         (memberHeaders, defaultMemberHeader)
+         case defaultMemberHeader of
+            Just member -> NList.append memberHeaders [ member ]
+            Nothing -> memberHeaders
+  
 
 type TableHeader  = 
    MemberHeader (NList DimensionHeader)
@@ -190,7 +199,7 @@ dimensionAsTableHeader direction depth dimension headers =
       header: DimensionHeader
       header = headers.head
 
-      columnHeaders: DimensionHeader -> (NList DimensionHeader, Maybe DimensionHeader)
+      columnHeaders: DimensionHeader -> NList DimensionHeader
       columnHeaders (DimensionHeader item)  = 
          let
             area: Area 
@@ -207,18 +216,10 @@ dimensionAsTableHeader direction depth dimension headers =
          else 
             []
 
-      result: (NList DimensionHeader, Maybe DimensionHeader)
-      result = columnHeaders header
-      v1: NList TableHeader  
-      v1 =  (first result)
-            |> NList.mapi (\ i m -> MemberHeader (NList.create2 m (mapHeaders i headers))) 
-      v2: List TableHeader 
-      v2 = 
-         (second result)
-         |> Lists.maybeAsList
-         |> List.map (NList.create >> TotalHeader)
    in
-      NList.addList v1 v2
+      header
+      |> columnHeaders 
+      |> NList.mapi (\ i m -> MemberHeader (NList.create2 m (mapHeaders i headers)))
 
 addDimensionToTableHeader: Direction -> Depth -> Dimension -> TableHeader -> List TableHeader
 addDimensionToTableHeader direction depth dimension acc =
@@ -259,19 +260,19 @@ addDimensionToTableHeaders direction depth span dimension acc =
             let 
                area: Area 
                area = initArea direction span
-               mt: (NList DimensionHeader, Maybe DimensionHeader)
+               mt: NList DimensionHeader
                mt = fromDimension direction depth area dimension []
                v1: NList TableHeader  
-               v1 =  (first mt)
+               v1 =  mt
                      |> NList.map (NList.create >> MemberHeader)
-               v2: List TableHeader 
-               v2 = 
-                  (second mt)
-                  |> Lists.maybeAsList
-                  |> List.map (NList.create >> TotalHeader)
-            in
-               NList.addList v1 v2
-               |> NList.toList
+                     |> NList.toList
+               -- v2: List TableHeader 
+               -- v2 = 
+               --    (second mt)
+               --    |> Lists.maybeAsList
+               --    |> List.map (NList.create >> TotalHeader)
+            in 
+               v1 
          _ -> acc |> Lists.collect (addDimensionToTableHeader direction depth dimension)
 
 calculateSpanForDimensions: List Dimension -> Span
@@ -283,7 +284,7 @@ calculateSpanForDimensions dimensions =
             [] -> 1
             head :: tail ->
                case head of
-                  DimensionWithDefault (_,m) ->  (NList.length m.members) * (recCalculateSpan tail) + 1 
+                  DimensionWithDefault (_,m) ->  ((NList.length m.members) + 1) * (recCalculateSpan tail)
                   DimensionWithoutDefault (m)-> (NList.length m.members) * (recCalculateSpan tail)
    in
       dimensions
@@ -326,9 +327,6 @@ type alias CubeColumnHeader =
       ,  member: Member
       ,  isSelected: Bool
    }
-
-
-
 
 tableHeaderToDimensionColumnHeader: List Member -> TableHeader -> List CubeColumnHeader
 tableHeaderToDimensionColumnHeader selection tableHeader   =
