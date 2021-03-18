@@ -48,16 +48,16 @@ regions =
    |> Debug.log "regions"
    |> mapPrimeResult Closed
 
-years: PrimeResult HyperDimension
-years = 
-   regions.prime
-   |> createDimensionWithDefault (DomainName "Artal") (NList.create2 "2020" ["2021"]) 
-   |> Debug.log "years"
-   |> mapPrimeResult Closed
+-- years: PrimeResult HyperDimension
+-- years = 
+--    regions.prime
+--    |> createDimensionWithDefault (DomainName "Artal") (NList.create2 "2020" ["2021"]) 
+--    |> Debug.log "years"
+--    |> mapPrimeResult Closed
 
 quarters: PrimeResult HyperDimension
 quarters = 
-   years.prime
+   regions.prime
    |> createDimensionWithDefault (DomainName "Kvartal") (NList.create2 "kv1"  ["kv2", "kv3","kv4"])
    |> Debug.log "quarters"
    |> mapPrimeResult Closed
@@ -69,7 +69,7 @@ addCube  koncept  =
       hyperCube = 
          quarters.result
          |> HyperCube.create "Kvartal och annat" 
-         |> HyperCube.addDimension years.result 
+         -- |> HyperCube.addDimension years.result 
          |> HyperCube.addDimension regions.result 
          -- |> 
         
