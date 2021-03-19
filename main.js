@@ -5481,12 +5481,12 @@ var $author$project$Koncepts$Mock$regions = A2(
 		'regions',
 		A3(
 			$author$project$Koncepts$Hypercube$createDimensionWithDefault,
-			$author$project$Koncepts$Model$DomainName('Region'),
+			$author$project$Koncepts$Model$DomainName('Produkt'),
 			A2(
 				$author$project$NList$create2,
-				'Sverige',
+				'Personbil',
 				_List_fromArray(
-					['Norge'])),
+					['Lastbil'])),
 			$author$project$Koncepts$Mock$firstPrime)));
 var $author$project$Koncepts$Mock$quarters = A2(
 	$author$project$Prime$mapPrimeResult,
@@ -6374,17 +6374,18 @@ var $author$project$Koncepts$CubeDimension$calculateArea = F4(
 var $author$project$Koncepts$CubeDimension$DimensionHeader = function (a) {
 	return {$: 'DimensionHeader', a: a};
 };
-var $author$project$Koncepts$CubeDimension$createDimensionHeaderItem = F3(
-	function (a, pm, m) {
+var $author$project$Koncepts$CubeDimension$createDimensionHeaderItem = F4(
+	function (isTotal, area, members, m) {
 		return {
-			area: a,
-			member: A2($author$project$NList$create2, m, pm)
+			area: area,
+			isTotal: isTotal,
+			members: A2($author$project$NList$create2, m, members)
 		};
 	});
-var $author$project$Koncepts$CubeDimension$createDimensionHeader = F3(
-	function (a, pm, m) {
+var $author$project$Koncepts$CubeDimension$createDimensionHeader = F4(
+	function (isTotal, area, members, m) {
 		return $author$project$Koncepts$CubeDimension$DimensionHeader(
-			A3($author$project$Koncepts$CubeDimension$createDimensionHeaderItem, a, pm, m));
+			A4($author$project$Koncepts$CubeDimension$createDimensionHeaderItem, isTotal, area, members, m));
 	});
 var $author$project$Koncepts$Model$dimensionMembers = function (dimension) {
 	if (dimension.$ === 'DimensionWithDefault') {
@@ -6445,70 +6446,66 @@ var $author$project$Koncepts$Model$memberDefault = function (dimension) {
 };
 var $author$project$Koncepts$CubeDimension$fromDimension = F4(
 	function (direction, area, dimension, parentMembers) {
-		var members = A2(
-			$author$project$NList$map,
-			function (_v1) {
-				var m = _v1.a;
-				return m;
-			},
+		var memberHeaders = A2(
+			$author$project$NList$mapi,
+			F2(
+				function (i, m) {
+					return A4(
+						$author$project$Koncepts$CubeDimension$createDimensionHeader,
+						false,
+						A4($author$project$Koncepts$CubeDimension$calculateArea, dimension, direction, area, i),
+						parentMembers,
+						m);
+				}),
+			A2(
+				$author$project$NList$map,
+				function (_v1) {
+					var m = _v1.a;
+					return m;
+				},
+				$author$project$Koncepts$Model$dimensionMembers(dimension)));
+		var countMembers = $author$project$NList$length(
 			$author$project$Koncepts$Model$dimensionMembers(dimension));
 		var defaultMembers = $author$project$Lists$maybeAsList(
 			A2(
 				$elm$core$Maybe$map,
 				function (_v0) {
 					var m = _v0.a;
-					return m;
-				},
-				$author$project$Koncepts$Model$memberDefault(dimension)));
-		var memberHeaders = A2(
-			$author$project$NList$mapi,
-			F2(
-				function (i, m) {
-					return A3(
+					return A4(
 						$author$project$Koncepts$CubeDimension$createDimensionHeader,
-						A4($author$project$Koncepts$CubeDimension$calculateArea, dimension, direction, area, i),
+						true,
+						A4($author$project$Koncepts$CubeDimension$calculateArea, dimension, direction, area, countMembers),
 						parentMembers,
 						m);
-				}),
-			A2($author$project$NList$append, members, defaultMembers));
-		return memberHeaders;
+				},
+				$author$project$Koncepts$Model$memberDefault(dimension)));
+		return A2($author$project$NList$append, memberHeaders, defaultMembers);
 	});
 var $author$project$Koncepts$CubeDimension$dimensionAsTableHeader = F3(
-	function (direction, dimension, headers) {
-		var mapHeaders = F2(
-			function (i, hs) {
-				return (!i) ? $author$project$NList$toList(hs) : _List_Nil;
-			});
-		var header = headers.head;
-		var columnHeaders = function (_v0) {
+	function (direction, dimension, dimensionHeaders) {
+		var header = dimensionHeaders.head;
+		var createDimensionHeaders = function (_v0) {
 			var item = _v0.a;
-			var members = $author$project$NList$toList(item.member);
+			var members = $author$project$NList$toList(item.members);
 			var area = item.area;
 			return A4($author$project$Koncepts$CubeDimension$fromDimension, direction, area, dimension, members);
 		};
 		return A2(
-			$author$project$NList$mapi,
-			F2(
-				function (i, m) {
-					return $author$project$Koncepts$CubeDimension$MemberHeader(
-						A2(
-							$author$project$NList$create2,
-							m,
-							A2(mapHeaders, i, headers)));
-				}),
-			columnHeaders(header));
+			$author$project$NList$map,
+			function (m) {
+				return $author$project$Koncepts$CubeDimension$MemberHeader(
+					A2(
+						$author$project$NList$create2,
+						m,
+						$author$project$NList$toList(dimensionHeaders)));
+			},
+			createDimensionHeaders(header));
 	});
 var $author$project$Koncepts$CubeDimension$addDimensionToTableHeader = F3(
-	function (direction, dimension, acc) {
-		var result = function () {
-			if (acc.$ === 'TotalHeader') {
-				return $author$project$NList$create(acc);
-			} else {
-				var dimensionHeaders = acc.a;
-				return A3($author$project$Koncepts$CubeDimension$dimensionAsTableHeader, direction, dimension, dimensionHeaders);
-			}
-		}();
-		return $author$project$NList$toList(result);
+	function (direction, dimension, _v0) {
+		var dimensionHeaders = _v0.a;
+		return $author$project$NList$toList(
+			A3($author$project$Koncepts$CubeDimension$dimensionAsTableHeader, direction, dimension, dimensionHeaders));
 	});
 var $author$project$Lists$collect = F2(
 	function (f, m) {
@@ -6552,14 +6549,14 @@ var $author$project$Koncepts$CubeDimension$addDimensionToTableHeaders = F4(
 				}
 			});
 		if (!acc.b) {
-			var area = A2(initArea, direction, span);
-			var mt = A4($author$project$Koncepts$CubeDimension$fromDimension, direction, area, dimension, _List_Nil);
-			var v1 = $author$project$NList$toList(
+			return $author$project$NList$toList(
 				A2(
 					$author$project$NList$map,
 					A2($elm$core$Basics$composeR, $author$project$NList$create, $author$project$Koncepts$CubeDimension$MemberHeader),
-					mt));
-			return v1;
+					function (area) {
+						return A4($author$project$Koncepts$CubeDimension$fromDimension, direction, area, dimension, _List_Nil);
+					}(
+						A2(initArea, direction, span))));
 		} else {
 			return A2(
 				$author$project$Lists$collect,
@@ -6635,7 +6632,8 @@ var $author$project$Lists$contains = F2(
 		return recContains(l);
 	});
 var $author$project$Koncepts$CubeDimension$tableHeaderToDimensionColumnHeader = F2(
-	function (selection, tableHeader) {
+	function (selection, _v0) {
+		var dimensionHeaders = _v0.a;
 		var createDimensionColumnHeader = F3(
 			function (selectedMembers, isTotal, _v1) {
 				var d = _v1.a;
@@ -6650,32 +6648,23 @@ var $author$project$Koncepts$CubeDimension$tableHeaderToDimensionColumnHeader = 
 					function (m) {
 						return A2($author$project$Lists$contains, m.factor, selectedFactors);
 					},
-					$author$project$NList$toList(d.member));
+					$author$project$NList$toList(d.members));
 				return {
 					area: d.area,
 					isSelected: _Utils_eq(
 						$elm$core$List$length(filteredMembers),
-						$author$project$NList$length(d.member)),
-					isTotal: isTotal,
-					member: d.member.head
+						$author$project$NList$length(d.members)),
+					isTotal: d.isTotal,
+					member: d.members.head
 				};
 			});
-		var ch = function () {
-			if (tableHeader.$ === 'MemberHeader') {
-				var h = tableHeader.a;
-				return A2(
-					$author$project$NList$map,
-					A2(createDimensionColumnHeader, selection, false),
-					h);
-			} else {
-				var h = tableHeader.a;
-				return A2(
-					$author$project$NList$map,
-					A2(createDimensionColumnHeader, selection, true),
-					h);
-			}
-		}();
-		return $author$project$NList$toList(ch);
+		return $author$project$NList$toList(
+			A2(
+				$author$project$NList$map,
+				function (dm) {
+					return A3(createDimensionColumnHeader, selection, true, dm);
+				},
+				dimensionHeaders));
 	});
 var $author$project$Koncepts$CubeDimension$dimensionColumnHeaders = F2(
 	function (selection, headers) {
@@ -6687,23 +6676,15 @@ var $author$project$Koncepts$CubeDimension$dimensionColumnHeaders = F2(
 var $author$project$Koncepts$CubeDimension$CubeColumn = function (a) {
 	return {$: 'CubeColumn', a: a};
 };
-var $author$project$Koncepts$CubeDimension$tableHeaderAsMembers = function (acc) {
-	var headers = function () {
-		if (acc.$ === 'MemberHeader') {
-			var hs = acc.a;
-			return hs;
-		} else {
-			var hs = acc.a;
-			return hs;
-		}
-	}();
-	return function (_v0) {
-		var item = _v0.a;
-		return item.member;
+var $author$project$Koncepts$CubeDimension$tableHeaderAsMembers = function (_v0) {
+	var dimensionHeaders = _v0.a;
+	return function (_v1) {
+		var item = _v1.a;
+		return item.members;
 	}(
 		function (h) {
 			return h.head;
-		}(headers));
+		}(dimensionHeaders));
 };
 var $author$project$Koncepts$CubeDimension$dimensionColumns = function (headers) {
 	return A2(

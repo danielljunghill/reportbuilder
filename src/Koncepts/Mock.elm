@@ -44,7 +44,7 @@ addAbstract name koncept =
 regions: PrimeResult HyperDimension
 regions = 
    firstPrime
-   |> createDimensionWithDefault (DomainName "Region") (NList.create2 "Sverige" ["Norge"]) 
+   |> createDimensionWithDefault (DomainName "Produkt") (NList.create2 "Personbil" ["Lastbil"]) 
    |> Debug.log "regions"
    |> mapPrimeResult Closed
 

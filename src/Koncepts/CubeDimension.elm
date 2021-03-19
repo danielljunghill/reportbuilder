@@ -18,24 +18,26 @@ type alias DimensionHeaderItem =
    {
 
          area: Area
-      ,  member: NList Member
+      ,  members: NList Member
+      ,  isTotal: Bool
    }
 
 type DimensionHeader = DimensionHeader DimensionHeaderItem
 itemFromDimensionalHeader: DimensionHeader -> DimensionHeaderItem
 itemFromDimensionalHeader (DimensionHeader item) = item
 
-createDimensionHeaderItem: Area ->  List Member -> Member -> DimensionHeaderItem
-createDimensionHeaderItem a pm m  =
+createDimensionHeaderItem: Bool -> Area ->  List Member -> Member -> DimensionHeaderItem
+createDimensionHeaderItem isTotal area members m  =
    {
-            area = a
-         ,  member = NList.create2 m pm
+            area = area
+         ,  members = NList.create2 m members
+         , isTotal = isTotal
 
    }
 
-createDimensionHeader : Area -> List Member -> Member -> DimensionHeader
-createDimensionHeader a pm m  =
-   createDimensionHeaderItem a pm m 
+createDimensionHeader : Bool -> Area -> List Member -> Member -> DimensionHeader
+createDimensionHeader isTotal area members m  =
+   createDimensionHeaderItem isTotal area members m 
    |> DimensionHeader
 
 
@@ -108,116 +110,85 @@ calculateArea dimension direction area ordinal =
 
             }
 
--- calculateDefaultArea: Direction -> Depth -> Area -> Area
--- calculateDefaultArea direction (Depth depth) area =
-
---       case direction of
---          Horizontal -> 
---             -- let
-
---                {
---                      verticalStart = area.verticalStart
---                   ,  verticalSpan = VerticalSpan (Span depth)
---                   ,  horizontalSpan = HorizontalSpan (Span 1)
---                   ,  horizontalStart = 
---                      area.horizontalStart  
---                      |> horizontalStartMap ((spanStart (\a b -> a + b) (area.horizontalSpan |> horizontalSpanToSpan)) >> Start)
---                }
-
---          Vertical ->
---                {
---                      horizontalStart = area.horizontalStart
---                   ,  horizontalSpan = HorizontalSpan (Span depth)
---                   ,  verticalSpan = VerticalSpan  (Span 1)
---                   ,  verticalStart = 
---                      area.verticalStart  
---                      |> verticalStartMap ((spanStart (\a b -> a + b) (area.verticalSpan |> verticalSpanToSpan)) >> Start)
---                }
-
 
 fromDimension: Direction -> Area -> Dimension -> List Member -> NList DimensionHeader
 fromDimension direction area dimension parentMembers =              
       let
-         members: NList Member
-         members = 
-            dimension
-            |> dimensionMembers 
-            |> NList.map (\ (DomainMember m) -> m)
+         -- members: NList Member
+         -- members = 
+            
+         --    |> dimensionMembers 
+         --    |> NList.map (\ (DomainMember m) -> m)
          
-         defaultMembers: List Member
+         countMembers = NList.length (dimension |> dimensionMembers)
+
+         defaultMembers: List DimensionHeader
          defaultMembers = 
             dimension
             |> memberDefault 
-            |> Maybe.map (\(DefaultMember m) -> m)
+            |> Maybe.map (\(DefaultMember m) -> createDimensionHeader True (calculateArea dimension direction area countMembers) parentMembers m)
             |> Lists.maybeAsList
             
          memberHeaders: NList DimensionHeader
          memberHeaders = 
-            defaultMembers
-            |> NList.append members
-            |> NList.mapi (\ i m ->  m |> createDimensionHeader (calculateArea dimension direction area i) parentMembers)             
+            dimension
+            |> dimensionMembers 
+            |> NList.map (\ (DomainMember m) -> m)
+            |> NList.mapi (\ i m ->  m |> createDimensionHeader False (calculateArea dimension direction area i) parentMembers)  
+
+                    
       in
-         memberHeaders
+         NList.append memberHeaders defaultMembers
 
-type TableHeader  = 
+type MemberHeader  =   
    MemberHeader (NList DimensionHeader)
-   | TotalHeader (NList DimensionHeader)
+   -- | TotalHeader (NList DimensionHeader)
 
-tableHeaderAsMembers: TableHeader -> NList Member
-tableHeaderAsMembers acc =
-   let 
-      headers: NList DimensionHeader
-      headers =
-         case acc of
-            MemberHeader hs -> hs
-            TotalHeader hs -> hs
-   in 
-     headers
+tableHeaderAsMembers: MemberHeader -> NList Member
+tableHeaderAsMembers (MemberHeader dimensionHeaders) =
+     dimensionHeaders
      |> (\ h -> h.head)
-     |> (\ (DimensionHeader item)-> item.member)
+     |> (\ (DimensionHeader item)-> item.members)
 
 
-dimensionAsTableHeader: Direction -> Dimension -> NList DimensionHeader -> NList TableHeader
-dimensionAsTableHeader direction dimension headers =
+dimensionAsTableHeader: Direction -> Dimension -> NList DimensionHeader -> NList MemberHeader
+dimensionAsTableHeader direction dimension dimensionHeaders =
    let 
-
+      -- take last dimensionheader from
+      -- parents (dimensionHeaders) since it holds all previous Members
+      -- for tableheader
       header: DimensionHeader
-      header = headers.head
-
-      columnHeaders: DimensionHeader -> NList DimensionHeader
-      columnHeaders (DimensionHeader item)  = 
+      header = dimensionHeaders.head
+      -- create dimensionheader from dimension
+      -- with area and members from parent header
+      createDimensionHeaders: DimensionHeader -> NList DimensionHeader
+      createDimensionHeaders (DimensionHeader item)  = 
          let
             area: Area 
             area = item.area
             members: List Member
-            members = item.member |> NList.toList
+            members = item.members |> NList.toList
          in 
             fromDimension direction area dimension members
-
-      mapHeaders: Int -> NList a -> List a
-      mapHeaders i hs =
-         if i == 0 then
-            hs |> NList.toList
-         else 
-            []
+      -- only fitst
+      -- mapHeaders: Int -> NList a -> List a
+      -- mapHeaders i hs =
+      --    if i == 0 then hs |> NList.toList
+      --    else []
 
    in
       header
-      |> columnHeaders 
-      |> NList.mapi (\ i m -> MemberHeader (NList.create2 m (mapHeaders i headers)))
+      |> createDimensionHeaders 
+      |> NList.map (\ m -> MemberHeader (NList.create2 m (dimensionHeaders |> NList.toList)))
+ 
 
-addDimensionToTableHeader: Direction -> Dimension -> TableHeader -> List TableHeader
-addDimensionToTableHeader direction dimension acc =
-   let
-      result: NList TableHeader
-      result =
-         case acc of
-            TotalHeader _ -> NList.create acc
-            MemberHeader dimensionHeaders -> dimensionAsTableHeader direction dimension dimensionHeaders
-   in
-      result |> NList.toList
+addDimensionToTableHeader: Direction -> Dimension -> MemberHeader -> List MemberHeader
+addDimensionToTableHeader direction dimension (MemberHeader dimensionHeaders) =
+   dimensionAsTableHeader direction dimension dimensionHeaders
+   |> NList.toList
 
-addDimensionToTableHeaders: Direction  -> Span -> Dimension -> List TableHeader -> List TableHeader
+
+addDimensionToTableHeaders: Direction  -> Span -> Dimension -> List MemberHeader -> List MemberHeader
 addDimensionToTableHeaders direction span dimension acc =
    let 
       initArea: Direction -> Span -> Area
@@ -242,22 +213,11 @@ addDimensionToTableHeaders direction span dimension acc =
    in
       case acc of
          [] -> 
-            let 
-               area: Area 
-               area = initArea direction span
-               mt: NList DimensionHeader
-               mt = fromDimension direction area dimension []
-               -- v1: NList TableHeader  
-               v1 =  mt
-                     |> NList.map (NList.create >> MemberHeader)
-                     |> NList.toList
-               -- v2: List TableHeader 
-               -- v2 = 
-               --    (second mt)
-               --    |> Lists.maybeAsList
-               --    |> List.map (NList.create >> TotalHeader)
-            in 
-               v1 
+               initArea direction span
+               |> (\area -> fromDimension direction area dimension [])
+               |> NList.map (NList.create >> MemberHeader)
+               |> NList.toList
+        
          _ -> acc |> Lists.collect (addDimensionToTableHeader direction dimension)
 
 calculateSpanForDimensions: List Dimension -> Span
@@ -277,16 +237,16 @@ calculateSpanForDimensions dimensions =
       |> Span
                   
 
-calculateTableHeaders: Direction -> (List Dimension) -> List TableHeader
+calculateTableHeaders: Direction -> (List Dimension) -> List MemberHeader
 calculateTableHeaders direction dimensions =
    let
-      recFold: Span -> List TableHeader -> List Dimension ->  List TableHeader 
+      recFold: Span -> List MemberHeader -> List Dimension ->  List MemberHeader 
       recFold span  acc dims  =
          case dims of
             [] -> acc
             head :: tail ->   
                let
-                  state: List TableHeader 
+                  state: List MemberHeader 
                   state = addDimensionToTableHeaders direction span head acc 
                in
                   recFold span state tail 
@@ -309,8 +269,8 @@ type alias CubeColumnHeader =
       ,  isSelected: Bool
    }
 
-tableHeaderToDimensionColumnHeader: List Member -> TableHeader -> List CubeColumnHeader
-tableHeaderToDimensionColumnHeader selection tableHeader   =
+tableHeaderToDimensionColumnHeader: List Member -> MemberHeader -> List CubeColumnHeader
+tableHeaderToDimensionColumnHeader selection (MemberHeader dimensionHeaders)   =
    let   
       createDimensionColumnHeader: List Member -> Bool -> DimensionHeader -> CubeColumnHeader
       createDimensionColumnHeader selectedMembers isTotal (DimensionHeader d) =
@@ -318,35 +278,31 @@ tableHeaderToDimensionColumnHeader selection tableHeader   =
                selectedFactors = selectedMembers |> List.map (\v -> v.factor)
                filteredMembers: List Member
                filteredMembers =
-                  d.member 
+                  d.members 
                   |> NList.toList
                   |> List.filter (\m -> (Lists.contains m.factor selectedFactors))     
          in
 
          {
-               isTotal = isTotal
+               isTotal = d.isTotal
             ,  area = d.area
-            ,  member = d.member.head  
-            ,  isSelected = ((List.length filteredMembers) == (NList.length d.member))
+            ,  member = d.members.head  
+            ,  isSelected = ((List.length filteredMembers) == (NList.length d.members))
          }
    in
-      let
-         ch: NList CubeColumnHeader
-         ch =
-            case tableHeader of
-               MemberHeader h -> h |> NList.map (createDimensionColumnHeader selection False )
-               TotalHeader h -> h |> NList.map (createDimensionColumnHeader selection True)
-      in
-         ch |> NList.toList
 
+      dimensionHeaders
+      |> NList.map (\dm -> createDimensionColumnHeader selection True dm)
+      |> NList.toList
+  
 
-dimensionColumns: List TableHeader -> List CubeColumn
+dimensionColumns: List MemberHeader -> List CubeColumn
 dimensionColumns headers = 
   headers 
   |> List.map (tableHeaderAsMembers >> CubeColumn)
 
 
-dimensionColumnHeaders: List Member  -> List TableHeader ->  List CubeColumnHeader 
+dimensionColumnHeaders: List Member  -> List MemberHeader ->  List CubeColumnHeader 
 dimensionColumnHeaders selection headers  =
    headers
    |> Lists.collect (tableHeaderToDimensionColumnHeader selection)
@@ -355,6 +311,10 @@ type CubeRowOffset = CubeRowOffset Offset
 
 cubeRowOffsetToOffset: CubeRowOffset -> Offset
 cubeRowOffsetToOffset (CubeRowOffset offset) = offset
+
+----
+-- CubeColumns holds offset, columns for cube and headers for cube
+----
 type alias CubeColumns = 
    {
          offset: CubeRowOffset
@@ -366,7 +326,7 @@ type alias CubeColumns =
 calculateCubeColumns:  Direction -> List Member ->  List Dimension -> CubeColumns  
 calculateCubeColumns direction selection dimensions =
    let
-      tableHeaders: List TableHeader
+      tableHeaders: List MemberHeader
       tableHeaders = calculateTableHeaders direction dimensions
       offset : Offset
       offset =
@@ -391,56 +351,3 @@ calculateCubeColumns direction selection dimensions =
       }
 
 
---------------------------------- View -----------------------------------
-
-
--- tableHeaderView: List TableColumn -> Html Msg
--- tableHeaderView columns = 
---    let -> 
---       tableColumAsHtml: TableColumns -> List (Html Msg)
---       tableColumnAsHtml c =
---          c.    
-
--- let calculateColumnsAndHeaders: Direction -> List Dimension -> (TableColumns, 
-
-   
-   --      let (SimpleHeader (Header s)) = headers.Head
-   -- let simples,total = Header.fromDimension direction depth s.Area dimension
-   -- // match header with
-   -- let notWritableHeaders = headers |> List.map (fun (SimpleHeader (Header item)) -> { item with Write = false } |> Header |> SimpleHeader)
-   -- let mapHeaders i headers= 
-   --    if i = 0 then 
-   --       headers
-   --    else notWritableHeaders 
-      
-   -- // | Simple s -> 
-   -- let v1 = simples |> List.mapi (fun i simple -> Simple (SimpleHeader simple :: (mapHeaders i headers ))) 
-   -- let v2 = total |> Option.toList |> List.map (fun t -> Total (TotalHeader t,notWritableHeaders))
-   -- v1 @ v2
-
--- fromDimension: Area.Direction -> Area.Depth -> Dimensional.Dimension -> (DimensionHeader List, Maybe DimensionHeader)
--- fromDimension direction depth area dimension =
---    let
---       members: List DomainMember 
---       members = Dimension.members dimension
---       defaultMember: Maybe DefaultMember
---       defaultMember = Dimension.defaultMember dimension
-
---       calcSpan: Maybe DefaultMember ->  Span -> Span
---       calcSpan span defaultMember =
---          case defaultMember of
---             Just _ -> spanAdd (-1) span
---             Nothing -> span
---          / members.length
-
---       calcStart: Int -> Start -> Span -> Start
---       calcStart ordinal (Start start) (Span span) =
---          start + span * ordinal
---          |> Start
-
-
-
-
-
-
-   
