@@ -8,8 +8,9 @@ import Report.Model exposing (..)
 import Html.Attributes exposing(..)
 import List
 import Koncepts.Model exposing(..)
+import Model exposing (..)
 
-toHtml: Maybe (ValueKoncept, List Member) -> Report -> Html Msg            
+toHtml: Maybe Selection -> Report -> Html Msg            
 toHtml selection report = 
     let
         pages: List (Html Msg) 

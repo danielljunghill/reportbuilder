@@ -7,8 +7,9 @@ import Html.Events exposing (..)
 import Koncepts.Model exposing (..)
 import Koncepts.View as KonceptView
 import Msg exposing (..)
+import Model exposing  (..)
 
-toHtml: Maybe (ValueKoncept, List Member) -> Page ->  Html Msg            
+toHtml: Maybe Selection -> Page ->  Html Msg            
 toHtml selection page = 
     let
         koncepts: List (Html Msg) 
@@ -23,7 +24,7 @@ toHtml selection page =
         
 toHeaderHtlm: Page -> Html Msg
 toHeaderHtlm page =
-    div ([class "header", onClick ( page |>  Msg.selectPage )] ++ (Classes.selected page.selected)) [ text page.name ]
- 
+    -- div ([class "header", onClick ( page |>  Msg.selectPage )] ++ (Classes.selected page.selected)) [ text page.name ]
+    div ([class "header"] ++ (Classes.selected page.selected)) [ text page.name ]
 
        -- Classes.selected page.isSelected

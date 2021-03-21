@@ -75,4 +75,30 @@ addList n m =
    { n |  tail = n.tail ++ m }
 
 
+fold: (state -> a -> state) -> state -> NList a ->  state
+fold f state alist =
+   let
+      recFold s l =
+         case l of
+         [] ->  s
+         head :: tail ->
+            let
+               newState = f s head 
+            in
+               recFold newState tail
+   in 
+      recFold state (alist |> toList)
+
+contains: a -> NList a -> Bool
+contains v m =
+   if m.head == v then
+      True
+   else
+       m.tail 
+       |> Lists.contains v
+
+
+
+
+
 

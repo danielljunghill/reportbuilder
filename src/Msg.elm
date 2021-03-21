@@ -6,20 +6,21 @@ import NList exposing (..)
 import Model exposing (..)
 
 
+type Content = Content String
    
 type Msg =
-   Select SelectedItem
-  | Add 
-  | AddPage 
+   Select (NList Factor)
+  | Edit  (NList Factor, Content)
 
-selectAbstract: Koncept.AbstractKoncept -> Msg
-selectAbstract =
-   SelectedAbstract >> Select
 
-selectValue: Koncept.ValueKoncept -> Msg
-selectValue =
-   SelectedValue >> Select
+-- selectAbstract: Koncept.AbstractKoncept -> Msg
+-- selectAbstract =
+--    SelectedAbstract >> Select
 
-selectPage: Page -> Msg
-selectPage =
-   SelectedPage >> Select
+-- selectValue: Koncept.ValueKoncept -> Msg
+-- selectValue =
+--    SelectedValue >> Select
+
+-- selectPage: Page -> Msg
+-- selectPage =
+--    SelectedPage >> Select

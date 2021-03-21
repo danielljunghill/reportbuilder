@@ -6,16 +6,28 @@ import Prime exposing (..)
 import NList exposing (..)
 import Koncepts.Model exposing (..)
 
-type SelectedItem =
-   SelectedAbstract AbstractKoncept
-   | SelectedValue ValueKoncept
-   | SelectedPage Page
-   | SelectedCell (ValueKoncept, List Member)
+
+-- type SelectedCellAction =
+--    View (ValueKoncept, List Member)
+--    | Edit (ValueKoncept, List Member)
+
+-- type SelectedItem =
+--    SelectedAbstract AbstractKoncept
+--    | SelectedValue ValueKoncept
+--    | SelectedPage Page
+--    | SelectedCell (ValueKoncept, List Member)
+
+type Selection = 
+   Editing (NList Factor)
+   | Selecting (NList Factor)
+
+multiplyFactor (Factor a) (Factor b) = Factor (a * b)
+
 
 type alias ReportModel =
    {
             report: Report
-         ,  selectedItem: Maybe SelectedItem
+         ,  selection: Maybe Selection
    }
 
 type Model =
@@ -39,14 +51,14 @@ addError model err =
 
 -- Result String Report -> Model -> Result String Model
 
-selectItem: SelectedItem -> Model -> Model 
-selectItem item model = 
+select: Selection -> Model -> Model 
+select newSelection model = 
    case model of
       NoReportWithError err -> NoReportWithError err
       ReportWithError (err, reportModel) ->  
-         ReportWithoutError { reportModel | selectedItem = Just item}
+         ReportWithoutError { reportModel | selection = Just newSelection}
       ReportWithoutError reportModel -> 
-         ReportWithoutError { reportModel | selectedItem = Just item}
+         ReportWithoutError { reportModel | selection = Just newSelection}
 
 
 tryGetReportModel: Model -> Maybe ReportModel
@@ -56,27 +68,19 @@ tryGetReportModel model =
       ReportWithError (_,rm) -> Just rm
       ReportWithoutError rm -> Just rm
 
-tryGetSelectedCellFromReportModel: ReportModel -> Maybe (ValueKoncept, List Member)
-tryGetSelectedCellFromReportModel model =
-            case model.selectedItem of
-               Just item ->
-                  case item of
-                     SelectedCell (v,m) -> Just (v,m)
-                     _ -> Nothing
-               Nothing -> Nothing
 
 
-tryGetSelectedCell: Model -> Maybe (ValueKoncept, List Member)
-tryGetSelectedCell  =
+tryGetSelection: Model -> Maybe Selection
+tryGetSelection  =
    tryGetReportModel 
-   >> Maybe.andThen tryGetSelectedCellFromReportModel
+   >> Maybe.andThen (\model -> model.selection)
    
 
 
 update: Result String Report -> Maybe Model -> Model
 update result model =
    case result of
-      Ok report -> ReportWithoutError { report = report , selectedItem = Nothing}
+      Ok report -> ReportWithoutError { report = report , selection = Nothing}
       Err err -> addError model err 
 
 

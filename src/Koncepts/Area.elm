@@ -1,11 +1,4 @@
 module Koncepts.Area exposing (..)
--- import Koncepts.Lines exposing(..)
--- import Koncepts.Lines as Lines
-
-
--- mapBase: (Int -> Int) -> (a -> int) -> (int -> a) -> a
--- mapBase f a b =
---    a >> f >> b
 
 type Span = Span Int
 spanInt: Span -> Int
@@ -184,22 +177,6 @@ setVerticalSpan span area =
       area | verticalSpan = VerticalSpan span
    }
 
--- verticalStart: Area -> Start
--- verticalStart area =
---    area.verticalStart |> verticalStartToStart
-
--- horizontalStart: Area -> Start
--- horizontalStart area =
---    area.horizontalStart |> horizontalStartToStart
-
--- verticalSpan: Area -> Span
--- verticalSpan area =
---    area.verticalSpan |> verticalSpanToSpan
-
--- horizontalSpan: Area -> Span
--- horizontalSpan area =
---    area.horizontalSpan |> horizontalSpanToSpan
-
 emptyArea: Area
 emptyArea =  
     {    
@@ -248,8 +225,6 @@ greaterThanZeroHorizonalStart area =
 
 greaterThanZeroStart: Area -> Area
 greaterThanZeroStart = greaterThanZeroVerticalStart >> greaterThanZeroHorizonalStart
---  vs1 = 1 |> Start |> VerticalStart
---    let hs1 = 1 |> Start |> HorizontalStart
 
 type alias Offset =
    {
@@ -306,6 +281,4 @@ offsetArea offset area =
       area
       |> addVerticalStart offset.verticalStart
       |> addHorizontalStart  offset.horizontalStart
-      -- { area | verticalStart = (area.verticalStart |> verticalStartAdd offset.verticalStart) }
-      -- |> (\a -> { a | horizontalStart = a.horizontalStart |> horizontalStartAdd offset.horizontalStart })
 

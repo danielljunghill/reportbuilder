@@ -34,9 +34,13 @@ update msg model =
    case msg of
       Select item -> 
            model 
-           |> selectItem item
+           |> Model.select (Selecting item)
            |> (\m -> (m, Cmd.none))
-      _ -> (model, Cmd.none)
+      Edit (item,content) ->
+         model
+         |> Model.select (Editing item)
+         |> (\m -> (m, Cmd.none))
+
 --   case msg of
 --     Select ki -> 
 --         let
@@ -52,13 +56,13 @@ update msg model =
 --     AddPage -> Report.addNewPage reportHuva
 
 
-konceptButton:  Report -> Html Msg
-konceptButton  _ = 
-  button [ Add |> onClick ] [ text "add Koncept" ] 
+-- konceptButton:  Report -> Html Msg
+-- konceptButton  _ = 
+--   button [ Add |> onClick ] [ text "add Koncept" ] 
 
-pageButton:  Html Msg
-pageButton  = 
-  button [ AddPage |> onClick ] [ text "add Page" ] 
+-- pageButton:  Html Msg
+-- pageButton  = 
+--   button [ AddPage |> onClick ] [ text "add Page" ] 
 
 view : Model.Model -> Html Msg
 view model =
@@ -67,8 +71,8 @@ view model =
       modelToHtml report =
            div [ class "report-wrapper"]
             [
-            Report.toHtml (tryGetSelectedCell model) report,
-            div [] [ konceptButton report,  pageButton]
+            Report.toHtml (tryGetSelection model) report,
+            div [] [ ]
             ]
    in
       case model of

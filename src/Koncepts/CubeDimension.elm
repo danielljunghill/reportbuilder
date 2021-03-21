@@ -114,12 +114,6 @@ calculateArea dimension direction area ordinal =
 fromDimension: Direction -> Area -> Dimension -> List Member -> NList DimensionHeader
 fromDimension direction area dimension parentMembers =              
       let
-         -- members: NList Member
-         -- members = 
-            
-         --    |> dimensionMembers 
-         --    |> NList.map (\ (DomainMember m) -> m)
-         
          countMembers = NList.length (dimension |> dimensionMembers)
 
          defaultMembers: List DimensionHeader
@@ -134,15 +128,12 @@ fromDimension direction area dimension parentMembers =
             dimension
             |> dimensionMembers 
             |> NList.map (\ (DomainMember m) -> m)
-            |> NList.mapi (\ i m ->  m |> createDimensionHeader False (calculateArea dimension direction area i) parentMembers)  
-
-                    
+            |> NList.mapi (\ i m ->  m |> createDimensionHeader False (calculateArea dimension direction area i) parentMembers)                  
       in
          NList.append memberHeaders defaultMembers
 
 type MemberHeader  =   
    MemberHeader (NList DimensionHeader)
-   -- | TotalHeader (NList DimensionHeader)
 
 tableHeaderAsMembers: MemberHeader -> NList Member
 tableHeaderAsMembers (MemberHeader dimensionHeaders) =
@@ -269,13 +260,39 @@ type alias CubeColumnHeader =
       ,  isSelected: Bool
    }
 
-tableHeaderToDimensionColumnHeader: List Member -> MemberHeader -> List CubeColumnHeader
-tableHeaderToDimensionColumnHeader selection (MemberHeader dimensionHeaders)   =
+-- tableHeaderToDimensionColumnHeader: List Member -> MemberHeader -> List CubeColumnHeader
+-- tableHeaderToDimensionColumnHeader selection (MemberHeader dimensionHeaders)   =
+--    let   
+--       createDimensionColumnHeader: List Member -> Bool -> DimensionHeader -> CubeColumnHeader
+--       createDimensionColumnHeader selectedMembers isTotal (DimensionHeader d) =
+--          let 
+--                selectedFactors = selectedMembers |> List.map (\v -> v.factor)
+--                filteredMembers: List Member
+--                filteredMembers =
+--                   d.members 
+--                   |> NList.toList
+--                   |> List.filter (\m -> (Lists.contains m.factor selectedFactors))     
+--          in
+
+--          {
+--                isTotal = d.isTotal
+--             ,  area = d.area
+--             ,  member = d.members.head  
+--             ,  isSelected = ((List.length filteredMembers) == (NList.length d.members))
+--          }
+--    in
+
+--       dimensionHeaders
+--       |> NList.map (\dm -> createDimensionColumnHeader selection True dm)
+--       |> NList.toList
+  
+tableHeaderToDimensionColumnHeader: List Factor -> MemberHeader -> List CubeColumnHeader
+tableHeaderToDimensionColumnHeader selectedFactors (MemberHeader dimensionHeaders)   =
    let   
-      createDimensionColumnHeader: List Member -> Bool -> DimensionHeader -> CubeColumnHeader
-      createDimensionColumnHeader selectedMembers isTotal (DimensionHeader d) =
+      createDimensionColumnHeader: Bool -> DimensionHeader -> CubeColumnHeader
+      createDimensionColumnHeader  isTotal (DimensionHeader d) =
          let 
-               selectedFactors = selectedMembers |> List.map (\v -> v.factor)
+               -- selectedFactors = selectedMembers |> List.map (\v -> v.factor)
                filteredMembers: List Member
                filteredMembers =
                   d.members 
@@ -292,17 +309,16 @@ tableHeaderToDimensionColumnHeader selection (MemberHeader dimensionHeaders)   =
    in
 
       dimensionHeaders
-      |> NList.map (\dm -> createDimensionColumnHeader selection True dm)
+      |> NList.map (\dm -> createDimensionColumnHeader True dm)
       |> NList.toList
   
-
 dimensionColumns: List MemberHeader -> List CubeColumn
 dimensionColumns headers = 
   headers 
   |> List.map (tableHeaderAsMembers >> CubeColumn)
 
 
-dimensionColumnHeaders: List Member  -> List MemberHeader ->  List CubeColumnHeader 
+dimensionColumnHeaders: List Factor  -> List MemberHeader ->  List CubeColumnHeader 
 dimensionColumnHeaders selection headers  =
    headers
    |> Lists.collect (tableHeaderToDimensionColumnHeader selection)
@@ -323,7 +339,7 @@ type alias CubeColumns =
    }
 
 
-calculateCubeColumns:  Direction -> List Member ->  List Dimension -> CubeColumns  
+calculateCubeColumns:  Direction -> List Factor ->  List Dimension -> CubeColumns  
 calculateCubeColumns direction selection dimensions =
    let
       tableHeaders: List MemberHeader

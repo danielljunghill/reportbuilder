@@ -10,6 +10,7 @@ import Msg
 import Msg exposing (..)
 import Koncepts.CubeView exposing (..)
 import Koncepts.Area exposing (..)
+import Model exposing (..)
 
 
 valueKonceptDetails: ValueKoncept -> Html Msg 
@@ -25,7 +26,8 @@ valueKonceptDetails vk =
                |> text
             ] 
    in
-      div (joinAttributes [ class "value-details", onClickStopPropagation ( vk |> Msg.selectValue)] (getSelection vk.selected))
+        -- div (joinAttributes [ class "value-details", onClickStopPropagation ( vk |> Msg.selectValue)] (getSelection vk.selected))
+      div (joinAttributes [ class "value-details"] (getSelection vk.selected))
             [ 
                lbl ,
                div [ class "value-details-space"] [],
@@ -45,9 +47,10 @@ joinAttributes a1 a2 = List.append a1 a2
 
 abstractKonceptDetails: AbstractKoncept -> Html Msg 
 abstractKonceptDetails ak =
-
   
-  div (joinAttributes [ class "abstract-details", onClickStopPropagation (ak |> Msg.selectAbstract ) ] (getSelection ak.selected))
+--   div (joinAttributes [ class "abstract-details", onClickStopPropagation (ak |> Msg.selectAbstract ) ] (getSelection ak.selected))
+  
+  div (joinAttributes [ class "abstract-details" ] (getSelection ak.selected))
       [ 
           div [ class "abstract-details-label"] [ ak.name |> abstractKonceptNameToString |> text ],
           div [ class "abstract-details-space"] [],
@@ -64,7 +67,7 @@ divValueKoncept vk =
       div [class "koncept", class "value"] 
        [ valueKonceptDetails vk ]
 
-divKoncept : Maybe (ValueKoncept, List Member) -> Koncept -> Html Msg
+divKoncept : Maybe Selection -> Koncept -> Html Msg
 divKoncept selection koncept    =
   case koncept of
     Value vk ->
@@ -82,5 +85,5 @@ divKoncept selection koncept    =
  
 
 
-toHtml: Maybe (ValueKoncept, List Member) -> Koncept  ->  Html Msg             
+toHtml: Maybe Selection -> Koncept  ->  Html Msg             
 toHtml selection  = divKoncept selection

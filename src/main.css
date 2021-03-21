@@ -95,11 +95,13 @@ body, html, .report-wrapper
     padding:3px
 }
 
+
+
 .grid-cell
 {
     padding: 10px;
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    text-align: center;
+    text-align: center; */
     color:black
 }
 
@@ -118,20 +120,37 @@ body, html, .report-wrapper
 
 }
 
+
+.grid-cell-selected-1
+{
+    color: black;
+    background-color: rgba(43, 41, 41, 0.658);
+
+}
+
+.abstract-header
+{
+    font-weight: bold;
+}
+
 .rind1
 {
     padding: 5px 0px 5px 5px;
     min-width: 300px;
+    text-align: left;
+
 }
 
 .rind2
 {
-    padding: 5px 0px 5px 15px
+    padding: 5px 0px 5px 15px;
+    text-align: left;
 }
 
 .rind3
 {
     padding: 5px 0px 5px 25px
+    text-align: left;
 }
 
 .rind4
