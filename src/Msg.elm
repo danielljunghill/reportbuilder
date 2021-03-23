@@ -6,11 +6,16 @@ import NList exposing (..)
 import Model exposing (..)
 
 
-type Content = Content String
-   
+
+
+-- type Msg =
+--    SelectMembers (NList Member)   
+--    SelectValue (ValueKoncept)
+--    SelectValueAndMembers (ValueKoncept, NList Member)
 type Msg =
    Select (NList Factor)
   | Edit  (NList Factor, Content)
+  | DoNothing 
 
 
 -- selectAbstract: Koncept.AbstractKoncept -> Msg

@@ -14,6 +14,7 @@ import Html.Events exposing (..)
 
 import Msg exposing (..)
 import Model exposing (..)
+import Events.Custom exposing (..)
 
 
 
@@ -126,22 +127,15 @@ attrSelected c b =
 attrColumnHeaderSelected: Bool -> List (Attribute msg)
 attrColumnHeaderSelected  = attrSelected "grid-cell-selected" 
    
-attrRowHeaderSelected: Bool -> List (Attribute msg)
-attrRowHeaderSelected  = attrSelected "grid-cell-selected"
-  
-attrCellPathToSelection: Bool -> List (Attribute msg)
-attrCellPathToSelection = attrSelected "grid-cell-selected"
-    
-attrSelectedCell: Bool -> List (Attribute msg)
-attrSelectedCell = attrSelected "grid-cell-selected-1"
-
-attrMemberCell: Bool -> List (Attribute msg)
-attrMemberCell = attrSelected "grid-cell-member"
-
 textCell: String -> List (Attribute Msg) -> Html Msg
 textCell s attr  =
    div attr [ text s ]
 
+inputCell: String -> List (Attribute Msg) -> Html Msg
+inputCell s attr  =
+    input ([ value s, onClickStopPropagation DoNothing ] ++ attr) []
+   
+    
 
 columnHeaderCell: CubeColumnOffset -> CubeColumnHeader -> Html Msg
 columnHeaderCell (CubeColumnOffset offset) colunmHeader =
@@ -153,7 +147,6 @@ columnHeaderCell (CubeColumnOffset offset) colunmHeader =
    |> List.append attrBox
    |> List.append (attrColumnHeaderSelected colunmHeader.isSelected)
    |> textCell colunmHeader.member.name
-
 
 attrRowHeaderAbstract: KonceptRow -> List (Attribute msg)
 attrRowHeaderAbstract rowHeader = 
@@ -175,13 +168,10 @@ rowHeaderCellIndented (CubeRowOffset offset) selection rowHeader =
    in 
       let 
          selected =         
-            -- case selection of
-            --    Just vk ->
-                  case konceptRowFactor rowHeader.item of
-                     Just factor -> selection |> Lists.contains factor
-                     Nothing -> False
-               -- Nothing -> 
-               --       False
+            case konceptRowFactor rowHeader.item of
+               Just factor -> selection |> Lists.contains factor
+               Nothing -> False
+
       in
          attrCell
          |> addAttr attrBox
@@ -191,31 +181,12 @@ rowHeaderCellIndented (CubeRowOffset offset) selection rowHeader =
          |> addAttr (attrRowHeaderAbstract rowHeader)
          |> textCell (konceptRowItemName rowHeader.item)   
       
--- factorFromMemberList: List Member -> Int
--- factorFromMemberList members =
---    case members of
---       [] -> 1
---       head :: tail ->
---           head.factor
---           |> factorToInt
---           |> (\i -> i * factorFromMemberList tail)
-
--- factorFromValue: ValueKoncept -> Int -> Int
--- factorFromValue vk mv =
---    vk.factor
---    |> factorToInt
---    |> (\i -> i * mv)
-
--- factorFromSelection: ValueKoncept -> List Member -> Int
--- factorFromSelection vk =
---    factorFromMemberList >> (factorFromValue vk)
 
 membersToFactors: NList Member -> NList Factor
 membersToFactors = NList.map (\m -> m.factor)
 
 multiplyFactors: NList Factor -> Factor
 multiplyFactors factors = factors |> NList.fold multiplyFactor (Factor 1) 
-
 
 
 -- calculate factor for selection
@@ -225,7 +196,6 @@ factorsFromSelection selection =
          Editing factors -> factors            
          Selecting factors ->  factors  
   
-
 -- calculate if cell is selected/edited            
 isSelected: Selection -> NList Factor -> Bool
 isSelected selection factorsCell =
@@ -238,35 +208,44 @@ isSelected selection factorsCell =
       |> (\factors -> factors == productCell) 
 
 
-isAssociatedSelection: Selection -> ValueKoncept -> NList Member -> Bool
-isAssociatedSelection selection valueKoncept members =
-   let 
-      valueFactor = valueKoncept.factor
-      selectionFactors = factorsFromSelection selection
-   in
-      let
-         recIsAssociated: List Factor  -> Bool
-         recIsAssociated factors =
-            case factors of 
-               [] -> 
-                  let 
-                      memberFactor = 
-                        members
-                        |> membersToFactors
-                        |> multiplyFactors
-                        |> factorToInt
-                  in
-                     if memberFactor == 1 then False
-                     else
-                        let
-                           modResult = modBy memberFactor (selectionFactors |> multiplyFactors |> factorToInt)
-                        in 
-                           modResult  == 0
-               head :: tail ->
-                  if head == valueFactor then True
-                  else recIsAssociated tail 
-      in
-         recIsAssociated (selectionFactors |> NList.toList)
+
+type SelectionFactor = SelectionFactor Factor
+type MembersFactor = MembersFactor Factor
+type ValueFactor = ValueFactor Factor
+
+createSelectionFactor:  Selection -> SelectionFactor
+createSelectionFactor  =
+      
+       factorsFromSelection  
+      >> multiplyFactors
+      >> SelectionFactor
+
+selectionFactorToInt (SelectionFactor (Factor factor)) = factor
+
+createMembersFactor: CubeColumn -> MembersFactor
+createMembersFactor (CubeColumn members) =
+   members
+   |> membersToFactors
+   |> multiplyFactors
+   |> MembersFactor
+
+membersFactorToInt (MembersFactor (Factor factor)) = factor
+
+createValueFactor: ValueKoncept -> ValueFactor
+createValueFactor koncept =
+   koncept.factor |> ValueFactor
+
+valueFactorToInt (ValueFactor (Factor factor)) = factor
+
+
+memberInSelection (MembersFactor (Factor member)) (SelectionFactor (Factor selection)) =
+   (modBy member selection) == 0
+
+valueInSelection (ValueFactor (Factor value)) (SelectionFactor (Factor selection)) =
+    (modBy value selection) == 0 
+
+valueAndMemberInSelection (MembersFactor (Factor member)) (ValueFactor (Factor value)) (SelectionFactor (Factor selection)) =
+   member * value == selection
 
 
 cellFactors: KonceptRow -> CubeColumn -> NList Factor 
@@ -274,106 +253,108 @@ cellFactors konceptRow (CubeColumn members) =
    case tryGetValueKoncept konceptRow.item of
       Just valueKoncept ->
          NList.addFirst valueKoncept.factor (members |> membersToFactors)
-      Nothing -> 
-          (members |> membersToFactors)
--- if cell selected then set its attribute to selected
--- if cell is edit
-trySelectCell: Bool -> Maybe Selection -> KonceptRow -> CubeColumn -> List (Attribute Msg)
-trySelectCell skip selection row cubeColumn =
-   if skip then []
+      Nothing -> members |> membersToFactors
+
+
+type RowIndex = RowIndex Int
+type ColumnIndex = ColumnIndex Int
+
+cellAreaAttributes: Direction -> Area -> ColumnIndex -> RowIndex -> List (Attribute Msg)
+cellAreaAttributes direction area (ColumnIndex colIndex) (RowIndex rowIndex) =
+   case direction of
+      Horizontal ->
+         area
+         |> Area.addHorizontalStart (colIndex |> Start |> HorizontalStart)
+         |> Area.addVerticalStart (rowIndex |> Start |> VerticalStart)
+         |> attributeGridArea 
+
+      Vertical ->
+         area
+         |> Area.addVerticalStart (colIndex |> Start |> VerticalStart)
+         |> Area.addHorizontalStart (rowIndex |> Start |> HorizontalStart)
+         |> attributeGridArea 
+
+attrRowHeaderSelected  = attrSelected "grid-cell-selected"
+
+
+attrSelectedCell = attrSelected "grid-cell-selected-1"
+attrAssociatedCell = attrSelected "grid-cell-member"
+
+
+-- editHtml: Bool -> selectionFactor -> KonceptRow -> MembersFactor -> List (Attribute Msg) -> (Bool, List (Html Msg))
+-- editHtml skip selectionFactor konceptRow membersFactor =
+--    if skip then (skip, [ textCell "1" attributes ])
+--    else
+--       case tryGetValueKoncept konceptRow.item of
+--          Just koncept ->
+--             -- cell is selected
+--             if valueAndMemberInSelection  membersFactor (ValueFactor koncept.factor)  selectionFactor then
+--                (True,attrSelectedCell True)  
+--             else
+--                (False, attrAssociatedCell ((valueInSelection (ValueFactor koncept.factor) selectionFactor) || (memberInSelection membersFactor selectionFactor)))
+
+--          Nothing ->
+--             (False,attrAssociatedCell (memberInSelection  membersFactor selectionFactor))
+         
+type CellCreator = CellCreator (String -> List (Attribute Msg) -> Html Msg)
+selectionHtml: Bool -> SelectionFactor-> KonceptRow -> MembersFactor -> List (Attribute Msg) -> CellCreator -> (Bool, (Html Msg))
+selectionHtml skip selectionFactor konceptRow membersFactor attributes (CellCreator createCell)=
+   if skip then (skip,  textCell "" attributes)
    else
-      case selection of
-         Just s ->
-            let 
-               factors = cellFactors row cubeColumn
-            in 
-               case s of
-                  Editing _ -> []
+      case tryGetValueKoncept konceptRow.item of
+         Just koncept ->
+            -- cell is selected
+            if valueAndMemberInSelection  membersFactor (ValueFactor koncept.factor)  selectionFactor then
+               (True,
+                  attributes
+                  |> addAttr (attrSelectedCell True)
+                  |> createCell "")
+                 
+            else
+               let
+                  isAssociated = (valueInSelection (ValueFactor koncept.factor) selectionFactor) || (memberInSelection membersFactor selectionFactor)
+               in 
+               (False, 
+                  attributes
+                  |> addAttr (attrAssociatedCell isAssociated)
+                  |>  textCell "")
 
-                  Selecting _  -> 
-                     factors
-                     |> isSelected s
-                     |> attrSelectedCell
-         Nothing -> []
-
-
-trySelectAssociatedCell: Bool -> Maybe Selection -> KonceptRow -> CubeColumn -> List (Attribute Msg)
-trySelectAssociatedCell skip selection konceptRow (CubeColumn members) =
-   if skip then []
-   else
-      case selection of
-         Nothing -> []
-         Just s ->
-            case tryGetValueKoncept konceptRow.item of
-               Just vk ->
-
-                  attrMemberCell (isAssociatedSelection s vk members) --(factor == vk.factor && members.head.factor == member.factor)
-               Nothing -> 
+         Nothing ->
+            (False,
+               attributes
+               |> addAttr ( attrAssociatedCell (memberInSelection  membersFactor selectionFactor))
+               |> textCell "" )
+         
+cellHtml: Bool -> Maybe Selection -> KonceptRow -> CubeColumn -> List (Attribute Msg) -> (Bool, Html Msg)
+cellHtml skip maybeSelection konceptRow cubeColumn attributes = 
+            case maybeSelection of
+               Just selection->
                   let
-                     productSelection = 
-                        s 
-                        |> factorsFromSelection
-                        |> multiplyFactors 
-                     productCell = 
-                        members 
-                        |> membersToFactors
-                        |> multiplyFactors
-                  in
-                     attrMemberCell (productSelection ==  productCell)
-     
+                     selectionFactor = createSelectionFactor selection
+                     memberFactor = createMembersFactor cubeColumn
+                  in 
+                     case selection  of
+                        Selecting _ -> selectionHtml skip selectionFactor konceptRow memberFactor attributes (CellCreator textCell)
+                        Editing _-> selectionHtml skip selectionFactor konceptRow memberFactor attributes (CellCreator inputCell) 
+               Nothing -> (skip, textCell "" attributes)
 
-calculateIfCellIsSelected: Maybe Selection -> KonceptRow -> CubeColumn -> Bool
-calculateIfCellIsSelected selection konceptRow cubeColumn =
-   case selection of
-      Nothing -> False
-      Just s -> 
-         cellFactors konceptRow cubeColumn
-         |> multiplyFactors
-         |> (\factorCell -> factorCell == (s |> factorsFromSelection |> multiplyFactors) )
-
-
-
-cell: Direction -> Area -> Maybe Selection -> Int -> CubeColumn -> Int -> KonceptRow -> (Bool,List (Html Msg)) -> (Bool,List (Html Msg))
+cell: Direction -> Area -> Maybe Selection -> ColumnIndex -> CubeColumn -> RowIndex -> KonceptRow -> (Bool,List (Html Msg)) -> (Bool,List (Html Msg))
 cell direction area selection columnIndex column rowIndex row state  =
    let 
-       
-      skipSelection = first state
-      -- cellIsSelected
-      newSelectionState = 
-         if (first state) then True
-         else calculateIfCellIsSelected selection row column
+         selectionAttributes: List (Attribute Msg) -> (Bool, Html Msg) 
+         selectionAttributes = cellHtml (first state) selection row column
+         newCell =
+            cellAreaAttributes direction area columnIndex rowIndex
+            |> addAttr attrCell
+            |> addAttr attrBox       
+            |> attrEventEditCell (cellFactors row column ) row  
+            -- |> attrEventSelectCell (cellFactors row column ) row         
+            |> selectionAttributes
 
-      newCell: Html Msg
-      newCell =
-         case direction of
-            Horizontal -> 
-               area
-               |> Area.addHorizontalStart (columnIndex |> Start |> HorizontalStart)
-               |> Area.addVerticalStart (rowIndex |> Start |> VerticalStart)
-               |> attributeGridArea 
-               |> addAttr attrCell
-               |> addAttr attrBox
-               |> addAttr (trySelectAssociatedCell skipSelection selection row column)  
-               |> attrEventEditCell (cellFactors row column ) row  
-               |> attrEventSelectCell (cellFactors row column ) row     
-               |> addAttr (trySelectCell skipSelection selection row column)                     
-               |> textCell ""
-
-            Vertical ->
-               area
-               |> Area.addVerticalStart (columnIndex |> Start |> VerticalStart)
-               |> Area.addHorizontalStart (rowIndex |> Start |> HorizontalStart)
-               |> attributeGridArea 
-               |> addAttr attrCell
-               |> addAttr attrBox
-               |> addAttr (trySelectAssociatedCell skipSelection selection row column)  
-               |> attrEventEditCell (cellFactors row column ) row  
-               |> attrEventSelectCell (cellFactors row column ) row       
-               |> addAttr (trySelectCell skipSelection selection row column)  
-               |> textCell ""
+   
    in
 
-      (newSelectionState, [ newCell ] ++ (second state))
+      (first newCell, [ second newCell ] ++ (second state))
 
 
 gridCells: Direction -> Maybe Selection -> CubeColumns -> CubeRows -> List (Html Msg)
@@ -389,7 +370,7 @@ gridCells direction selection cubeColumns cubeRows =
          |> Area.addHorizontalSpan Area.oneHorizontalSpan
    in  
       let    
-         cells: List KonceptRow -> Int -> CubeColumn -> (Bool,List (List (Html Msg))) -> (Bool,List (List (Html Msg)))
+         cells: List KonceptRow -> ColumnIndex -> CubeColumn -> (Bool,List (List (Html Msg))) -> (Bool,List (List (Html Msg)))
          cells rows columnIndex cubeColumn acc =
             let 
                selected = first acc
@@ -397,7 +378,7 @@ gridCells direction selection cubeColumns cubeRows =
                newState = 
                    -- fold over rows (KonceptRow)
                    rows
-                   |> Lists.foldi (\i state row-> cell direction area selection columnIndex cubeColumn (i + 1) row state) (selected,[])
+                   |> Lists.foldi (\i state row-> cell direction area selection columnIndex cubeColumn (RowIndex (i + 1)) row state) (selected,[])
               
             in
                (first newState, [ second newState ] ++ (second acc))
@@ -405,7 +386,7 @@ gridCells direction selection cubeColumns cubeRows =
       in
          --- fold over columns
          cubeColumns.columns
-         |> Lists.foldi (\i state col -> (cells cubeRows.rows) (i + 1) col state) (False,[])
+         |> Lists.foldi (\i state col -> (cells cubeRows.rows) (ColumnIndex (i + 1)) col state) (False,[])
          |> (\(_,result) -> result)
          |> List.concat
 

@@ -17,6 +17,36 @@ import Koncepts.Model exposing (..)
 --    | SelectedPage Page
 --    | SelectedCell (ValueKoncept, List Member)
 
+type Content = Content String
+
+-- type SelectCubeValue =
+--    {
+--       koncept: ValueKoncept
+--       members: NList Member
+--    }
+
+-- type Selection =
+--    Value (ValueKoncept)
+--    CubeValue (ValueKoncept, NList Member)
+--    CubeMembers (NList Member)
+
+-- type alias EditValue = 
+--    {
+--       koncept: ValueKoncept
+--       content: Content
+--    }
+
+-- type alias EditCubeValue =
+--    {
+--       koncept: ValueKoncept
+--       content: Content
+--       members: NList Member
+--    }
+
+-- type EditSelection =
+--    EditSelectValue EditValue
+--    EditSelectCubeValue EditCubeValue
+
 type Selection = 
    Editing (NList Factor)
    | Selecting (NList Factor)

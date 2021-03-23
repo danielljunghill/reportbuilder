@@ -16,6 +16,7 @@ import Model exposing (..)
 import Msg exposing (..)
 import ResultExtension exposing (..)
 
+
 main : Program () Model Msg
 main =
   Browser.element
@@ -40,6 +41,11 @@ update msg model =
          model
          |> Model.select (Editing item)
          |> (\m -> (m, Cmd.none))
+      DoNothing -> 
+         let
+            test = Debug.log "DoNothing" "Absolutly nothing"
+         in
+            (model,Cmd.none)
 
 --   case msg of
 --     Select ki -> 
