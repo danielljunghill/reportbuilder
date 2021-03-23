@@ -19,37 +19,46 @@ import Koncepts.Model exposing (..)
 
 type Content = Content String
 
--- type SelectCubeValue =
---    {
---       koncept: ValueKoncept
---       members: NList Member
---    }
+type Edited =
+   EditValue (ValueKoncept,Content)
+   | EditValueMember (ValueKoncept,NList Member, Content)
 
--- type Selection =
---    Value (ValueKoncept)
---    CubeValue (ValueKoncept, NList Member)
---    CubeMembers (NList Member)
+type Selected =
+   SelectValue ValueKoncept
+   | SelectValueMember (ValueKoncept,NList Member)
+   | SelectMember (NList Member)
 
--- type alias EditValue = 
---    {
---       koncept: ValueKoncept
---       content: Content
---    }
+type Selection =
+   Select Selected
+   | Edit Edited
 
--- type alias EditCubeValue =
---    {
---       koncept: ValueKoncept
---       content: Content
---       members: NList Member
---    }
+membersFactors: NList Member -> List Factor
+membersFactors members =
+   members
+   |> NList.toList
+   |> List.map (\m -> m.factor)
 
--- type EditSelection =
---    EditSelectValue EditValue
---    EditSelectCubeValue EditCubeValue
+selectedFactors: Selected -> NList Factor
+selectedFactors selected =
+   case selected of
+      SelectValue vk -> NList.create vk.factor 
+      SelectValueMember (vk, members) -> 
+         NList.create2 vk.factor (membersFactors members)
+      SelectMember members ->  members |> NList.map (\m -> m.factor)
 
-type Selection = 
-   Editing (NList Factor)
-   | Selecting (NList Factor)
+editedFactors edited =
+   case edited of
+      EditValue (vk,_) -> 
+         NList.create vk.factor
+      EditValueMember (vk,members, _) -> 
+         NList.create2 vk.factor (membersFactors members)
+
+selectionFactors selection =
+   case selection of
+       Select selected -> selectedFactors selected
+       Edit edited -> editedFactors edited
+
+
 
 multiplyFactor (Factor a) (Factor b) = Factor (a * b)
 

@@ -7,15 +7,24 @@ import Model exposing (..)
 
 
 
+-- type Edited =
+--    Value (ValueKoncept,Content)
+--    ValueMember (ValueKoncept,Content)
+
+-- type Selected =
+--    Value ValueKoncept
+--    ValueMember (ValueKoncept,NList Member)
+--    Member (NList Member)
+
 
 -- type Msg =
 --    SelectMembers (NList Member)   
 --    SelectValue (ValueKoncept)
 --    SelectValueAndMembers (ValueKoncept, NList Member)
 type Msg =
-   Select (NList Factor)
-  | Edit  (NList Factor, Content)
-  | DoNothing 
+   SelectMsg Selected
+  | EditMsg Edited
+
 
 
 -- selectAbstract: Koncept.AbstractKoncept -> Msg

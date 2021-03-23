@@ -103,15 +103,34 @@ body, html, .report-wrapper
 {
     padding: 10px;
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    text-align: center; */
+    text-align: center; 
     color:black
 }
 
 .grid-cell-selected
 {
+    color: black;
+    background-color: rgba(43, 41, 41, 0.658);
+
+}
+
+.grid-row-header-selected
+{
+    color: darkblue;
+    background-color: gray;
+}
+
+.grid-cell-associated
+{
     color: darkblue;
     background-color: lightgrey;
 
+}
+
+.grid-cell-member-selected
+{
+    color: darkblue;
+    background-color: lightgrey;
 }
 
 
@@ -123,12 +142,7 @@ body, html, .report-wrapper
 }
 
 
-.grid-cell-selected-1
-{
-    color: black;
-    background-color: rgba(43, 41, 41, 0.658);
 
-}
 
 .abstract-header
 {
