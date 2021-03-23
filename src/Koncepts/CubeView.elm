@@ -205,11 +205,79 @@ membersFactors members =
    |> NList.toList
    |> List.map (\m -> m.factor)
 
-
-
-
 multiplyAllFactors: NList Factor -> Factor
 multiplyAllFactors factors = factors |> NList.fold multiplyFactor (Factor 1) 
+
+selectionFactors: Selection -> List Factor
+selectionFactors selection =
+   case selection of
+      Edit edited ->
+         case edited of
+            EditValue (vk,_) -> [ vk.factor]
+            EditValueMember (vk,members, _) -> [ vk ] ++ members |> NList.toList
+      Select selected ->
+         case selected of
+            SelectValue vk -> [ vk.factor]
+            SelectValueMember (vk, ,members) -> [ vk ] ++ members |> NList.toList
+            SelectMember members -> members |> NList.toList
+
+type SelectionFactor = SelectionFactor Factor
+selectionSingleFactor:  Selection ->  Factor
+   selectionFactors 
+   >> multiplyAllFactors 
+   >> SelectionFactor
+
+isSelection: SelectionFactor -> Factor -> True
+isSelection (SelectionFactor sf) f =
+   sf == f
+
+
+selectedCell: Content -> ValueKoncept -> CubeColumn-> Selection -> List (Attribute Msg) -> Html Msg
+selectedCell content valueKoncept cubeColumn selection attr =
+      case selection of
+         Edit edited ->
+            case edited of
+               _ ->
+                  inputCell content attr
+         Select selected ->
+            case selected of
+               _ -> 
+                  attr
+                  |> addAttr (attrEventEditCell content valueKoncept cubeColumn)
+                  |> textCell content 
+             
+
+modFactors (SelectionFactor (Factor taljare)) (Factor namnare)  = modBy namnare b
+type CellHtml =
+   {
+      isSelected: Bool
+      html: List (Attribute Msg) -> Html Msg
+   }
+rowHandler selection konceptRow cubeColumns =
+   let
+      ssf = selectionSingleFactor selection
+      cf = cubeColumnSingeFactor cubeColumns      
+   in
+      case konceptRow of
+         AbstractRow _ ->
+            if modFactors ssf cf == 0 then associated or skip
+            else normal
+         ValueRow row ->
+            let
+               totf =  multiplyFactor cf row.factor
+            in
+               if isSelection ssf f then
+                  {
+                        html = selectedCell (Content "") row cubeColumns 
+                     ,  isSelected = true
+                  }
+                  
+               else if (modFactors ssf row.factor == 0) || (modFactors ssf cf == 0)
+                  associated or skip (normal)
+               else  
+                  normarow
+
+
 membersToSingleFactor =
    membersToFactors >> multiplyAllFactors
 
@@ -220,7 +288,7 @@ cubeColumnSingeFactor (CubeColumn members) =
    |> membersToSingleFactor
 
 
-modFactors (Factor namnare) (Factor taljare) = modBy a b
+
 
 
 
@@ -371,7 +439,7 @@ createAbstractCell skip maybeSelection cubeColumn attr =
    else
       case maybeSelection of
          Just selection ->
-               case tryGetSelectionMembers of 
+               case tryGetSelectionMembers selection of 
                   Just members -> 
                      let
                         isAssociated =
@@ -396,6 +464,33 @@ createGridCell skip maybeSelection konceptRow cubeColumn attr =
          createValueCell skip maybeSelection row cubeColumn attr
 
 
+isCellSelected: Selection -> CubeColumn -> ValueKoncept -> Bool
+isCellSelected selection cubeColumn valueKoncet =
+   let 
+      checkMembers s =
+         case tryGetSelectionMembers s of
+            Just s ->
+
+
+   
+
+
+isSelected: Maybe Selection -> CubeColumn -> KonceptRow =
+isSelected maybeSelection cubeColum konceptRow =
+   case konceptRow of
+      AbstractRow _ ->
+         False
+      ValueRow row ->
+         case maybeSelection of
+            Just selection ->
+               let
+                  selectionFactors = factorsFromSelection
+               in
+
+            Nothing -> False
+
+
+
 cell: Direction -> Area -> Maybe Selection -> ColumnIndex -> CubeColumn -> RowIndex -> KonceptRow -> (Bool,List (Html Msg)) -> (Bool,List (Html Msg))
 cell direction area maybeSelection columnIndex column rowIndex row state  =
 
@@ -406,7 +501,7 @@ cell direction area maybeSelection columnIndex column rowIndex row state  =
          cellAreaAttr
          |> addAttr attrCell
          |> addAttr attrBox
-      isSelected
+      
    in  
       createGridCell maybeSelection column row attr
 
