@@ -37,6 +37,11 @@ update msg model =
          model
          |> Model.select selection 
          |> (\m -> (m, Cmd.none))
+      UpdateValueMsg (UpdateValue (factors,content)) ->
+         let
+            test = Debug.log "newContent:" content
+         in
+            (model,Cmd.none)
 
 --   case msg of
 --     Select ki -> 

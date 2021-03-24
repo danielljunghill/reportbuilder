@@ -5932,11 +5932,19 @@ var $author$project$Model$select = F2(
 	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		var selection = msg.a;
-		return function (m) {
-			return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
-		}(
-			A2($author$project$Model$select, selection, model));
+		if (msg.$ === 'SelectMsg') {
+			var selection = msg.a;
+			return function (m) {
+				return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
+			}(
+				A2($author$project$Model$select, selection, model));
+		} else {
+			var _v1 = msg.a.a;
+			var factors = _v1.a;
+			var content = _v1.b;
+			var test = A2($elm$core$Debug$log, 'newContent:', content);
+			return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+		}
 	});
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
@@ -7242,17 +7250,64 @@ var $author$project$Koncepts$CubeView$normalCell = F3(
 						A4($author$project$Koncepts$CubeView$attrEventEditCell, content, cubeColumn, valueKoncept, attr)));
 			});
 	});
+var $author$project$Model$UpdateValue = function (a) {
+	return {$: 'UpdateValue', a: a};
+};
+var $author$project$Msg$UpdateValueMsg = function (a) {
+	return {$: 'UpdateValueMsg', a: a};
+};
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Koncepts$CubeView$inputCell = F2(
-	function (_v0, attr) {
+var $author$project$Koncepts$CubeView$inputCell = F3(
+	function (_v0, factors, attr) {
 		var content = _v0.a;
+		var msg = function (s) {
+			return $author$project$Msg$UpdateValueMsg(
+				$author$project$Model$UpdateValue(
+					_Utils_Tuple2(
+						factors,
+						$author$project$Model$Content(s))));
+		};
 		return A2(
 			$elm$html$Html$input,
 			_Utils_ap(
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$value(content)
+						$elm$html$Html$Attributes$value(content),
+						$elm$html$Html$Events$onInput(msg)
 					]),
 				attr),
 			_List_Nil);
@@ -7261,7 +7316,10 @@ var $author$project$Koncepts$CubeView$selectedCell = F4(
 	function (selection, valueKoncept, cubeColumn, content) {
 		if (selection.$ === 'EditValue') {
 			return $author$project$Koncepts$CubeView$CellCreator(
-				$author$project$Koncepts$CubeView$inputCell(content));
+				A2(
+					$author$project$Koncepts$CubeView$inputCell,
+					content,
+					A2($author$project$Koncepts$CubeView$rowAndMemberFactor, valueKoncept, cubeColumn)));
 		} else {
 			return $author$project$Koncepts$CubeView$CellCreator(
 				function (attr) {

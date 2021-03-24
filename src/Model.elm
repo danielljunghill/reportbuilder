@@ -27,8 +27,8 @@ type Selection =
    EditValue (NList Factor)
    | SelectValue (NList Factor)
 
-
-
+type UpdateValue = UpdateValue (NList Factor, Content)
+updateValue factors content = UpdateValue (factors,content)
 
 type alias ReportModel =
    {

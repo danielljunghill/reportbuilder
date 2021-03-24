@@ -127,14 +127,14 @@ body, html, .report-wrapper
 
 }
 
-.grid-cell-member-selected
+.grid-column-header-selected
 {
     color: darkblue;
-    background-color: lightgrey;
+    background-color: darkgreen;
 }
 
 
-.grid-cell-member
+.grid-column-header
 {
     color: darkblue;
     background-color:rgb(226, 219, 219);

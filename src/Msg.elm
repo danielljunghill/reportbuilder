@@ -23,6 +23,7 @@ import Model exposing (..)
 --    SelectValueAndMembers (ValueKoncept, NList Member)
 type Msg =
    SelectMsg Selection
+   | UpdateValueMsg UpdateValue
  
 
 
