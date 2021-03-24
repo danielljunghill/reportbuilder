@@ -22,8 +22,8 @@ import Model exposing (..)
 --    SelectValue (ValueKoncept)
 --    SelectValueAndMembers (ValueKoncept, NList Member)
 type Msg =
-   SelectMsg Selected
-  | EditMsg Edited
+   SelectMsg Selection
+ 
 
 
 

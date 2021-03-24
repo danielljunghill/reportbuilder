@@ -158,124 +158,202 @@ rowHeaderCellIndented (CubeRowOffset offset) selection rowHeader =
 
 
 
-selectedMembers: Selected -> Maybe (NList Members)
-selectedMembers selected = 
-      case selected of
-         SelectValue vk -> Nothing
-         SelectValueMember (_, members) -> Just Members
-         SelectMember members -> Just Members
+-- selectedMembers: Selected -> Maybe (NList Members)
+-- selectedMembers selected = 
+--       case selected of
+--          SelectValue vk -> Nothing
+--          SelectValueMember (_, members) -> Just Members
+--          SelectMember members -> Just Members
 
-editedMembers: Edited -> Maybe (NList Members)
-editedMembers edited = 
-      case edited of
-         EditValue (vk,_) -> Nothing
-         EditValueMember (vk,members, _) -> Just members
+-- editedMembers: Edited -> Maybe (NList Members)
+-- editedMembers edited = 
+--       case edited of
+--          EditValue (vk,_) -> Nothing
+--          EditValueMember (vk,members, _) -> Just members
 
-tryGetSelectionMembers: Selection -> Maybe (NList Members)
-tryGetSelectionMembers selection = 
-   case selection of
-      Edit edited -> editedMembers edited
-      Selected selected -> selectedMembers selected
+-- tryGetSelectionMembers: Selection -> Maybe (NList Members)
+-- tryGetSelectionMembers selection = 
+--    case selection of
+--       Edit edited -> editedMembers edited
+--       Selected selected -> selectedMembers selected
 
 
-selectedKoncept Selected -> Maybe ValueKoncept
-selectedKoncept selected = 
-      case selected of
-         SelectValue vk -> Just vk
-         SelectValueMember (vk, _) -> Just vk
-         SelectMember members -> Nothing
+-- selectedKoncept Selected -> Maybe ValueKoncept
+-- selectedKoncept selected = 
+--       case selected of
+--          SelectValue vk -> Just vk
+--          SelectValueMember (vk, _) -> Just vk
+--          SelectMember members -> Nothing
 
-editedKoncept Edited -> ValueKoncept
-editedKoncept edited = 
-      case edited of
-         EditValue (vk,_) -> vk
-         EditValueMember (vk,_, _) -> vk
+-- editedKoncept Edited -> ValueKoncept
+-- editedKoncept edited = 
+--       case edited of
+--          EditValue (vk,_) -> vk
+--          EditValueMember (vk,_, _) -> vk
 
-tryGetSelectionKoncept: Selection -> Mayeb ValueKoncept
-tryGetSelectionKoncept selection = 
-   case selection of
-      Edit edited -> 
-         editedKoncept edited
-         |> Just
-      Selected selected -> selectedKoncept selected
+-- tryGetSelectionKoncept: Selection -> Mayeb ValueKoncept
+-- tryGetSelectionKoncept selection = 
+--    case selection of
+--       Edit edited -> 
+--          editedKoncept edited
+--          |> Just
+--       Selected selected -> selectedKoncept selected
 
-membersFactors: NList Member -> List Factor
-membersFactors members =
-   members
-   |> NList.toList
-   |> List.map (\m -> m.factor)
+-- membersFactors: NList Member -> List Factor
+-- membersFactors members =
+--    members
+--    |> NList.toList
+--    |> List.map (\m -> m.factor)
 
 multiplyAllFactors: NList Factor -> Factor
 multiplyAllFactors factors = factors |> NList.fold multiplyFactor (Factor 1) 
 
-selectionFactors: Selection -> List Factor
+selectionFactors: Selection -> NList Factor
 selectionFactors selection =
    case selection of
-      Edit edited ->
-         case edited of
-            EditValue (vk,_) -> [ vk.factor]
-            EditValueMember (vk,members, _) -> [ vk ] ++ members |> NList.toList
-      Select selected ->
-         case selected of
-            SelectValue vk -> [ vk.factor]
-            SelectValueMember (vk, ,members) -> [ vk ] ++ members |> NList.toList
-            SelectMember members -> members |> NList.toList
+      Edit edited -> edited
+      Select selected -> selected
 
 type SelectionFactor = SelectionFactor Factor
+
 selectionSingleFactor:  Selection ->  Factor
    selectionFactors 
    >> multiplyAllFactors 
    >> SelectionFactor
 
-isSelection: SelectionFactor -> Factor -> True
-isSelection (SelectionFactor sf) f =
+
+type alias SelectionWithFactor =
+   {
+         selection: Selection
+      ,  factor: SelectionFactor
+   }
+
+createSelectionFactorAndType selection =
+   case selection of
+      Edit edited -> 
+         {
+               selectionType = EditType
+            ,  factor = edit |> multiplyFactor |> SelectionFactor
+         }
+      Select selected -> 
+            {
+                  selectionType = SelectType
+               ,  selected = edit |> multiplyFactor |> SelectionFactor
+            }
+isFactorSelection: SelectionFactor -> Factor -> True
+isFactorSelection (SelectionFactor sf) f =
    sf == f
 
-
-selectedCell: Content -> ValueKoncept -> CubeColumn-> Selection -> List (Attribute Msg) -> Html Msg
-selectedCell content valueKoncept cubeColumn selection attr =
-      case selection of
-         Edit edited ->
-            case edited of
-               _ ->
-                  inputCell content attr
-         Select selected ->
-            case selected of
-               _ -> 
-                  attr
-                  |> addAttr (attrEventEditCell content valueKoncept cubeColumn)
-                  |> textCell content 
-             
 
 modFactors (SelectionFactor (Factor taljare)) (Factor namnare)  = modBy namnare b
 type CellHtml =
    {
       isSelected: Bool
-      html: List (Attribute Msg) -> Html Msg
+      html: CellCreator
    }
-rowHandler selection konceptRow cubeColumns =
-   let
-      ssf = selectionSingleFactor selection
-      cf = cubeColumnSingeFactor cubeColumns      
-   in
+
+type CellCreator = CellCreator (List (Attribute Msg) -> Html Msg))
+
+associatedCell:  ValueKoncept -> CubeColumn -> Content-> List (Attribute Msg) -> CellCreator
+associatedCell valueKoncept cubeColumn content =
+   attrAssociatedCell
+   |> addAttr (attrEventEditCell content cubeColumn valueKoncept)
+   |> addAttr (attrEventSelectCell cubeColumn valueKoncept)
+   |> text content
+   |> CellCreator
+
+selectedCell: Selection -> ValueKoncept -> CubeColumn->  Content-> CellCreator
+selectedCell content valueKoncept cubeColumn selection attr =
+   case selection of
+      Edit edited ->
+         case edited of
+            _ ->
+               inputCell content 
+               |> CellCreator
+      Select selected ->
+         case selected of
+            _ -> 
+               attrEventEditCell content valueKoncept cubeColumn
+               |> textCell content 
+               |> CellCreator
+             
+
+editCell: ValueKoncept -> CubeColumn -> Content -> CellCreator
+editCell valueKoncept cubeColumn content  =
+   inputCell content
+   |> CellCreator
+
+normalCell : ValueKoncept -> CubeColumn -> Content -> CellCreator
+normalCell content valueKoncept cubeColumn attr =
+   attrEventEditCell content cubeColumn valueKoncept
+   |> addAttr (attrEventSelectCell cubeColumn valueKoncept)
+   |> textCell content
+   |> CellCreator
+
+normalAbstractCell : CellCreator
+normalAbstractCell =
+   textCell ""
+   |> CellCreator
+
+type CellHtml =
+   {
+         isSelected: Bool
+      ,  html: CellCreator
+   }
+
+cellHtml: Bool -> CellCreator -> CellHtml
+cellHtml selected cellCreator =
+      {
+            isSelected = selected
+         ,  html = cellCreator
+      }
+
+  
+gridCellWithSelection: Bool -> SelectionWithFactor -> KonceptRow -> CubeColumn -> CellCreator
+gridCellWithSelection skip selectionFactor konceptRow cubeColumns =
       case konceptRow of
          AbstractRow _ ->
-            if modFactors ssf cf == 0 then associated or skip
-            else normal
+            if skip then
+               cellHtml skip normalAbstractCell
+            else 
+               if (modFactors selectionFactor.factor (cubeColumnSingeFactor cubeColumns) == 0) then 
+                  cellHtml skip associatedCell
+               else
+                  cellHtml skip normalAbstractCell
          ValueRow row ->
-            let
-               totf =  multiplyFactor cf row.factor
-            in
-               if isSelection ssf f then
-                  {
-                        html = selectedCell (Content "") row cubeColumns 
-                     ,  isSelected = true
-                  }
-                  
-               else if (modFactors ssf row.factor == 0) || (modFactors ssf cf == 0)
-                  associated or skip (normal)
-               else  
-                  normarow
+               if skip then
+                  Content ""
+                  |> normalCell row cubeColumns
+                  |> cellHtml skip 
+               else 
+                  let
+                     cubeFactor = cubeColumnSingeFactor cubeColumns
+                     totalFactor = multiplyFactor cubeFactor row.factor
+                  in
+                     if isFactorSelection selectionFactor.factor totalFactor then
+                        Content ""
+                        |> selectCell selectionFactor.selection row cubeColumns
+                        |> cellHtml True
+                     else
+                        if (modFactors selectionFactor.selection row.factor == 0) || (modFactors selectionFactor.selection cubeFactor == 0) then
+                           Content ""
+                           |> associatedCell row cubeColumns
+                           |> cellHtml skip 
+                        else
+                           Content ""
+                           |> normalCell row cubeColumns
+                           |> cellHtml skip 
+
+gridCellWithoutSelection: KonceptRow -> CubeColumn -> CellCreator 
+gridCellWithoutSelection konceptRow cubeColumns =
+         case konceptRow of
+         AbstractRow _ ->
+            normalAbstractCell
+            |> cellHtml false 
+         ValueRow row ->
+            Content ""
+            |> normalCell row cubeColumns
+            |> cellHtml skip 
 
 
 membersToSingleFactor =
@@ -344,150 +422,150 @@ inputCell: Content -> List (Attribute Msg) -> Html Msg
 inputCell (Content content) attr  =
     input ([ value content, onClickStopPropagation DoNothing ] ++ attr) []
 
-createAssociatedValueCell: Content -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createAssociatedValueCell content attr =
-   attr
-   |> addAttr attrAssociatedCell
-   |> addAttr (attrEventEditCell content cubeColumn valueKoncept
-   |> addAttr attrEventSelectCell cubeColumn valueKoncept
-   |> text content
+-- createAssociatedValueCell: Content -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createAssociatedValueCell content attr =
+--    attr
+--    |> addAttr attrAssociatedCell
+--    |> addAttr (attrEventEditCell content cubeColumn valueKoncept
+--    |> addAttr attrEventSelectCell cubeColumn valueKoncept
+--    |> text content
 
-createEditCell: Content -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createEditCell (Content content) valueKoncept cubeColumn attr =
-      attr
-      |> inputCell content
+-- createEditCell: Content -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createEditCell (Content content) valueKoncept cubeColumn attr =
+--       attr
+--       |> inputCell content
 
-createSelectCell : Content -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createSelectCell content valueKoncept cubeColumn attr =
-   attr 
-   |> addAttr (attrEventSelectCell content valueKoncept cubeColumn)
-   |> addAttr attrSelectCell
-   |> textCell
+-- createSelectCell : Content -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createSelectCell content valueKoncept cubeColumn attr =
+--    attr 
+--    |> addAttr (attrEventSelectCell content valueKoncept cubeColumn)
+--    |> addAttr attrSelectCell
+--    |> textCell
 
-createCellFromSeleced: Selected -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createCellFromSeleced selected valueKoncept cubeColumn attr =
-   case selected of
-      SelectValue (vk) ->
-            if vk.factor = valueKoncept.factor then createAssociatedValueCell content valueKoncept valueKoncept attr
-            else createNonSelectedValueCell valueKoncept valueKoncept attr
-      SelectValueMember (vk,members, content) ->
-            let 
-               editMemberFactor = membersToSingleFactor members
-               cubeColumnFactor = cubeColumnSingeFactor cubeColumn
-            in
-               if vk.factor == valueKoncept.factor && editMemberFactor == cubeColumnFactor then
-                  createSelectCell content valueKoncept cubeColumn attr
-               else if vk.factor == valueKoncept.factor || editMemberFactor == cubeColumnFactor then
-                  createAssociatedValueCell content valueKoncept cubeColumn attr
-               else
-                  createNonSelectedValueCell valueKoncept cubeColumn attr
-      SelectMember members
-            let
-               editMemberFactor = membersToSingleFactor members
-               cubeColumnFactor = cubeColumnSingeFactor cubeColumn
-            in 
-               if editMemberFactor == cubeColumnFactor then
-                  createAssociatedValueCell content valueKoncept cubeColumn attr
-               else
-                  createNonSelectedValueCell valueKoncept cubeColumn attr
-
-
+-- createCellFromSeleced: Selected -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createCellFromSeleced selected valueKoncept cubeColumn attr =
+--    case selected of
+--       SelectValue (vk) ->
+--             if vk.factor = valueKoncept.factor then createAssociatedValueCell content valueKoncept valueKoncept attr
+--             else createNonSelectedValueCell valueKoncept valueKoncept attr
+--       SelectValueMember (vk,members, content) ->
+--             let 
+--                editMemberFactor = membersToSingleFactor members
+--                cubeColumnFactor = cubeColumnSingeFactor cubeColumn
+--             in
+--                if vk.factor == valueKoncept.factor && editMemberFactor == cubeColumnFactor then
+--                   createSelectCell content valueKoncept cubeColumn attr
+--                else if vk.factor == valueKoncept.factor || editMemberFactor == cubeColumnFactor then
+--                   createAssociatedValueCell content valueKoncept cubeColumn attr
+--                else
+--                   createNonSelectedValueCell valueKoncept cubeColumn attr
+--       SelectMember members
+--             let
+--                editMemberFactor = membersToSingleFactor members
+--                cubeColumnFactor = cubeColumnSingeFactor cubeColumn
+--             in 
+--                if editMemberFactor == cubeColumnFactor then
+--                   createAssociatedValueCell content valueKoncept cubeColumn attr
+--                else
+--                   createNonSelectedValueCell valueKoncept cubeColumn attr
 
 
-createCellFromEdit Edited -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createCellFromEdit edited valueKoncept cubeColumn attr =
-   case edited of
-      EditValue (vk,content) ->
-            if vk.factor = valueKoncept.factor then createAssociatedValueCell content valueKoncept valueKoncept attr
-            else createNonSelectedValueCell valueKoncept valueKoncept attr
-      EditValueMember (vk,members, content) ->
-            let 
-               editMemberFactor = membersToSingleFactor members
-               cubeColumnFactor = cubeColumnSingeFactor cubeColumn
-            in
-               if vk.factor = valueKoncept.factor && editMemberFactor = cubeColumnFactor then
-                  createEditCell content valueKoncept cubeColumn attr
-               else if vk.factor = valueKoncept.factor || editMemberFactor = cubeColumnFactor then
-                     createAssociatedValueCell content valueKoncept cubeColumn attr
-               else
-                     createNonSelectedValueCell valueKoncept cubeColumn attr
-
-createNonSelectedValueCell: ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createNonSelectedValueCell valueKoncept cubeColumn attr =
-   attr
-   |> addAttr (attrEventEditCell (Content "") cubeColumn valueKoncept
-   |> addAttr attrEventSelectCell cubeColumn valueKoncept
-   |> text ""
-
-createValueCell: Maybe Selection -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createValueCell skip maybeSelection valueKoncet cubeColumn attr =
-   if skip then
-      createNonSelectedValueCell valueKoncet cubeColumn attr
-   else
-      case maybeSelection of
-         Just selection -> 
-               case selection of
-                  Edit edited ->
-                  Select selected ->
-         Nothing -> createNonSelectedValueCell valueKoncet cubeColumn attr
 
 
-createAbstractCell: Maybe Selection -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createAbstractCell skip maybeSelection cubeColumn attr =
-   if skip then
-      textCell "" attr
-   else
-      case maybeSelection of
-         Just selection ->
-               case tryGetSelectionMembers selection of 
-                  Just members -> 
-                     let
-                        isAssociated =
-                           members 
-                           |> membersToSingleFactor
-                           |> (\factor -> factor == (cubeColumnSingeFactor cubeColumn)) 
-                     in
-                        if isAssociated then
-                           textCell "" attrAssociatedCell   
-                        else
-                           textCell "" attr
-         Nothing -> 
-            textCell "" attr
+-- createCellFromEdit Edited -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createCellFromEdit edited valueKoncept cubeColumn attr =
+--    case edited of
+--       EditValue (vk,content) ->
+--             if vk.factor = valueKoncept.factor then createAssociatedValueCell content valueKoncept valueKoncept attr
+--             else createNonSelectedValueCell valueKoncept valueKoncept attr
+--       EditValueMember (vk,members, content) ->
+--             let 
+--                editMemberFactor = membersToSingleFactor members
+--                cubeColumnFactor = cubeColumnSingeFactor cubeColumn
+--             in
+--                if vk.factor = valueKoncept.factor && editMemberFactor = cubeColumnFactor then
+--                   createEditCell content valueKoncept cubeColumn attr
+--                else if vk.factor = valueKoncept.factor || editMemberFactor = cubeColumnFactor then
+--                      createAssociatedValueCell content valueKoncept cubeColumn attr
+--                else
+--                      createNonSelectedValueCell valueKoncept cubeColumn attr
+
+-- createNonSelectedValueCell: ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createNonSelectedValueCell valueKoncept cubeColumn attr =
+--    attr
+--    |> addAttr (attrEventEditCell (Content "") cubeColumn valueKoncept
+--    |> addAttr attrEventSelectCell cubeColumn valueKoncept
+--    |> text ""
+
+-- createValueCell: Maybe Selection -> ValueKoncept -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createValueCell skip maybeSelection valueKoncet cubeColumn attr =
+--    if skip then
+--       createNonSelectedValueCell valueKoncet cubeColumn attr
+--    else
+--       case maybeSelection of
+--          Just selection -> 
+--                case selection of
+--                   Edit edited ->
+--                   Select selected ->
+--          Nothing -> createNonSelectedValueCell valueKoncet cubeColumn attr
 
 
-createGridCell: Maybe Selection -> KonceptRow -> CubeColumn -> List (Attribute Msg) -> Html Msg
-createGridCell skip maybeSelection konceptRow cubeColumn attr =
-   case koncepRow.item of
-      AbstractRow _ ->
-         createAbstractCell skip maybeSelection cubeColumn attr
-      ValueRow row ->
-         createValueCell skip maybeSelection row cubeColumn attr
+-- createAbstractCell: Maybe Selection -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createAbstractCell skip maybeSelection cubeColumn attr =
+--    if skip then
+--       textCell "" attr
+--    else
+--       case maybeSelection of
+--          Just selection ->
+--                case tryGetSelectionMembers selection of 
+--                   Just members -> 
+--                      let
+--                         isAssociated =
+--                            members 
+--                            |> membersToSingleFactor
+--                            |> (\factor -> factor == (cubeColumnSingeFactor cubeColumn)) 
+--                      in
+--                         if isAssociated then
+--                            textCell "" attrAssociatedCell   
+--                         else
+--                            textCell "" attr
+--          Nothing -> 
+--             textCell "" attr
 
 
-isCellSelected: Selection -> CubeColumn -> ValueKoncept -> Bool
-isCellSelected selection cubeColumn valueKoncet =
-   let 
-      checkMembers s =
-         case tryGetSelectionMembers s of
-            Just s ->
+-- createGridCell: Maybe Selection -> KonceptRow -> CubeColumn -> List (Attribute Msg) -> Html Msg
+-- createGridCell skip maybeSelection konceptRow cubeColumn attr =
+--    case koncepRow.item of
+--       AbstractRow _ ->
+--          createAbstractCell skip maybeSelection cubeColumn attr
+--       ValueRow row ->
+--          createValueCell skip maybeSelection row cubeColumn attr
+
+
+-- isCellSelected: Selection -> CubeColumn -> ValueKoncept -> Bool
+-- isCellSelected selection cubeColumn valueKoncet =
+--    let 
+--       checkMembers s =
+--          case tryGetSelectionMembers s of
+--             Just s ->
 
 
    
 
 
-isSelected: Maybe Selection -> CubeColumn -> KonceptRow =
-isSelected maybeSelection cubeColum konceptRow =
-   case konceptRow of
-      AbstractRow _ ->
-         False
-      ValueRow row ->
-         case maybeSelection of
-            Just selection ->
-               let
-                  selectionFactors = factorsFromSelection
-               in
+-- isSelected: Maybe Selection -> CubeColumn -> KonceptRow =
+-- isSelected maybeSelection cubeColum konceptRow =
+--    case konceptRow of
+--       AbstractRow _ ->
+--          False
+--       ValueRow row ->
+--          case maybeSelection of
+--             Just selection ->
+--                let
+--                   selectionFactors = factorsFromSelection
+--                in
 
-            Nothing -> False
+--             Nothing -> False
 
 
 
