@@ -19,48 +19,15 @@ import Koncepts.Model exposing (..)
 
 type Content = Content String
 
-type Edited =
-   EditValue (ValueKoncept,Content)
-   | EditValueMember (ValueKoncept,NList Member, Content)
 
-type Selected =
-   SelectValue ValueKoncept
-   | SelectValueMember (ValueKoncept,NList Member)
-   | SelectMember (NList Member)
-
+-- change name to editcell
+-- and selectCell
+-- select column and select 
 type Selection =
-   Select Selected
-   | Edit Edited
-
-membersFactors: NList Member -> List Factor
-membersFactors members =
-   members
-   |> NList.toList
-   |> List.map (\m -> m.factor)
-
-selectedFactors: Selected -> NList Factor
-selectedFactors selected =
-   case selected of
-      SelectValue vk -> NList.create vk.factor 
-      SelectValueMember (vk, members) -> 
-         NList.create2 vk.factor (membersFactors members)
-      SelectMember members ->  members |> NList.map (\m -> m.factor)
-
-editedFactors edited =
-   case edited of
-      EditValue (vk,_) -> 
-         NList.create vk.factor
-      EditValueMember (vk,members, _) -> 
-         NList.create2 vk.factor (membersFactors members)
-
-selectionFactors selection =
-   case selection of
-       Select selected -> selectedFactors selected
-       Edit edited -> editedFactors edited
+   EditValue (NList Factor)
+   | SelectValue (NList Factor)
 
 
-
-multiplyFactor (Factor a) (Factor b) = Factor (a * b)
 
 
 type alias ReportModel =

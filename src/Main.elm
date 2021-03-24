@@ -33,19 +33,10 @@ initialModel = Nothing |> Model.update Report.mockReport
 update : Msg -> Model.Model  -> (Model.Model, Cmd Msg) 
 update msg model =
    case msg of
-      Select item -> 
-           model 
-           |> Model.select (Selecting item)
-           |> (\m -> (m, Cmd.none))
-      Edit (item,content) ->
+      SelectMsg selection ->
          model
-         |> Model.select (Editing item)
+         |> Model.select selection 
          |> (\m -> (m, Cmd.none))
-      DoNothing -> 
-         let
-            test = Debug.log "DoNothing" "Absolutly nothing"
-         in
-            (model,Cmd.none)
 
 --   case msg of
 --     Select ki -> 
