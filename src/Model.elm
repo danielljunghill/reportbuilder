@@ -17,7 +17,7 @@ import Koncepts.Model exposing (..)
 --    | SelectedPage Page
 --    | SelectedCell (ValueKoncept, List Member)
 
-type Content = Content String
+
 
 
 -- change name to editcell

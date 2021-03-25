@@ -19,7 +19,7 @@ attrEventSelectCell cubeColumn row attr =
          let
             event: Attribute Msg 
             event = 
-               rowAndMemberFactor row cubeColumn
+               rowAndMemberFactorList row cubeColumn
                |> SelectValue
                |> Msg.SelectMsg  
                |> onClick
@@ -31,7 +31,7 @@ attrEventEditCell content cubeColumn row attr =
          let
             event: Attribute Msg 
             event = 
-               rowAndMemberFactor row cubeColumn
+               rowAndMemberFactorList row cubeColumn
                |> EditValue
                |> Msg.SelectMsg 
                |> onDoubleClick
@@ -164,25 +164,17 @@ rowHeaderCellIndented (CubeRowOffset offset) selection rowHeader =
          |> textCell (Content (konceptRowItemName rowHeader.item))
 
 
-membersToFactors members =
-   members |> NList.map (\m -> m.factor)
-membersToSingleFactor =
-   membersToFactors >> multiplyAllFactors
-
-multiplyFactor (Factor a) (Factor b) = Factor (a * b)
-
 cubeColumnSingeFactor (CubeColumn members) =
    members
-   |> membersToSingleFactor
+   |> membersFactor
 
-rowAndMemberFactor: ValueKoncept -> CubeColumn -> NList Factor
-rowAndMemberFactor vk (CubeColumn members) =
-    members 
-    |> membersToFactors
-    |> NList.addFirst vk.factor 
+rowAndMemberFactorList: ValueKoncept -> CubeColumn -> NList Factor
+rowAndMemberFactorList vk (CubeColumn members) =
+      hyperValueFactorList vk members 
+ 
 
 multiplyAllFactors: NList Factor -> Factor
-multiplyAllFactors factors = factors |> NList.fold multiplyFactor (Factor 1) 
+multiplyAllFactors factors = factors |> NList.fold multiply (Factor 1) 
 
 selectionFactors: Selection -> NList Factor
 selectionFactors selection =
@@ -248,7 +240,7 @@ selectedCell selection valueKoncept cubeColumn content  =
    case selection of
       EditValue _ ->
                cubeColumn
-               |> rowAndMemberFactor valueKoncept
+               |> rowAndMemberFactorList valueKoncept
                |> inputCell content 
                |> CellCreator
       SelectValue _ ->
@@ -322,7 +314,7 @@ gridCellWithSelection skip selectionFactor konceptRow cubeColumns =
                else 
                   let
                      cubeFactor = cubeColumnSingeFactor cubeColumns
-                     totalFactor = multiplyFactor cubeFactor row.factor
+                     totalFactor = multiply cubeFactor row.factor
                   in
                      if isFactorSelection selectionFactor.factor totalFactor then
                         Content ""

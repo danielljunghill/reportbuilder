@@ -129,7 +129,7 @@ konceptRowFactor item =
       ValueRow vk -> Just vk.factor
 
 konceptRowItemName: KonceptRowItem -> String
-konceptRowItemName item =
+konceptRowItemName item =    
    case item of
       AbstractRow ak -> abstractKonceptNameToString ak.name
       ValueRow vk -> valueKonceptNameToString vk.name

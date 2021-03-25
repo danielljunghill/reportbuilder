@@ -6855,7 +6855,7 @@ var $author$project$Koncepts$CubeKoncept$calculateIndentedCubeRows = function (k
 		rows: $author$project$Koncepts$CubeKoncept$calculateIndentedRows(koncepts)
 	};
 };
-var $author$project$Model$Content = function (a) {
+var $author$project$Koncepts$Model$Content = function (a) {
 	return {$: 'Content', a: a};
 };
 var $author$project$Koncepts$CubeView$createClassAttr = function (name) {
@@ -6971,7 +6971,7 @@ var $author$project$Koncepts$CubeView$columnHeaderCell = F2(
 		var offset = _v0.a;
 		return A2(
 			$author$project$Koncepts$CubeView$textCell,
-			$author$project$Model$Content(colunmHeader.member.name),
+			$author$project$Koncepts$Model$Content(colunmHeader.member.name),
 			A2(
 				$elm$core$List$append,
 				A2($author$project$Koncepts$CubeView$attrSelected2, $author$project$Koncepts$CubeView$attColumnHeaderSelected, colunmHeader.isSelected),
@@ -7082,7 +7082,7 @@ var $author$project$Koncepts$CubeView$associatedAbstractCell = $author$project$K
 	function (attr) {
 		return A2(
 			$author$project$Koncepts$CubeView$textCell,
-			$author$project$Model$Content(''),
+			$author$project$Koncepts$Model$Content(''),
 			A2($author$project$Koncepts$CubeView$addAttr, $author$project$Koncepts$CubeView$attrAssociatedCell, attr));
 	});
 var $author$project$Model$EditValue = function (a) {
@@ -7108,7 +7108,7 @@ var $elm$html$Html$Events$onDoubleClick = function (msg) {
 		'dblclick',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $author$project$Koncepts$CubeView$membersToFactors = function (members) {
+var $author$project$Koncepts$Model$membersFactorList = function (members) {
 	return A2(
 		$author$project$NList$map,
 		function (m) {
@@ -7116,20 +7116,24 @@ var $author$project$Koncepts$CubeView$membersToFactors = function (members) {
 		},
 		members);
 };
-var $author$project$Koncepts$CubeView$rowAndMemberFactor = F2(
-	function (vk, _v0) {
-		var members = _v0.a;
+var $author$project$Koncepts$Model$hyperValueFactorList = F2(
+	function (vk, members) {
 		return A2(
 			$author$project$NList$addFirst,
 			vk.factor,
-			$author$project$Koncepts$CubeView$membersToFactors(members));
+			$author$project$Koncepts$Model$membersFactorList(members));
+	});
+var $author$project$Koncepts$CubeView$rowAndMemberFactorList = F2(
+	function (vk, _v0) {
+		var members = _v0.a;
+		return A2($author$project$Koncepts$Model$hyperValueFactorList, vk, members);
 	});
 var $author$project$Koncepts$CubeView$attrEventEditCell = F4(
 	function (content, cubeColumn, row, attr) {
 		var event = $elm$html$Html$Events$onDoubleClick(
 			$author$project$Msg$SelectMsg(
 				$author$project$Model$EditValue(
-					A2($author$project$Koncepts$CubeView$rowAndMemberFactor, row, cubeColumn))));
+					A2($author$project$Koncepts$CubeView$rowAndMemberFactorList, row, cubeColumn))));
 		return _Utils_ap(
 			_List_fromArray(
 				[event]),
@@ -7149,7 +7153,7 @@ var $author$project$Koncepts$CubeView$attrEventSelectCell = F3(
 		var event = $elm$html$Html$Events$onClick(
 			$author$project$Msg$SelectMsg(
 				$author$project$Model$SelectValue(
-					A2($author$project$Koncepts$CubeView$rowAndMemberFactor, row, cubeColumn))));
+					A2($author$project$Koncepts$CubeView$rowAndMemberFactorList, row, cubeColumn))));
 		return _Utils_ap(
 			_List_fromArray(
 				[event]),
@@ -7203,23 +7207,23 @@ var $author$project$NList$fold = F3(
 			state,
 			$author$project$NList$toList(alist));
 	});
-var $author$project$Koncepts$CubeView$multiplyFactor = F2(
+var $author$project$Koncepts$Model$multiply = F2(
 	function (_v0, _v1) {
 		var a = _v0.a;
 		var b = _v1.a;
 		return $author$project$Koncepts$Model$Factor(a * b);
 	});
-var $author$project$Koncepts$CubeView$multiplyAllFactors = function (factors) {
+var $author$project$Koncepts$Model$multiplyFactors = function (factors) {
 	return A3(
 		$author$project$NList$fold,
-		$author$project$Koncepts$CubeView$multiplyFactor,
+		$author$project$Koncepts$Model$multiply,
 		$author$project$Koncepts$Model$Factor(1),
 		factors);
 };
-var $author$project$Koncepts$CubeView$membersToSingleFactor = A2($elm$core$Basics$composeR, $author$project$Koncepts$CubeView$membersToFactors, $author$project$Koncepts$CubeView$multiplyAllFactors);
+var $author$project$Koncepts$Model$membersFactor = A2($elm$core$Basics$composeR, $author$project$Koncepts$Model$membersFactorList, $author$project$Koncepts$Model$multiplyFactors);
 var $author$project$Koncepts$CubeView$cubeColumnSingeFactor = function (_v0) {
 	var members = _v0.a;
-	return $author$project$Koncepts$CubeView$membersToSingleFactor(members);
+	return $author$project$Koncepts$Model$membersFactor(members);
 };
 var $author$project$Koncepts$CubeView$isFactorSelection = F2(
 	function (_v0, f) {
@@ -7235,7 +7239,7 @@ var $author$project$Koncepts$CubeView$modFactors = F2(
 	});
 var $author$project$Koncepts$CubeView$normalAbstractCell = $author$project$Koncepts$CubeView$CellCreator(
 	$author$project$Koncepts$CubeView$textCell(
-		$author$project$Model$Content('')));
+		$author$project$Koncepts$Model$Content('')));
 var $author$project$Koncepts$CubeView$normalCell = F3(
 	function (valueKoncept, cubeColumn, content) {
 		return $author$project$Koncepts$CubeView$CellCreator(
@@ -7299,7 +7303,7 @@ var $author$project$Koncepts$CubeView$inputCell = F3(
 				$author$project$Model$UpdateValue(
 					_Utils_Tuple2(
 						factors,
-						$author$project$Model$Content(s))));
+						$author$project$Koncepts$Model$Content(s))));
 		};
 		return A2(
 			$elm$html$Html$input,
@@ -7319,7 +7323,7 @@ var $author$project$Koncepts$CubeView$selectedCell = F4(
 				A2(
 					$author$project$Koncepts$CubeView$inputCell,
 					content,
-					A2($author$project$Koncepts$CubeView$rowAndMemberFactor, valueKoncept, cubeColumn)));
+					A2($author$project$Koncepts$CubeView$rowAndMemberFactorList, valueKoncept, cubeColumn)));
 		} else {
 			return $author$project$Koncepts$CubeView$CellCreator(
 				function (attr) {
@@ -7348,10 +7352,10 @@ var $author$project$Koncepts$CubeView$gridCellWithSelection = F4(
 						$author$project$Koncepts$CubeView$normalCell,
 						row,
 						cubeColumns,
-						$author$project$Model$Content('')));
+						$author$project$Koncepts$Model$Content('')));
 			} else {
 				var cubeFactor = $author$project$Koncepts$CubeView$cubeColumnSingeFactor(cubeColumns);
-				var totalFactor = A2($author$project$Koncepts$CubeView$multiplyFactor, cubeFactor, row.factor);
+				var totalFactor = A2($author$project$Koncepts$Model$multiply, cubeFactor, row.factor);
 				return A2($author$project$Koncepts$CubeView$isFactorSelection, selectionFactor.factor, totalFactor) ? A2(
 					$author$project$Koncepts$CubeView$cellHtml,
 					true,
@@ -7360,21 +7364,21 @@ var $author$project$Koncepts$CubeView$gridCellWithSelection = F4(
 						selectionFactor.selection,
 						row,
 						cubeColumns,
-						$author$project$Model$Content(''))) : (((!A2($author$project$Koncepts$CubeView$modFactors, selectionFactor.factor, row.factor)) || (!A2($author$project$Koncepts$CubeView$modFactors, selectionFactor.factor, cubeFactor))) ? A2(
+						$author$project$Koncepts$Model$Content(''))) : (((!A2($author$project$Koncepts$CubeView$modFactors, selectionFactor.factor, row.factor)) || (!A2($author$project$Koncepts$CubeView$modFactors, selectionFactor.factor, cubeFactor))) ? A2(
 					$author$project$Koncepts$CubeView$cellHtml,
 					skip,
 					A3(
 						$author$project$Koncepts$CubeView$associatedCell,
 						row,
 						cubeColumns,
-						$author$project$Model$Content(''))) : A2(
+						$author$project$Koncepts$Model$Content(''))) : A2(
 					$author$project$Koncepts$CubeView$cellHtml,
 					skip,
 					A3(
 						$author$project$Koncepts$CubeView$normalCell,
 						row,
 						cubeColumns,
-						$author$project$Model$Content(''))));
+						$author$project$Koncepts$Model$Content(''))));
 			}
 		}
 	});
@@ -7392,7 +7396,7 @@ var $author$project$Koncepts$CubeView$gridCellWithoutSelection = F2(
 					$author$project$Koncepts$CubeView$normalCell,
 					row,
 					cubeColumns,
-					$author$project$Model$Content('')));
+					$author$project$Koncepts$Model$Content('')));
 		}
 	});
 var $author$project$Koncepts$CubeView$createGridCell = F4(
@@ -7437,6 +7441,13 @@ var $elm$core$List$concat = function (lists) {
 };
 var $author$project$Koncepts$CubeView$SelectionFactor = function (a) {
 	return {$: 'SelectionFactor', a: a};
+};
+var $author$project$Koncepts$CubeView$multiplyAllFactors = function (factors) {
+	return A3(
+		$author$project$NList$fold,
+		$author$project$Koncepts$Model$multiply,
+		$author$project$Koncepts$Model$Factor(1),
+		factors);
 };
 var $author$project$Koncepts$CubeView$selectionFactors = function (selection) {
 	if (selection.$ === 'EditValue') {
@@ -7659,7 +7670,7 @@ var $author$project$Koncepts$CubeView$rowHeaderCellIndented = F3(
 		}();
 		return A2(
 			$author$project$Koncepts$CubeView$textCell,
-			$author$project$Model$Content(
+			$author$project$Koncepts$Model$Content(
 				$author$project$Koncepts$CubeKoncept$konceptRowItemName(rowHeader.item)),
 			A2(
 				$author$project$Koncepts$CubeView$addAttr,

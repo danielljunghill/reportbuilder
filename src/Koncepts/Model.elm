@@ -3,6 +3,8 @@ import Id exposing (..)
 import Id
 import NList exposing (..)
 import Prime exposing (..)
+import Dict 
+import Dict exposing (..)
 
 -- import Events.Custom exposing (onClickStopPropagation)
 type Factor = Factor Int
@@ -153,13 +155,6 @@ createValueKonceptWithSelection  selected name factor   =
             newValueKoncept
             
 
--- createValueKonceptWithSelection: Bool -> String -> ValueKoncept   
--- createValueKonceptWithSelection selected name  =
---         {
---                 id = Id.create() |> ValueKonceptId 
---             ,   name = name |> ValueKonceptName
---             ,   selected = selected }
-
 createAbstractKonceptWithSelection: Bool -> String -> AbstractKoncept
 createAbstractKonceptWithSelection selected name  =  
         {
@@ -171,15 +166,99 @@ createAbstractKonceptWithSelection selected name  =
 createValueKoncept: String -> Factor ->  ValueKoncept
 createValueKoncept = createValueKonceptWithSelection False  
 
-
 createAbstractKoncept: String -> AbstractKoncept
 createAbstractKoncept = createAbstractKonceptWithSelection False
-
 
 type ModelAction a = 
    Delete 
    | MapValue a
-   | Ignore         
+   | Ignore
 
+multiply (Factor a) (Factor b) = Factor (a * b)
+
+multiplyFactors: NList Factor -> Factor
+multiplyFactors factors = 
+    factors 
+    |> NList.fold multiply (Factor 1) 
+
+membersFactorList members =
+   members |> NList.map (\m -> m.factor)
+
+membersFactor = membersFactorList >> multiplyFactors
+
+hyperValueFactorList: ValueKoncept -> NList Member  -> NList Factor
+hyperValueFactorList vk members =
+    members 
+    |> membersFactorList
+    |> NList.addFirst vk.factor 
+
+hyperValueFactor vk members =
+    hyperValueFactorList vk members
+    |> multiplyFactors
+
+valueFactor vk =
+    vk.factor
+
+type Content = Content String
+
+type alias FlatValue =
+    {
+            content: Content
+        ,   koncept: ValueKoncept
+    }
+
+type alias HyperValue =
+    {
+            koncept: ValueKoncept
+        ,   members: NList Member
+        ,   content: Content
+    } 
+
+type ReportedValue =
+    Hyper HyperValue 
+    | Flat FlatValue
+
+reportValueContent: ReportedValue -> Content
+reportValueContent rv =
+    case rv of
+        Hyper hv -> hv.content
+        Flat fv -> fv.content
+
+type ReportedValueFactor = ReportedValueFactor Factor
+
+type alias ReportedValues =
+    {
+        values: Dict Int ReportedValue 
+    }
+
+
+emptyReportedValues =
+    {
+        values = Dict.empty
+    }
+
+getReportedValue: ReportedValueFactor -> ReportedValues -> Maybe ReportedValue
+getReportedValue (ReportedValueFactor (Factor factor)) reportedValues =
+    reportedValues.values
+    |> Dict.get factor
+
+insertReportedValue: ReportedValueFactor -> ReportedValue -> ReportedValues -> ReportedValues
+insertReportedValue (ReportedValueFactor (Factor factor)) value reportedValues =
+    reportedValues.values
+    |> Dict.insert factor value
+    |> (\dict -> { values = dict})
+
+
+getContent: ReportedValueFactor -> ReportedValues ->  Maybe Content
+getContent factor  =
+    getReportedValue factor
+    >> Maybe.map reportValueContent
+type ValueFetcher = ValueFetcher (ReportedValueFactor -> Maybe ReportedValue)
+
+valueFetcherMock = ValueFetcher (\rvf -> Nothing)
+-- createHyper koncept members content = 
+    
+
+ 
 
 
