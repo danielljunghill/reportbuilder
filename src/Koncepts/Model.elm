@@ -201,32 +201,35 @@ valueFactor vk =
 
 type Content = Content String
 
-type alias FlatValue =
-    {
-            content: Content
-        ,   koncept: ValueKoncept
-    }
+-- type alias FlatValue =
+--     {
+--             content: Content
+--         ,   koncept: ValueKoncept
+--     }
 
-type alias HyperValue =
-    {
-            koncept: ValueKoncept
-        ,   members: NList Member
-        ,   content: Content
-    } 
+-- type alias HyperValue =
+--     {
+--             koncept: ValueKoncept
+--         ,   members: NList Member
+--         ,   content: Content
+--     } 
 
-type ReportedValue =
-    Hyper HyperValue 
-    | Flat FlatValue
+-- type ReportedValue =
+--     Hyper HyperValue 
+--     | Flat FlatValue
 
-reportValueContent: ReportedValue -> Content
-reportValueContent rv =
-    case rv of
-        Hyper hv -> hv.content
-        Flat fv -> fv.content
+
+-- reportValueContent: ReportedValue -> Content
+-- reportValueContent rv =
+--     case rv of
+--         Hyper hv -> hv.content
+--         Flat fv -> fv.content
 
 type ReportedValueFactor = ReportedValueFactor Factor
+type ReportedValue = ReportedValue Content
+reportValueContent (ReportedValue content) = content
 
-type alias ReportedValues =
+type alias ReportedValues = 
     {
         values: Dict Int ReportedValue 
     }
@@ -237,25 +240,27 @@ emptyReportedValues =
         values = Dict.empty
     }
 
-getReportedValue: ReportedValueFactor -> ReportedValues -> Maybe ReportedValue
-getReportedValue (ReportedValueFactor (Factor factor)) reportedValues =
+getReportedValue: ReportedValues -> ReportedValueFactor -> Maybe ReportedValue
+getReportedValue reportedValues (ReportedValueFactor (Factor factor))  =
     reportedValues.values
     |> Dict.get factor
 
-insertReportedValue: ReportedValueFactor -> ReportedValue -> ReportedValues -> ReportedValues
-insertReportedValue (ReportedValueFactor (Factor factor)) value reportedValues =
-    reportedValues.values
-    |> Dict.insert factor value
+insertReportedValue: ReportedValues -> ReportedValue -> ReportedValueFactor  -> ReportedValues
+insertReportedValue reportedValues value (ReportedValueFactor (Factor factor)) =
+    reportedValues.values  
+    |> Dict.insert factor value 
     |> (\dict -> { values = dict})
 
 
 getContent: ReportedValueFactor -> ReportedValues ->  Maybe Content
-getContent factor  =
-    getReportedValue factor
-    >> Maybe.map reportValueContent
+getContent factor reportValues =
+    factor
+    |> getReportedValue reportValues 
+    |> Maybe.map reportValueContent
+
 type ValueFetcher = ValueFetcher (ReportedValueFactor -> Maybe ReportedValue)
 
-valueFetcherMock = ValueFetcher (\rvf -> Nothing)
+valueFetcherMock = ValueFetcher (\rvf -> Nothing )
 -- createHyper koncept members content = 
     
 

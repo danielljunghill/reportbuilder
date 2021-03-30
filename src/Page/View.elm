@@ -9,13 +9,13 @@ import Koncepts.View as KonceptView
 import Msg exposing (..)
 import Model exposing  (..)
 
-toHtml: Maybe Selection -> Page ->  Html Msg            
-toHtml selection page = 
+toHtml: ValueFetcher -> Maybe Selection -> Page ->  Html Msg            
+toHtml valueFetcher selection page = 
     let
         koncepts: List (Html Msg) 
         koncepts =
             page.koncepts
-            |> List.map (KonceptView.toHtml selection)
+            |> List.map (KonceptView.toHtml valueFetcher selection)
     in
 
         -- List.append [ text page.name] sections

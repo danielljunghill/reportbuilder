@@ -27,19 +27,23 @@ type Selection =
    EditValue (NList Factor)
    | SelectValue (NList Factor)
 
-type UpdateValue = UpdateValue (NList Factor, Content)
+type UpdateValue = UpdateValue (NList Factor,Content)
 updateValue factors content = UpdateValue (factors,content)
+
 
 type alias ReportModel =
    {
             report: Report
          ,  selection: Maybe Selection
+         ,  values: ReportedValues
+
    }
 
 type Model =
    NoReportWithError String
    | ReportWithError (String, ReportModel)
    | ReportWithoutError ReportModel
+
 
 addError: Maybe Model -> String -> Model
 addError model err =
@@ -55,7 +59,16 @@ addError model err =
          Just rm -> f rm err
          Nothing -> NoReportWithError err
 
--- Result String Report -> Model -> Result String Model
+-- TODO fix error handling
+-- when to go from WithError to WithoutError
+map: (ReportModel -> ReportModel) -> Model -> Model 
+map f model = 
+   case model of
+      NoReportWithError err -> NoReportWithError err
+      ReportWithError (err, reportModel) ->  
+         ReportWithoutError (f reportModel)
+      ReportWithoutError reportModel -> 
+         ReportWithoutError (f reportModel)
 
 select: Selection -> Model -> Model 
 select newSelection model = 
@@ -67,6 +80,7 @@ select newSelection model =
          ReportWithoutError { reportModel | selection = Just newSelection}
 
 
+
 tryGetReportModel: Model -> Maybe ReportModel
 tryGetReportModel model =
    case model of
@@ -76,18 +90,11 @@ tryGetReportModel model =
 
 
 
-tryGetSelection: Model -> Maybe Selection
-tryGetSelection  =
-   tryGetReportModel 
-   >> Maybe.andThen (\model -> model.selection)
-   
-
-
-update: Result String Report -> Maybe Model -> Model
-update result model =
+init: Result String Report -> Model
+init result =
    case result of
-      Ok report -> ReportWithoutError { report = report , selection = Nothing}
-      Err err -> addError model err 
+      Ok report -> ReportWithoutError { report = report , selection = Nothing , values = emptyReportedValues}
+      Err err -> NoReportWithError err
 
 
    

@@ -10,14 +10,14 @@ import List
 import Koncepts.Model exposing(..)
 import Model exposing (..)
 
-toHtml: Maybe Selection -> Report -> Html Msg            
-toHtml selection report = 
+toHtml: ValueFetcher -> Maybe Selection -> Report -> Html Msg            
+toHtml valueFetcher selection report = 
     let
         pages: List (Html Msg) 
         pages =
             report.pages
             |> List.filter (\page -> page.selected)
-            |> List.map (Pages.toHtml selection)
+            |> List.map (Pages.toHtml valueFetcher selection)
 
         headers: List (Html Msg)
         headers =

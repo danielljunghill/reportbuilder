@@ -27,8 +27,18 @@ main =
           , subscriptions = \_ -> Sub.none }
 
 initialModel: Model.Model
-initialModel = Nothing |> Model.update Report.mockReport 
+initialModel = Model.init Report.mockReport 
 
+updateValueStore: UpdateValue -> ReportModel -> ReportModel 
+updateValueStore (UpdateValue (factors,content)) reportModel =
+      factors
+      |> multiplyFactors
+      |> ReportedValueFactor
+      |> insertReportedValue reportModel.values (ReportedValue content) 
+      |> (\values -> { reportModel | values = values})
+
+
+--insertReportedValue: ReportedValueFactor -> ReportedValue -> ReportedValues -> ReportedValues
 
 update : Msg -> Model.Model  -> (Model.Model, Cmd Msg) 
 update msg model =
@@ -37,11 +47,11 @@ update msg model =
          model
          |> Model.select selection 
          |> (\m -> (m, Cmd.none))
-      UpdateValueMsg (UpdateValue (factors,content)) ->
-         let
-            test = Debug.log "newContent:" content
-         in
-            (model,Cmd.none)
+      UpdateValueMsg updatedValue ->
+         model
+         |> Model.map (updateValueStore updatedValue)
+         |> (\newModel ->  (newModel,Cmd.none))
+
 
 --   case msg of
 --     Select ki -> 
@@ -69,18 +79,25 @@ update msg model =
 view : Model.Model -> Html Msg
 view model =
    let
-      modelToHtml: Report -> Html Msg
-      modelToHtml report =
-           div [ class "report-wrapper"]
-            [
-            Report.toHtml (tryGetSelection model) report,
-            div [] [ ]
-            ]
+      modelToHtml: ReportModel -> Html Msg
+      modelToHtml reportModel =
+            let 
+               valueFecther = 
+                  reportModel.values 
+                  |> getReportedValue
+                  |> ValueFetcher  
+               in
+
+            div [ class "report-wrapper"]
+               [
+               Report.toHtml valueFecther reportModel.selection reportModel.report,
+               div [] [ ]
+               ]
    in
       case model of
          NoReportWithError err -> div [ class "report-wrapper"] [ text err]
-         ReportWithError (_, rm) -> modelToHtml rm.report
-         ReportWithoutError rm -> modelToHtml rm.report
+         ReportWithError (_, rm) -> modelToHtml rm
+         ReportWithoutError rm -> modelToHtml rm
     
   
   

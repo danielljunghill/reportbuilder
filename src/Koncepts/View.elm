@@ -67,23 +67,23 @@ divValueKoncept vk =
       div [class "koncept", class "value"] 
        [ valueKonceptDetails vk ]
 
-divKoncept : Maybe Selection -> Koncept -> Html Msg
-divKoncept selection koncept    =
+divKoncept : ValueFetcher -> Maybe Selection -> Koncept -> Html Msg
+divKoncept valueFetcher selection koncept    =
   case koncept of
     Value vk ->
         divValueKoncept vk
     Abstract (ak,kl) ->
         kl 
-        |> List.map (divKoncept selection)
+        |> List.map (divKoncept valueFetcher selection)
         |> divAbstractKoncept ak
     Cube (hc,dk) ->
         div [] 
             [ 
                     hc.name |> Koncept.hyperCubeNameToString |> text
-                ,   viewCube Horizontal hc dk selection
+                ,   viewCube valueFetcher Horizontal hc dk selection
             ]
  
 
 
-toHtml: Maybe Selection -> Koncept  ->  Html Msg             
-toHtml selection  = divKoncept selection
+toHtml: ValueFetcher -> Maybe Selection -> Koncept  ->  Html Msg             
+toHtml = divKoncept  

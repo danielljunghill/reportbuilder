@@ -104,25 +104,38 @@ body, html, .report-wrapper
     padding: 10px;
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     text-align: center; 
-    color:black
+    color:black;
+    font-size: 12px;
+    
 }
 
 .grid-cell-selected
 {
-    color: black;
-    background-color: rgba(43, 41, 41, 0.658);
 
+    color: rgb(215, 233, 215);
+    background-color:  rgb(121, 118, 118);
 }
+
+
 
 .grid-row-header-selected
 {
     color: darkblue;
-    background-color: gray;
+    /* background-color: rgb(161, 158, 158); */
+    font-size: 18px;
+    background-color: lightgrey;
+}
+
+.grid-row-header
+{
+    color: black;
+    font-size: 18px;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 .grid-cell-associated
 {
-    color: darkblue;
+    color: black;
     background-color: lightgrey;
 
 }
@@ -130,14 +143,17 @@ body, html, .report-wrapper
 .grid-column-header-selected
 {
     color: darkblue;
-    background-color: darkgreen;
+    /* background-color:  rgb(161, 158, 158); */
+    background-color: lightgrey;
 }
 
 
 .grid-column-header
 {
-    color: darkblue;
-    background-color:rgb(226, 219, 219);
+
+    font-size: 18px;
+    padding: 10px;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 
 }
 
@@ -165,7 +181,7 @@ body, html, .report-wrapper
 
 .rind3
 {
-    padding: 5px 0px 5px 25px
+    padding: 5px 0px 5px 25px;
     text-align: left;
 }
 
@@ -208,7 +224,7 @@ input
 {
     width:100%;
     box-sizing: border-box;
-    background-color: white;
+    background-color: rgb(215, 233, 215);
     border: red;
 
 }

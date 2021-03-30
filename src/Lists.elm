@@ -95,3 +95,44 @@ foldi f s m =
                recFoldi (i + 1) newState tail
    in 
       recFoldi 0 s m
+
+fold: (state -> a -> state) -> state -> List a ->  state
+fold f s m =
+   let
+      recFold state l =
+         case l of
+         [] ->  state
+         head :: tail ->
+            let
+               newState = f state head 
+            in
+               recFold newState tail
+   in 
+      recFold s m
+
+
+
+
+cross: List (List a) -> (b -> List a) -> List b -> List (List a)
+cross state f m =
+   let 
+      expandOne: List (List a) -> List a -> List (List a) 
+      expandOne l1 l2 =  
+         l1 
+         |> fold (\foldState a -> foldState ++ (l2 |> List.map (\b -> [ b ] ++ a))) []
+   in
+      case m of
+         [] -> state
+         head :: tail ->
+               let
+                  nextState =
+                     if List.isEmpty state then
+                        head
+                        |> f
+                        |> List.map (\a -> [ a ])
+                     else
+                        head
+                        |> f
+                        |> expandOne state 
+               in
+                  cross nextState f tail

@@ -6,12 +6,13 @@ import Koncepts.Koncept exposing (KonceptAction)
 import Koncepts.CubeKoncept as CubeKoncept
 import Array exposing (foldr)
 import Koncepts.Area
-import Koncepts.CubeDimension
+
 import Json.Decode exposing (string)
 import NList exposing (..)
 import NList as NList
 import Prime exposing (..)
 import Prime 
+import Koncepts.CubeDimension2
 import Koncepts.Hypercube exposing (..)
 
 
