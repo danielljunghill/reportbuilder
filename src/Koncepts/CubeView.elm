@@ -1,6 +1,6 @@
 module Koncepts.CubeView exposing (..)
 import Koncepts.CubeKoncept exposing (..)
-import Koncepts.CubeDimension2 exposing (..)
+import Koncepts.CubeDimension exposing (..)
 import Koncepts.Area exposing (..)
 import Koncepts.Area as Area
 import Koncepts.Model exposing (..)
@@ -13,6 +13,7 @@ import Html.Events exposing (..)
 import Msg exposing (..)
 import Model exposing (..)
 import Events.Custom exposing (..)
+import Koncepts.CubeModel exposing (..)
 
 attrEventSelectCell: CubeColumn -> ValueKoncept -> List (Attribute Msg) -> List (Attribute Msg)
 attrEventSelectCell cubeColumn row attr = 
@@ -20,7 +21,7 @@ attrEventSelectCell cubeColumn row attr =
             event: Attribute Msg 
             event = 
                rowAndMemberFactorList row cubeColumn
-               |> SelectValue
+               |> (\factors -> SelectValue (factors,[]))
                |> Msg.SelectMsg  
                |> onClick
          in
@@ -32,7 +33,7 @@ attrEventEditCell content cubeColumn row attr =
             event: Attribute Msg 
             event = 
                rowAndMemberFactorList row cubeColumn
-               |> EditValue
+               |> (\factors -> EditValue (factors,[]))
                |> Msg.SelectMsg 
                |> onDoubleClick
          in
@@ -117,17 +118,19 @@ attrSelected c b =
 attrSelected2: List (Attribute Msg)-> Bool -> List (Attribute Msg)
 attrSelected2 attr selected =
    if selected then attr else []
+
 attrColumnHeaderSelected = "grid-column-header-selected" |> createClassAttr
 attrColumnHeader = "grid-column-header" |> createClassAttr
-columnHeaderCell: CubeColumnOffset -> CubeColumnHeader -> Html Msg
-columnHeaderCell (CubeColumnOffset offset) colunmHeader =
-   colunmHeader.area
+columnHeaderCell: Direction -> CubeColumnOffset -> CubeHeader -> Html Msg
+columnHeaderCell direction (CubeColumnOffset offset) cubeHeader =
+   cubeHeader
+   |> cubeHeaderToArea direction
    |> offsetArea offset
    |> attributeGridArea
    |> List.append attrColumnHeader
    |> List.append attrBox
-   |> List.append (attrSelected2 attrColumnHeaderSelected colunmHeader.isSelected)
-   |> textCell (Content colunmHeader.member.name)
+   |> List.append (attrSelected2 attrColumnHeaderSelected cubeHeader.isSelected)
+   |> textCell (Content cubeHeader.name)
 
 attrRowHeaderAbstract: KonceptRow -> List (Attribute msg)
 attrRowHeaderAbstract rowHeader = 
@@ -176,17 +179,17 @@ rowAndMemberFactorList vk (CubeColumn members) =
  
 
 
-selectionFactors: Selection -> NList Factor
-selectionFactors selection =
-   case selection of
-      EditValue edited -> edited
-      SelectValue selected -> selected
+-- selectionFactors: Selection -> NList Factor
+-- selectionFactors selection =
+--    case selection of
+--       EditValue (edited -> edited
+--       SelectValue selected -> selected
 
 type SelectionFactor = SelectionFactor Factor
 
 selectionSingleFactor:  Selection ->  SelectionFactor
 selectionSingleFactor  =
-   selectionFactors 
+   factorsInSelection 
    >> multiplyFactors 
    >> SelectionFactor
 
@@ -452,7 +455,7 @@ viewCube valueFetcher direction hyperCube koncepts selection =
          factorsForSelection = 
             case selection of
                Just s -> 
-                 selectionFactors s
+                 factorsInSelection s
                  |> NList.toList
                Nothing -> []
 
@@ -471,12 +474,12 @@ viewCube valueFetcher direction hyperCube koncepts selection =
          cubeColumns: CubeColumns
          cubeColumns = 
             dimensions
-            |> calculateCubeColumns direction factorsForSelection
+            |> calculateCubeColumns direction selection
        
          columns: List (Html Msg) 
          columns = 
             cubeColumns.headers 
-            |> List.map (\header -> columnHeaderCell cubeRows.offset header)
+            |> List.map (\header -> columnHeaderCell direction cubeRows.offset header)
 
          cells: List (Html Msg) 
          cells = 

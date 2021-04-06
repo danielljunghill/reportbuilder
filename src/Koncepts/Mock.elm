@@ -12,7 +12,7 @@ import NList exposing (..)
 import NList as NList
 import Prime exposing (..)
 import Prime 
-import Koncepts.CubeDimension2
+import Koncepts.CubeDimension
 import Koncepts.Hypercube exposing (..)
 
 

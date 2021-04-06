@@ -136,3 +136,5 @@ cross state f m =
                         |> expandOne state 
                in
                   cross nextState f tail
+
+

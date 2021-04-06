@@ -10,6 +10,8 @@ import Dict exposing (..)
 type Factor = Factor Int
 factorToInt (Factor i) = i
 
+type AbstractFactor = AbstractFactor Int
+
 factorFromPrime: Prime -> Factor 
 factorFromPrime prime =
     Factor prime.numbers.head
@@ -41,6 +43,7 @@ type alias AbstractKoncept =
             name : AbstractKonceptName
         ,   id : AbstractKonceptId
         ,   selected: Bool
+        ,   factor: AbstractFactor
     }
 
 --Hypercube
@@ -160,7 +163,8 @@ createAbstractKonceptWithSelection selected name  =
         {
                      id = Id.create() |> AbstractKonceptId 
                 ,    name = AbstractKonceptName name   
-                ,    selected = selected               
+                ,    selected = selected   
+                ,    factor = 1 |> AbstractFactor            
         } 
 
 createValueKoncept: String -> Factor ->  ValueKoncept

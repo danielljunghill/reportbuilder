@@ -24,10 +24,20 @@ import Koncepts.Model exposing (..)
 -- and selectCell
 -- select column and select 
 type Selection =
-   EditValue (NList Factor)
-   | SelectValue (NList Factor)
+   EditValue (NList Factor, List AbstractFactor)
+   | SelectValue (NList Factor, List AbstractFactor)
 
-type UpdateValue = UpdateValue (NList Factor,Content)
+factorsInSelection selection =
+   case selection of
+      EditValue (factors,_) -> factors
+      SelectValue (factors,_)-> factors 
+
+abstractFactorsInSelection selection =
+      case selection of
+         EditValue (_,abstractFactors) -> abstractFactors
+         SelectValue (_,abstractFactors) -> abstractFactors 
+
+type UpdateValue = UpdateValue (NList Factor, Content)
 updateValue factors content = UpdateValue (factors,content)
 
 

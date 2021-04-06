@@ -134,12 +134,21 @@ type alias Area =
       ,  verticalSpan: VerticalSpan
    }
 
-
 type Direction =
    Vertical
    | Horizontal
 
 type Depth = Depth Int
+
+depthInt (Depth depth) = depth
+
+incrementDepth (Depth depth) = 
+   depth + 1
+   |> Depth
+
+decrementDepth (Depth depth) =
+   depth - 1
+   |> Depth
 
 incrementVerticalStart: Area -> Area
 incrementVerticalStart area =

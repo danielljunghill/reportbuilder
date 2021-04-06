@@ -134,6 +134,10 @@ konceptRowItemName item =
       AbstractRow ak -> abstractKonceptNameToString ak.name
       ValueRow vk -> valueKonceptNameToString vk.name
 
+
+
+
+
 type alias KonceptRow = 
    {
          area: Area
@@ -232,7 +236,6 @@ type alias CubeRows =
       ,  offset: CubeColumnOffset
 
    }
-
 
 calculateIndentedCubeRows: List DimensionalKoncept  -> CubeRows
 calculateIndentedCubeRows koncepts =
