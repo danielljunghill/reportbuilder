@@ -4,7 +4,49 @@ import Koncepts.Area as Area
 import NList exposing (..)
 import Koncepts.Model exposing (Factor(..),Member)
 
+type Indent = Indent Int
 
+type alias CubeHeader  =
+    {
+            column: Start
+        ,   columnSpan: Span
+        ,   row: Start
+        ,   rowSpan: Span
+        ,   attributes: List String
+        ,   name: String
+        ,   isSelected: Bool
+        ,   indent: Maybe Indent
+    }
+
+-- depthToStart (Depth depth) = depth |> Start
+
+cubeHeaderToArea: Direction -> CubeHeader -> Area
+cubeHeaderToArea direction cubeHeader =
+    case direction of
+        Vertical ->
+            Area.emptyArea
+            |> addVerticalSpan (cubeHeader.columnSpan |> VerticalSpan)
+            |> addVerticalStart (cubeHeader.column |> VerticalStart)
+            |> addHorizontalStart (cubeHeader.row|> HorizontalStart)
+            |> addHorizontalSpan (cubeHeader.rowSpan |> HorizontalSpan)
+
+        Horizontal ->
+            Area.emptyArea
+            |> addVerticalSpan (cubeHeader.rowSpan |> VerticalSpan)
+            |> addVerticalStart (cubeHeader.row |> VerticalStart)
+            |> addHorizontalStart (cubeHeader.column|> HorizontalStart)
+            |> addHorizontalSpan (cubeHeader.columnSpan |> HorizontalSpan)
+
+type CubeColumn = CubeColumn(NList Member)
+
+type CubeRowOffset = CubeRowOffset Offset
+
+type alias CubeColumns = 
+    {
+            columns: List CubeColumn
+         ,  headers:List CubeHeader   --dimensionsToCubeColumnHeaders direction selection dimensions
+         ,  offset: CubeRowOffset
+    }
 
 -- type alias CubeHeader  =
 --     {
@@ -91,43 +133,44 @@ import Koncepts.Model exposing (Factor(..),Member)
 --     }
 
 
+-- type Indent = Indent Int
+-- type alias CubeHeader  =
+--     {
+--             span: Span
+--         ,   start: Start
+--         ,   depth: Depth
+--         ,   attributes: List String
+--         ,   name: String
+--         ,   isSelected: Bool
+--         ,   indent: MaybeIndent
+--     }
 
-type alias CubeHeader  =
-    {
-            span: Span
-        ,   start: Start
-        ,   depth: Depth
-        ,   attributes: List String
-        ,   name: String
-        ,   isSelected: Bool
-    }
+-- depthToStart (Depth depth) = depth |> Start
 
-depthToStart (Depth depth) = depth |> Start
+-- cubeHeaderToArea: Direction -> CubeHeader -> Area
+-- cubeHeaderToArea direction cubeHeader =
+--     case direction of
+--         Vertical ->
+--             Area.emptyArea
+--             |> addVerticalSpan (cubeHeader.span |> VerticalSpan)
+--             |> addVerticalStart (cubeHeader.start |> VerticalStart)
+--             |> addHorizontalStart ((depthToStart cubeHeader.depth) |> HorizontalStart)
+--             |> addHorizontalSpan oneHorizontalSpan
 
-cubeHeaderToArea: Direction -> CubeHeader -> Area
-cubeHeaderToArea direction cubeHeader =
-    case direction of
-        Vertical ->
-            Area.emptyArea
-            |> addVerticalSpan (cubeHeader.span |> VerticalSpan)
-            |> addVerticalStart (cubeHeader.start |> VerticalStart)
-            |> addHorizontalStart ((depthToStart cubeHeader.depth) |> HorizontalStart)
-            |> addHorizontalSpan oneHorizontalSpan
+--         Horizontal ->
+--             Area.emptyArea
+--             |> addVerticalSpan oneVerticalSpan
+--             |> addVerticalStart ((depthToStart cubeHeader.depth) |> VerticalStart)
+--             |> addHorizontalStart (cubeHeader.start|> HorizontalStart)
+--             |> addHorizontalSpan (cubeHeader.span |> HorizontalSpan)
 
-        Horizontal ->
-            Area.emptyArea
-            |> addVerticalSpan oneVerticalSpan
-            |> addVerticalStart ((depthToStart cubeHeader.depth) |> VerticalStart)
-            |> addHorizontalStart (cubeHeader.start|> HorizontalStart)
-            |> addHorizontalSpan (cubeHeader.span |> HorizontalSpan)
+-- type CubeColumn = CubeColumn(NList Member)
 
-type CubeColumn = CubeColumn(NList Member)
+-- type CubeRowOffset = CubeRowOffset Offset
 
-type CubeRowOffset = CubeRowOffset Offset
-
-type alias CubeColumns = 
-    {
-            columns: List CubeColumn
-         ,  headers:List CubeHeader   --dimensionsToCubeColumnHeaders direction selection dimensions
-         ,  offset: CubeRowOffset
-    }
+-- type alias CubeColumns = 
+--     {
+--             columns: List CubeColumn
+--          ,  headers:List CubeHeader   --dimensionsToCubeColumnHeaders direction selection dimensions
+--          ,  offset: CubeRowOffset
+--     }

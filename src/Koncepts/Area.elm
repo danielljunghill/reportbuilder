@@ -156,6 +156,7 @@ incrementHorizontalStart area =
        area | horizontalStart = area.horizontalStart |> (horizontalStartMap startIncrement)
    }
 
+
 setHorizontalStart: Start -> Area -> Area  
 setHorizontalStart start area =
    {
@@ -188,6 +189,16 @@ emptyArea =
       ,  verticalStart = intToVerticalStart 0
       ,  verticalSpan = intToVerticalSpan 0
     }
+
+oneArea: Area
+oneArea =
+    {    
+         horizontalStart = intToHorizontalStart 1
+      ,  horizontalSpan = intToHorizontalSpan 1
+      ,  verticalStart = intToVerticalStart 1
+      ,  verticalSpan = intToVerticalSpan 1
+    }
+
 
 oneVerticalStart: VerticalStart 
 oneVerticalStart =  1 |> Start |> VerticalStart

@@ -105,13 +105,16 @@ createCubeHeaders selection (Span spanParent) members parents =
         newHeader: Int -> Span -> CubeHeader -> MemberHeader -> CubeHeader 
         newHeader index (Span span) parent memberHeader =
             {
-                    start =  (index * span + Area.startInt parent.start) |> Start
-                ,   span =  span |> Span
+                    column =  (index * span + Area.startInt parent.column) |> Start
+                ,   columnSpan =  span |> Span
+                ,   row =  parent.row |> startIncrement 
+                ,   rowSpan = Span 1
                 ,   name = memberHeader.member.name
-                ,   depth =  parent.depth |> incrementDepth 
                 ,   attributes = memberHeader |> addTotalAttribute
                 ,   isSelected = parent |> Just |> memberIsSelected selection memberHeader  
+                ,   indent = Nothing
             }
+
         membersCount = List.length members
         newSpan = spanParent // membersCount |> Span
 
@@ -131,12 +134,14 @@ createCubeHeaders selection (Span spanParent) members parents =
 createFirstCubeHeader:Maybe Selection -> Int -> Span -> MemberHeader -> CubeHeader
 createFirstCubeHeader selection index span memberHeader =
             {
-                    start =  (index * (spanInt span) + 1) |> Start
-                ,   span =  span
+                    column =  (index * (spanInt span) + 1) |> Start
+                ,   columnSpan =  span
                 ,   name = memberHeader.member.name
-                ,   depth =   Depth 1
+                ,   row =   Start 1
+                ,   rowSpan = Span 1
                 ,   attributes = addTotalAttribute memberHeader
                 ,   isSelected = Nothing |> memberIsSelected selection memberHeader  
+                ,   indent = Nothing
             }
 
 dimensionsToCubeHeaders: Maybe Selection -> List Dimension  -> List CubeHeader
