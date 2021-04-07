@@ -7163,13 +7163,14 @@ var $author$project$Koncepts$Area$emptyArea = {
 	verticalSpan: $author$project$Koncepts$Area$intToVerticalSpan(0),
 	verticalStart: $author$project$Koncepts$Area$intToVerticalStart(0)
 };
+var $author$project$Koncepts$Area$oneHorizontalSpan = $author$project$Koncepts$Area$HorizontalSpan(
+	$author$project$Koncepts$Area$Span(1));
 var $author$project$Koncepts$CubeModel$cubeHeaderToArea = F2(
 	function (direction, cubeHeader) {
 		if (direction.$ === 'Vertical') {
 			return A2(
 				$author$project$Koncepts$Area$addHorizontalSpan,
-				$author$project$Koncepts$Area$HorizontalSpan(
-					$author$project$Koncepts$Area$Span(1)),
+				$author$project$Koncepts$Area$oneHorizontalSpan,
 				A2(
 					$author$project$Koncepts$Area$addHorizontalStart,
 					$author$project$Koncepts$Area$HorizontalStart(
@@ -7192,11 +7193,7 @@ var $author$project$Koncepts$CubeModel$cubeHeaderToArea = F2(
 						$author$project$Koncepts$Area$addVerticalStart,
 						$author$project$Koncepts$Area$VerticalStart(
 							$author$project$Koncepts$CubeModel$depthToStart(cubeHeader.depth)),
-						A2(
-							$author$project$Koncepts$Area$addVerticalSpan,
-							$author$project$Koncepts$Area$VerticalSpan(
-								$author$project$Koncepts$Area$Span(1)),
-							$author$project$Koncepts$Area$emptyArea))));
+						A2($author$project$Koncepts$Area$addVerticalSpan, $author$project$Koncepts$Area$oneVerticalSpan, $author$project$Koncepts$Area$emptyArea))));
 		}
 	});
 var $author$project$Koncepts$Area$offsetArea = F2(
@@ -7693,8 +7690,6 @@ var $author$project$Lists$foldi = F3(
 			});
 		return A3(recFoldi, 0, s, m);
 	});
-var $author$project$Koncepts$Area$oneHorizontalSpan = $author$project$Koncepts$Area$HorizontalSpan(
-	$author$project$Koncepts$Area$Span(1));
 var $author$project$Koncepts$CubeView$gridCells = F5(
 	function (valueFetcher, direction, selection, cubeColumns, cubeRows) {
 		var selectionWithFactors = A2($elm$core$Maybe$map, $author$project$Koncepts$CubeView$createSelectionWithFactor, selection);

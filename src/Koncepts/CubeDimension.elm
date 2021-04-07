@@ -215,4 +215,3 @@ calculateCubeColumns direction selection dimensions =
       }
 
 
- 
