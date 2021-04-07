@@ -6650,6 +6650,10 @@ var $author$project$Koncepts$CubeDimension$memberIsSelected = F3(
 			isMemberInSelection(memberHeader.member),
 			A2($elm$core$Maybe$map, isSelected, maybeParent));
 	});
+var $author$project$Koncepts$Area$spanInt = function (_v0) {
+	var span = _v0.a;
+	return span;
+};
 var $author$project$Koncepts$Area$startMap = F2(
 	function (f, _v0) {
 		var start = _v0.a;
@@ -6665,16 +6669,14 @@ var $author$project$Koncepts$Area$startInt = function (_v0) {
 	return start;
 };
 var $author$project$Koncepts$CubeDimension$createCubeHeaders = F4(
-	function (selection, _v0, members, parents) {
-		var spanParent = _v0.a;
-		var newHeader = F4(
-			function (index, _v1, parent, memberHeader) {
-				var span = _v1.a;
+	function (selection, span, members, parents) {
+		var newHeader = F3(
+			function (index, parent, memberHeader) {
 				return {
 					attributes: $author$project$Koncepts$CubeDimension$addTotalAttribute(memberHeader),
 					column: $author$project$Koncepts$Area$Start(
-						(index * span) + $author$project$Koncepts$Area$startInt(parent.column)),
-					columnSpan: $author$project$Koncepts$Area$Span(span),
+						(index * $author$project$Koncepts$Area$spanInt(span)) + $author$project$Koncepts$Area$startInt(parent.column)),
+					columnSpan: span,
 					indent: $elm$core$Maybe$Nothing,
 					isSelected: A3(
 						$author$project$Koncepts$CubeDimension$memberIsSelected,
@@ -6686,38 +6688,42 @@ var $author$project$Koncepts$CubeDimension$createCubeHeaders = F4(
 					rowSpan: $author$project$Koncepts$Area$Span(1)
 				};
 			});
-		var membersCount = $elm$core$List$length(members);
-		var newSpan = $author$project$Koncepts$Area$Span((spanParent / membersCount) | 0);
 		var createHeaders = F2(
 			function (state, header) {
 				var newHeaders = A2(
 					$author$project$Lists$mapi,
 					F2(
 						function (index, m) {
-							return A4(newHeader, index, newSpan, header, m);
+							return A3(newHeader, index, header, m);
 						}),
 					members);
 				return _Utils_ap(state, newHeaders);
 			});
 		return A3($author$project$Lists$fold, createHeaders, _List_Nil, parents);
 	});
-var $author$project$Koncepts$Area$spanInt = function (_v0) {
-	var span = _v0.a;
-	return span;
-};
-var $author$project$Koncepts$CubeDimension$createFirstCubeHeader = F4(
-	function (selection, index, span, memberHeader) {
-		return {
-			attributes: $author$project$Koncepts$CubeDimension$addTotalAttribute(memberHeader),
-			column: $author$project$Koncepts$Area$Start(
-				(index * $author$project$Koncepts$Area$spanInt(span)) + 1),
-			columnSpan: span,
-			indent: $elm$core$Maybe$Nothing,
-			isSelected: A3($author$project$Koncepts$CubeDimension$memberIsSelected, selection, memberHeader, $elm$core$Maybe$Nothing),
-			name: memberHeader.member.name,
-			row: $author$project$Koncepts$Area$Start(1),
-			rowSpan: $author$project$Koncepts$Area$Span(1)
-		};
+var $author$project$Koncepts$CubeDimension$createFirstCubeHeaders = F3(
+	function (selection, span, members) {
+		var createHeader = F2(
+			function (index, memberHeader) {
+				return {
+					attributes: $author$project$Koncepts$CubeDimension$addTotalAttribute(memberHeader),
+					column: $author$project$Koncepts$Area$Start(
+						(index * $author$project$Koncepts$Area$spanInt(span)) + 1),
+					columnSpan: span,
+					indent: $elm$core$Maybe$Nothing,
+					isSelected: A3($author$project$Koncepts$CubeDimension$memberIsSelected, selection, memberHeader, $elm$core$Maybe$Nothing),
+					name: memberHeader.member.name,
+					row: $author$project$Koncepts$Area$Start(1),
+					rowSpan: $author$project$Koncepts$Area$Span(1)
+				};
+			});
+		return A2(
+			$author$project$Lists$mapi,
+			F2(
+				function (index, member) {
+					return A2(createHeader, index, member);
+				}),
+			members);
 	});
 var $author$project$Koncepts$CubeDimension$dimensionToHeaderMembers = function (dimension) {
 	var memberToHeader = F2(
@@ -6765,18 +6771,7 @@ var $author$project$Koncepts$CubeDimension$dimensionsToCubeHeaders = F2(
 					var members = $author$project$Koncepts$CubeDimension$dimensionToHeaderMembers(dimension);
 					var span = $author$project$Koncepts$Area$Span(
 						(parentSpan / $elm$core$List$length(members)) | 0);
-					var newState = $elm$core$List$isEmpty(state) ? A2(
-						$author$project$Lists$mapi,
-						F2(
-							function (index, member) {
-								return A4($author$project$Koncepts$CubeDimension$createFirstCubeHeader, selection, index, span, member);
-							}),
-						members) : A4(
-						$author$project$Koncepts$CubeDimension$createCubeHeaders,
-						selection,
-						$author$project$Koncepts$Area$Span(parentSpan),
-						members,
-						state);
+					var newState = $elm$core$List$isEmpty(state) ? A3($author$project$Koncepts$CubeDimension$createFirstCubeHeaders, selection, span, members) : A4($author$project$Koncepts$CubeDimension$createCubeHeaders, selection, span, members, state);
 					return _Utils_ap(
 						newState,
 						A3(recDimensionToHeaders, span, newState, tail));

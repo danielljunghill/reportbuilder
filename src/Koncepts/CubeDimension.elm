@@ -100,13 +100,13 @@ memberIsSelected maybeSelection memberHeader maybeParent  =
         |> Maybe.withDefault (isMemberInSelection memberHeader.member)
 
 createCubeHeaders: Maybe Selection  -> Span -> List MemberHeader -> List CubeHeader -> List CubeHeader
-createCubeHeaders selection (Span spanParent) members parents =
+createCubeHeaders selection span members parents =
     let 
-        newHeader: Int -> Span -> CubeHeader -> MemberHeader -> CubeHeader 
-        newHeader index (Span span) parent memberHeader =
+        newHeader: Int -> CubeHeader -> MemberHeader -> CubeHeader 
+        newHeader index parent memberHeader =
             {
-                    column =  (index * span + Area.startInt parent.column) |> Start
-                ,   columnSpan =  span |> Span
+                    column =  (index * (spanInt span) + Area.startInt parent.column) |> Start
+                ,   columnSpan =  span 
                 ,   row =  parent.row |> startIncrement 
                 ,   rowSpan = Span 1
                 ,   name = memberHeader.member.name
@@ -115,15 +115,12 @@ createCubeHeaders selection (Span spanParent) members parents =
                 ,   indent = Nothing
             }
 
-        membersCount = List.length members
-        newSpan = spanParent // membersCount |> Span
-
         createHeaders:List CubeHeader -> CubeHeader ->  List CubeHeader
         createHeaders state header = 
             let 
                 newHeaders =
                     members 
-                    |> Lists.mapi (\index m -> newHeader index newSpan header m)
+                    |> Lists.mapi (\index m -> newHeader index  header m)
             in
                 state ++ newHeaders
     in
@@ -131,8 +128,10 @@ createCubeHeaders selection (Span spanParent) members parents =
         |> Lists.fold createHeaders []
 
 
-createFirstCubeHeader:Maybe Selection -> Int -> Span -> MemberHeader -> CubeHeader
-createFirstCubeHeader selection index span memberHeader =
+createFirstCubeHeaders:Maybe Selection  -> Span -> List MemberHeader -> List CubeHeader
+createFirstCubeHeaders selection span members  =
+    let 
+        createHeader index memberHeader =
             {
                     column =  (index * (spanInt span) + 1) |> Start
                 ,   columnSpan =  span
@@ -143,6 +142,9 @@ createFirstCubeHeader selection index span memberHeader =
                 ,   isSelected = Nothing |> memberIsSelected selection memberHeader  
                 ,   indent = Nothing
             }
+    in
+        members
+        |> Lists.mapi (\index member -> createHeader index member) 
 
 dimensionsToCubeHeaders: Maybe Selection -> List Dimension  -> List CubeHeader
 dimensionsToCubeHeaders selection dims =
@@ -161,10 +163,9 @@ dimensionsToCubeHeaders selection dims =
                         -- new State = List of (Header MemberHeader)
                         newState =
                             if List.isEmpty state then
-                                members
-                                |> Lists.mapi (\index member -> createFirstCubeHeader selection index span member) 
+                                createFirstCubeHeaders selection span members
                             else                              
-                                createCubeHeaders selection (Span parentSpan) members state
+                                createCubeHeaders selection span members state
                     in
                         newState ++ recDimensionToHeaders span newState tail 
     in
