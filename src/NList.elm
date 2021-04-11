@@ -58,9 +58,13 @@ mapi f m =
          ,  tail =  innerMapi 1 m.tail         
       }
 
-append: NList a -> List a -> NList a
+-- append: NList a -> List a -> NList a
+-- append n m =
+--    { n | tail = n.tail ++ m}
+
+append: NList a -> NList a -> NList a
 append n m =
-   { n | tail = n.tail ++ m}
+   { n | tail = n.tail ++ [ m.head ] ++ m.tail}
 
 
 addFirst: a -> NList a -> NList a

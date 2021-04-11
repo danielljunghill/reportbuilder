@@ -14,7 +14,10 @@ import Prime exposing (..)
 import Prime 
 import Koncepts.CubeDimension
 import Koncepts.Hypercube exposing (..)
-
+import Koncepts.CubeRowHeader exposing (..)
+import Koncepts.CubeModel exposing(..)
+import Koncepts.CubeRow exposing(..)
+import Koncepts.CubeView2
 
 firstPrime:Prime
 firstPrime =  Prime.init

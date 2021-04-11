@@ -1,15 +1,22 @@
-module Koncepts.CubeKonceptIdentity exposing (createForIndentedTable,addMembers,KonceptValuePath,KonceptPath,KonceptMemberIdentity)
-import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept)
+module Koncepts.CubeRow exposing (createIndented,addMembers,KonceptValuePath,KonceptPath(..),CubeRow)
+import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept, DimensionalKoncept(..))
 import Koncepts.Area exposing (..)
 import NList exposing (..)
+import Lists 
 
 type alias KonceptValuePath =
    {
          value: ValueKoncept
-      ,  abstracts: AbstractKoncept
+      ,  abstracts: List AbstractKoncept 
    }
 
-type alias KonceptPath =
+konceptValuePath value  =       
+    {
+            value = value
+        ,   abstracts = [] 
+    }
+
+type KonceptPath =
       AbstractPath (NList AbstractKoncept)
       | ValuePath KonceptValuePath
 
@@ -18,7 +25,6 @@ type alias CubeRow =
          konceptPath: KonceptPath    
       ,  members: List Member 
    }
-
 
 fromAbstract: AbstractKoncept -> CubeRow
 fromAbstract ak  =
@@ -30,13 +36,13 @@ fromAbstract ak  =
 fromValue:ValueKoncept -> CubeRow
 fromValue vk =
     {
-        konceptPath = { value = vk; abstracts = [] } |> ValuePath
-        members = []
+            konceptPath =  vk |> konceptValuePath |> ValuePath
+        ,   members = []
     }
 
 addMembers: NList Member  -> CubeRow -> CubeRow 
-addMembers members identity=
-    { identity | members = NList.toList members @ identity.members}
+addMembers members identity =
+    { identity | members = (members |> NList.toList) ++ identity.members}
 
 addAbstractKoncept: AbstractKoncept -> CubeRow -> CubeRow
 addAbstractKoncept ak identity =
@@ -47,13 +53,13 @@ addAbstractKoncept ak identity =
                     NList.addList path [ ak ] 
                     |> AbstractPath
                 ValuePath path -> 
-                    { path | abstracts = [ ak ] @ path.Abstracts } 
+                    { path | abstracts = [ ak ] ++ path.abstracts } 
                     |> ValuePath
     in
-        { identity | KonceptPath = newPath }
+        { identity | konceptPath = newPath }
 
-createForIndentedTable: List DimensionalKoncept -> List CubeRow
-createForIndentedTable koncepts = 
+createIndented: List DimensionalKoncept -> List CubeRow
+createIndented dimensionalKoncepts = 
     let 
         recfirst: DimensionalKoncept -> List CubeRow
         recfirst koncept =
@@ -61,7 +67,7 @@ createForIndentedTable koncepts =
                 DimensionalAbstract (ak, koncepts) -> 
                     [ 
                         fromAbstract ak 
-                    ] @ (koncepts |> List.collect (recRest ak))
+                    ] ++ (koncepts |> Lists.collect (recRest ak))
                 DimensionalValue vk -> [ fromValue vk ]
 
         recRest: AbstractKoncept -> DimensionalKoncept -> List CubeRow
@@ -72,11 +78,11 @@ createForIndentedTable koncepts =
                         ak
                         |> fromAbstract  
                         |> addAbstractKoncept parent
-                    ] @ (koncepts |> List.collect (rest ak))
-            | DimensionalValue vk ->
-                [ 
-                    fromValue vk
-                    |> addAbstractKoncept parent
-                ]
+                    ] ++ (koncepts |> Lists.collect (recRest ak))
+                DimensionalValue vk ->
+                    [ 
+                        fromValue vk
+                        |> addAbstractKoncept parent
+                    ]
     in 
-        koncepts |> List.collect recfirst
+        dimensionalKoncepts |> Lists.collect recfirst
