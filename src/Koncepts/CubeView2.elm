@@ -23,8 +23,10 @@ tryGetfactors cubeRow (CubeColumn members) =
       AbstractPath _ -> Nothing
       ValuePath kvp ->
          let 
+            
+            (CubeRowMembers cubeRowMembers) = cubeRow.members   
             factors =
-                cubeRow.members |> List.map (\m -> m.factor)
+                cubeRowMembers |> List.map (\m -> m.factor)
                 |> NList.addList (NList.create kvp.value.factor)
                 |> NList.append (membersFactorList members)
          in
@@ -186,9 +188,11 @@ cubeColumnSingeFactor (CubeColumn members) =
    members
    |> membersFactor
 
-rowAndMemberFactorList: ValueKoncept -> CubeColumn -> NList Factor
-rowAndMemberFactorList vk (CubeColumn members) =
-      hyperValueFactorList vk members 
+rowAndMemberFactorList: ValueKoncept -> CubeRowMembers -> CubeColumn -> NList Factor
+rowAndMemberFactorList vk (CubeRowMembers cubeRowMembers) (CubeColumn members) =
+      cubeRowMembers 
+      |> List.append (members |> NList.toList )  
+      |> hyperValueFactorList vk  
  
 
 
@@ -241,22 +245,22 @@ createClassAttr name = [ class name ]
 attrSelectedCell =  "grid-cell-selected" |> createClassAttr
 attrAssociatedCell = "grid-cell-associated" |> createClassAttr
 
-associatedCell:  ValueKoncept -> CubeColumn -> Content-> CellCreator
-associatedCell valueKoncept cubeColumn content =
+associatedCell:  CubeRow -> CubeColumn -> Content-> CellCreator
+associatedCell cubeRow cubeColumn content =
    (\attr -> 
       attrAssociatedCell 
       |> addAttr attr
-      |> (attrEventEditCell content cubeColumn valueKoncept)
-      |> (attrEventSelectCell cubeColumn valueKoncept)
+      |> (attrEventEditCell cubeColumn cubeRow)
+      |> (attrEventSelectCell cubeColumn cubeRow)
       |> textCell content)
    |> CellCreator
 
-selectedCell: Selection -> ValueKoncept -> CubeColumn->  Content-> CellCreator
-selectedCell selection valueKoncept cubeColumn content  =
+selectedCell: Selection -> ValueKoncept -> CubeRowMembers -> CubeColumn->  Content-> CellCreator
+selectedCell selection valueKoncept cubeRowMembers cubeColumn content  =
    case selection of
       EditValue _ ->
                cubeColumn
-               |> rowAndMemberFactorList valueKoncept
+               |> rowAndMemberFactorList valueKoncept cubeRowMembers
                |> inputCell content 
                |> CellCreator
       SelectValue _ ->
@@ -322,16 +326,18 @@ cellHtml selected cellCreator =
       }
 
 
-getContentFromRowAndMembers: ValueKoncept -> CubeColumn -> ValueFetcher -> Content 
-getContentFromRowAndMembers valueKoncept (CubeColumn members) valueFetcher =
+getContentFromRowAndMembers: ValueKoncept -> CubeRowMembers ->  CubeColumn -> ValueFetcher -> Content 
+getContentFromRowAndMembers valueKoncept (CubeRowMembers cubeRowMembers) (CubeColumn members) valueFetcher =
          members
+         |> NList.toList
+         |> List.append cubeRowMembers
          |> hyperValueFactorList valueKoncept   
          |> getContentValueFromFetcher valueFetcher
 
-gridCellWithSelection: ValueFetcher -> Bool -> SelectionWithFactor -> KonceptRow -> CubeColumn -> CellHtml
-gridCellWithSelection valueFetcher skip selectionFactor konceptRow cubeColumns =
-      case konceptRow.item of
-         AbstractRow _ ->
+gridCellWithSelection: ValueFetcher -> Bool -> SelectionWithFactor -> CubeRow -> CubeColumn -> CellHtml
+gridCellWithSelection valueFetcher skip selectionFactor cubeRow cubeColumns =
+      case cubeRow.item of
+         AbstractPath _ ->
             if skip then
                cellHtml skip normalAbstractCell
             else 
@@ -339,11 +345,11 @@ gridCellWithSelection valueFetcher skip selectionFactor konceptRow cubeColumns =
                   cellHtml skip associatedAbstractCell
                else
                   cellHtml skip normalAbstractCell
-         ValueRow row ->
+         ValuePath row ->
                let
                   content = 
                      valueFetcher
-                     |> getContentFromRowAndMembers row cubeColumns
+                     |> getContentFromRowAndMembers row cubeRow.members cubeColumns
                in
                   if skip then
                      content
@@ -376,8 +382,9 @@ gridCellWithoutSelection valueFetcher cubeRow cubeColumn =
             |> cellHtml False 
          ValuePath row ->
             valueFetcher
-            |> getContentFromRowAndMembers row cubeColumn
-            |> normalCell row cubeColumn
+            |> getContentFromRowAndMembers row.value cubeRow.members cubeColumn
+            -- TODO split cubeRow into value and CubeRowMembers
+            |> normalCell cubeRow cubeColumn
             |> cellHtml False 
 
 type RowIndex = RowIndex Int

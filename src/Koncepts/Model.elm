@@ -181,6 +181,7 @@ type ModelAction a =
 multiply (Factor a) (Factor b) = Factor (a * b)
 
 multiplyFactors: NList Factor -> Factor
+
 multiplyFactors factors = 
     factors 
     |> NList.fold multiply (Factor 1) 
@@ -190,11 +191,11 @@ membersFactorList members =
 
 membersFactor = membersFactorList >> multiplyFactors
 
-hyperValueFactorList: ValueKoncept -> NList Member  -> NList Factor
+hyperValueFactorList: ValueKoncept -> List Member  -> NList Factor
 hyperValueFactorList vk members =
     members 
-    |> membersFactorList
-    |> NList.addFirst vk.factor 
+    |> List.map (\m -> m.factor)
+    |> NList.addList (NList.create vk.factor)  
 
 hyperValueFactor vk members =
     hyperValueFactorList vk members

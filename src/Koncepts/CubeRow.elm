@@ -1,4 +1,4 @@
-module Koncepts.CubeRow exposing (createIndented,addMembers,KonceptValuePath,KonceptPath(..),CubeRow)
+module Koncepts.CubeRow exposing (createIndented,addMembers,KonceptValuePath,KonceptPath(..),CubeRow,CubeRowMembers(..))
 import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept, DimensionalKoncept(..))
 import Koncepts.Area exposing (..)
 import NList exposing (..)
@@ -20,29 +20,48 @@ type KonceptPath =
       AbstractPath (NList AbstractKoncept)
       | ValuePath KonceptValuePath
 
+
+type CubeRowMembers = CubeRowMembers (List Member)
+
 type alias CubeRow =
    {
          konceptPath: KonceptPath    
-      ,  members: List Member 
+      ,  members: CubeRowMembers
    }
+
+type alias CubeRowContext =     
+    {
+        abstracts: Abstract List
+        members: Member List
+    }
+
+type CubeValueRow = CubeValueRow (ValueKoncept,CubeRowContext)
+type CubeAbstractRow = CubeAbstractRow (AbstractKoncept,CubeRowContext)
+type CubeRow =
+    | AbstractRow CubeAbstractRow 
+    | ValueRow CubeValueRow
+
 
 fromAbstract: AbstractKoncept -> CubeRow
 fromAbstract ak  =
     {
             konceptPath = ak  |> NList.create |> AbstractPath
-        ,   members = []
+        ,   members = CubeRowMembers []
     }
 
 fromValue:ValueKoncept -> CubeRow
 fromValue vk =
     {
             konceptPath =  vk |> konceptValuePath |> ValuePath
-        ,   members = []
+        ,   members = CubeRowMembers []
     }
 
 addMembers: NList Member  -> CubeRow -> CubeRow 
-addMembers members identity =
-    { identity | members = (members |> NList.toList) ++ identity.members}
+addMembers members cubeRow =
+    let 
+        (CubeRowMembers cubeRowMembers) = cubeRow.members
+    in
+    { cubeRow | members = ((members |> NList.toList) ++ cubeRowMembers) |> CubeRowMembers}
 
 addAbstractKoncept: AbstractKoncept -> CubeRow -> CubeRow
 addAbstractKoncept ak identity =
