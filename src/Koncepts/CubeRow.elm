@@ -1,5 +1,5 @@
-module Koncepts.CubeRow exposing (createIndented,addMembers, addAbstractKoncept, CubeRow(..), CubeRowContext, CubeValueRow, CubeAbstractRow)
-import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept, DimensionalKoncept(..))
+module Koncepts.CubeRow exposing (..)
+import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept, DimensionalKoncept(..),AbstractFactor)
 import Koncepts.Area exposing (..)
 import NList exposing (..)
 import Lists 
@@ -49,13 +49,22 @@ addAbstractsToContext:  CubeRowContext ->  AbstractKoncept -> CubeRowContext
 addAbstractsToContext context ak  =
     { context | abstracts = context.abstracts ++ [ ak ] }
 
+
+
 type CubeValueRow = CubeValueRow (ValueKoncept,CubeRowContext)
 type CubeAbstractRow = CubeAbstractRow (AbstractKoncept,CubeRowContext)
 type CubeRow =
     AbstractRow CubeAbstractRow 
     | ValueRow CubeValueRow
 
+cubeValueRowAbstractFactors: CubeValueRow -> List AbstractFactor
+cubeValueRowAbstractFactors (CubeValueRow (_,context)) =
+    context.abstracts |> List.map (\ak -> ak.factor)
 
+cubeAbstractRowAbstractFactors: CubeAbstractRow -> List AbstractFactor
+cubeAbstractRowAbstractFactors (CubeAbstractRow (_,context)) =
+    context.abstracts |> List.map (\ak -> ak.factor)
+    
 -- fromAbstract: AbstractKoncept -> CubeRow
 -- fromAbstract ak  =
 --     {
