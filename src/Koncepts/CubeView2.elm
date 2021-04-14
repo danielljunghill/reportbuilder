@@ -88,6 +88,7 @@ grid (GridRows rows) (GridColumns cols)=
     in
      [  attrdisplay , attrColumns ]
 
+
 attributeGridArea: Area -> List (Attribute msg)
 attributeGridArea  area =
     let 
@@ -109,12 +110,15 @@ attrBox: List (Attribute msg)
 attrBox = [ style "border" "black 1px solid" ]
 
 
-attrLeftIndent: Int -> List (Attribute msg)
-attrLeftIndent indent =
-   if indent > 0 && indent < 11 then
-      [ class ("rind" ++ String.fromInt indent) ]
-   else
-      []
+attrLeftIndent: Maybe Int -> List (Attribute msg)
+attrLeftIndent maybeIndent =
+   case maybeIndent of
+      Just indent ->
+         if indent > 0 && indent < 11 then
+            [ class ("rind" ++ String.fromInt indent) ]
+         else
+            []
+      Nothing -> []
 
 attrIndentHorizontalStart: HorizontalStart -> List (Attribute msg)
 attrIndentHorizontalStart (HorizontalStart (Start start)) = attrLeftIndent start
@@ -138,6 +142,7 @@ attrSelected2 attr selected =
 
 attrColumnHeaderSelected = "grid-column-header-selected" |> createClassAttr
 attrColumnHeader = "grid-column-header" |> createClassAttr
+
 columnHeaderCell: Direction -> CubeColumnOffset -> CubeHeader -> Html Msg
 columnHeaderCell direction (CubeColumnOffset offset) cubeHeader =
    cubeHeader
@@ -149,41 +154,38 @@ columnHeaderCell direction (CubeColumnOffset offset) cubeHeader =
    |> List.append (attrSelected2 attrColumnHeaderSelected cubeHeader.isSelected)
    |> textCell (Content cubeHeader.name)
 
-attrRowHeaderAbstract: KonceptRow -> List (Attribute msg)
-attrRowHeaderAbstract rowHeader = 
-   case tryGetValueKoncept rowHeader.item of
-      Nothing -> [ class "abstract-header" ]
-      Just _ -> []
+attrRowHeaderAbstract: CubeRow -> List (Attribute msg)
+attrRowHeaderAbstract row = 
+   case row of
+      AbstractRow _ -> [ class "abstract-header" ]
+      _ -> []
 
 attrRowHeaderSelected  =  "grid-row-header-selected" |> createClassAttr
 attrRowHeader = "grid-row-header" |> createClassAttr
 
-rowHeaderCellIndented: CubeRowOffset -> List Factor -> KonceptRow -> Html Msg
-rowHeaderCellIndented (CubeRowOffset offset) selection rowHeader =
+cubeHeaderAttributes: CubeHeader -> List (Attribute msg)
+cubeHeaderAttributes cubeHeader =
+   cubeHeader.attributes
+   |> List.map class
+
+rowHeaderCellIndented: CubeRowOffset -> List Factor -> CubeRowHeader -> Html Msg
+rowHeaderCellIndented (CubeRowOffset offset) selection (CubeRowHeader cubeHeader) =
    let    
         
          newArea: Area
          newArea =
-            rowHeader.area
-            |> Area.setHorizontalSpan (Span 1)  
-            |> Area.setHorizontalStart (Start 1)
-            |> offsetArea offset
+            cubeHeaderToArea cubeHeader
+            |> Area.offsetArea offset
    in 
-      let 
-         selected =         
-            case konceptRowFactor rowHeader.item of
-               Just factor -> selection |> Lists.contains factor
-               Nothing -> False
-
-      in
+   
          attrCell
          |> addAttr attrBox
-         |> addAttr (attrIndentHorizontalStart rowHeader.area.horizontalStart)
+         |> addAttr (attrIndentHorizontalStart cubeHeader.indent)
          |> addAttr (attributeGridArea newArea)
          |> addAttr attrRowHeader
-         |> addAttr (attrSelected2 attrRowHeaderSelected selected)
-         |> addAttr (attrRowHeaderAbstract rowHeader)
-         |> textCell (Content (konceptRowItemName rowHeader.item))
+         |> addAttr (attrSelected2 attrRowHeaderSelected cubeHeader.isSelected )
+         |> List.append (cubeHeaderAttributes cubeHeader)
+         |> textCell (Content (cubeHeader.name))
 
 
 cubeColumnSingeFactor (CubeColumn members) =
@@ -329,11 +331,13 @@ getContentFromRowAndMembers cubeValueRow cubeColumn valueFetcher =
 
 gridCellWithSelection: ValueFetcher -> Bool -> SelectionWithFactor -> CubeRow -> CubeColumn -> CellHtml
 gridCellWithSelection valueFetcher skip selectionFactor cubeRow cubeColumns =
+      -- calculate factor for cell
       case cubeRow of
          AbstractRow cubeAbstractRow ->
             if skip then
                cellHtml skip normalAbstractCell
             else 
+               -- TODO calculate factor foor either row or column
                if (modFactors selectionFactor.factor (cubeColumnSingeFactor cubeColumns) == 0) then 
                   cellHtml skip associatedAbstractCell
                else
@@ -342,40 +346,43 @@ gridCellWithSelection valueFetcher skip selectionFactor cubeRow cubeColumns =
                let
                   content = 
                      valueFetcher
-                     |> getContentFromRowAndMembers row cubeRow.members cubeColumns
+                     |> getContentFromRowAndMembers cubeValueRow cubeColumns
                in
                   if skip then
                      content
-                     |> normalCell row cubeColumns
+                     |> normalCell cubeValueRow cubeColumns
                      |> cellHtml skip 
                   else 
                      let
                         cubeFactor = cubeColumnSingeFactor cubeColumns
-                        totalFactor = multiply cubeFactor row.factor
+                        totalFactor = 
+                           cubeColumns 
+                           |> factorsForCell cubeValueRow 
+                           |> multiply 
                      in
                         if isFactorSelection selectionFactor.factor totalFactor then
                           content
-                           |> selectedCell selectionFactor.selection row cubeColumns
+                           |> selectedCell selectionFactor.selection cubeValueRow cubeColumns
                            |> cellHtml True
                         else
-                           if (modFactors selectionFactor.factor row.factor == 0) || (modFactors selectionFactor.factor cubeFactor == 0) then
+                           if (modFactors selectionFactor.factor (cubeRow |> cubeValueRowFactors |> multiply) == 0) || (modFactors selectionFactor.factor cubeFactor == 0) then
                               content
-                              |> associatedCell row cubeColumns
+                              |> associatedCell cubeValueRow cubeColumns
                               |> cellHtml skip 
                            else
                               content
-                              |> normalCell row cubeColumns
+                              |> normalCell cubeValueRow cubeColumns
                               |> cellHtml skip 
 
 gridCellWithoutSelection: ValueFetcher -> CubeRow -> CubeColumn -> CellHtml 
 gridCellWithoutSelection valueFetcher cubeRow cubeColumn =
-      case cubeRow.konceptPath of
-         AbstractPath _ ->
+      case cubeRow of
+         AbstractRow _ ->
             normalAbstractCell  
             |> cellHtml False 
-         ValuePath row ->
+         ValueRow cubeValueRow ->
             valueFetcher
-            |> getContentFromRowAndMembers row.value cubeRow.members cubeColumn
+            |> getContentFromRowAndMembers cubeValueRow cubeColumn
             -- TODO split cubeRow into value and CubeRowMembers
             |> normalCell cubeRow cubeColumn
             |> cellHtml False 

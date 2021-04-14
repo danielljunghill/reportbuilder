@@ -1,33 +1,9 @@
 module Koncepts.CubeRow exposing (..)
-import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept, DimensionalKoncept(..),AbstractFactor)
+import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept, DimensionalKoncept(..),AbstractFactor, Factor)
 import Koncepts.Area exposing (..)
 import NList exposing (..)
 import Lists 
 
--- type alias KonceptValuePath =
---    {
---          value: ValueKoncept
---       ,  abstracts: List AbstractKoncept 
---    }
-
--- konceptValuePath value  =       
---     {
---             value = value
---         ,   abstracts = [] 
---     }
-
--- type KonceptPath =
---       AbstractPath (NList AbstractKoncept)
---       | ValuePath KonceptValuePath
-
-
--- type CubeRowMembers = CubeRowMembers (List Member)
-
--- type alias CubeRow =
---    {
---          konceptPath: KonceptPath    
---       ,  members: CubeRowMembers
---    }
 
 type alias CubeRowContext =     
     {
@@ -64,6 +40,11 @@ cubeValueRowAbstractFactors (CubeValueRow (_,context)) =
 cubeAbstractRowAbstractFactors: CubeAbstractRow -> List AbstractFactor
 cubeAbstractRowAbstractFactors (CubeAbstractRow (_,context)) =
     context.abstracts |> List.map (\ak -> ak.factor)
+
+cubeValueRowFactors: CubeValueRow -> List Factor 
+cubeValueRowFactors (CubeValueRow (vk,context))  =
+    [ vk.factor] ++ (context.members |> List.map (\m -> m.factor))
+
     
 -- fromAbstract: AbstractKoncept -> CubeRow
 -- fromAbstract ak  =
