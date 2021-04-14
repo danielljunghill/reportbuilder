@@ -74,9 +74,10 @@ addFirst n m =
          ,  tail = toList m
       }
 
-addList: NList a -> List a -> NList a
-addList n m =
+addList: List a -> NList a  -> NList a
+addList m n  =
    { n |  tail = n.tail ++ m }
+
 
 
 addLast:  a -> NList a -> NList a

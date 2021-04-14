@@ -23,36 +23,42 @@ factorsForCell: CubeColumn -> CubeValueRow ->  NList Factor
 factorsForCell  (CubeColumn members) (CubeValueRow (valueKoncept,rowContext)) =
         let
             factors =
-                rowContext.members 
-                |> List.map (\m -> m.factor)
-                |> NList.addList (NList.create valueKoncept.factor)
-                |> NList.append (membersFactorList members)
+               valueKoncept.factor
+               |> NList.create
+               |> NList.addList  (membersFactorList ((rowContext.members) ++ (members |> NList.toList)))
+               
         in
              factors
 
 msgFactorsForCell: CubeColumn -> CubeValueRow ->  (NList Factor, List AbstractFactor)
 msgFactorsForCell  cubeColumn cubeValueRow =
-             (factorsForCell cubeColumn cubeValueRow, factorsForCell cubeValueRow)
+             (factorsForCell cubeColumn cubeValueRow, cubeValueRowAbstractFactors cubeValueRow)
 
 attrEventSelectCell: CubeColumn -> CubeValueRow -> List (Attribute Msg) -> List (Attribute Msg)
 attrEventSelectCell cubeColumn cubeValueRow attr = 
         let
 
-            event: List (Attribute Msg) 
+            event:  Attribute Msg
             event = 
-               msgFactorsForCell cubeColumn cubeValueRow
-               |> SelectValue |> Msg.SelectMsg |> onClick
+               cubeValueRow
+               |> msgFactorsForCell cubeColumn 
+               |> SelectValue 
+               |> Msg.SelectMsg 
+               |> onClick
              
         in
             [ event ] ++ attr
 
 attrEventEditCell: CubeColumn ->  CubeValueRow  -> List (Attribute Msg) -> List (Attribute Msg)
-attrEventEditCell cubeColumn cubeRow attr = 
+attrEventEditCell cubeColumn cubeValueRow attr = 
          let
-            event:List (Attribute Msg)
+            event:Attribute Msg
             event = 
-               msgFactorsForCell cubeColumn cubeRow
-               |> EditValue |> Msg.SelectMsg |> onDoubleClick
+               cubeValueRow
+               |> msgFactorsForCell cubeColumn 
+               |> EditValue 
+               |> Msg.SelectMsg 
+               |> onDoubleClick
                
          in
             [ event ] ++ attr
@@ -110,18 +116,10 @@ attrBox: List (Attribute msg)
 attrBox = [ style "border" "black 1px solid" ]
 
 
-attrLeftIndent: Maybe Int -> List (Attribute msg)
-attrLeftIndent maybeIndent =
-   case maybeIndent of
-      Just indent ->
-         if indent > 0 && indent < 11 then
-            [ class ("rind" ++ String.fromInt indent) ]
-         else
-            []
-      Nothing -> []
 
-attrIndentHorizontalStart: HorizontalStart -> List (Attribute msg)
-attrIndentHorizontalStart (HorizontalStart (Start start)) = attrLeftIndent start
+
+-- attrIndentHorizontalStart: HorizontalStart -> List (Attribute msg)
+-- attrIndentHorizontalStart (HorizontalStart (Start start)) = attrLeftIndent start
    
 addAttr: List (Attribute msg) -> List (Attribute msg) -> List (Attribute msg) 
 addAttr a1 a2 =
@@ -168,19 +166,29 @@ cubeHeaderAttributes cubeHeader =
    cubeHeader.attributes
    |> List.map class
 
+attrLeftIndent: Maybe Indent -> List (Attribute msg)
+attrLeftIndent maybeIndent =
+   case maybeIndent of
+      Just (Indent indent) ->
+         if indent > 0 && indent < 11 then
+            [ class ("rind" ++ String.fromInt indent) ]
+         else
+            []
+      Nothing -> []
+
 rowHeaderCellIndented: CubeRowOffset -> List Factor -> CubeRowHeader -> Html Msg
 rowHeaderCellIndented (CubeRowOffset offset) selection (CubeRowHeader cubeHeader) =
    let    
         
          newArea: Area
          newArea =
-            cubeHeaderToArea cubeHeader
-            |> Area.offsetArea offset
+            cubeHeaderToArea Horizontal cubeHeader
+            |> Area.offsetArea offset 
    in 
    
          attrCell
          |> addAttr attrBox
-         |> addAttr (attrIndentHorizontalStart cubeHeader.indent)
+         |> addAttr (attrLeftIndent cubeHeader.indent)
          |> addAttr (attributeGridArea newArea)
          |> addAttr attrRowHeader
          |> addAttr (attrSelected2 attrRowHeaderSelected cubeHeader.isSelected )
@@ -190,13 +198,19 @@ rowHeaderCellIndented (CubeRowOffset offset) selection (CubeRowHeader cubeHeader
 
 cubeColumnSingeFactor (CubeColumn members) =
    members
-   |> membersFactor
+   |> NList.toList
+   |> membersAsFactor
 
 rowAndMemberFactorList: CubeValueRow -> CubeColumn -> NList Factor
 rowAndMemberFactorList (CubeValueRow (valueKoncept,rowContext)) (CubeColumn members) =
-      rowContext.members 
-      |> List.append (members |> NList.toList )  
-      |> hyperValueFactorList valueKoncept  
+      let
+         totalMembers = rowContext.members ++  (members |> NList.toList) 
+      in 
+         valueKoncept.factor
+         |> NList.create 
+         |> NList.addList (membersFactorList totalMembers) 
+      
+
 
 
 type SelectionFactor = SelectionFactor Factor
@@ -242,13 +256,13 @@ createClassAttr name = [ class name ]
 attrSelectedCell =  "grid-cell-selected" |> createClassAttr
 attrAssociatedCell = "grid-cell-associated" |> createClassAttr
 
-associatedCell:  CubeRow -> CubeColumn -> Content-> CellCreator
-associatedCell cubeRow cubeColumn content =
+associatedCell:  CubeValueRow -> CubeColumn -> Content-> CellCreator
+associatedCell cubeValueRow cubeColumn content =
    (\attr -> 
       attrAssociatedCell 
       |> addAttr attr
-      |> (attrEventEditCell cubeColumn cubeRow)
-      |> (attrEventSelectCell cubeColumn cubeRow)
+      |> (attrEventEditCell cubeColumn cubeValueRow)
+      |> (attrEventSelectCell cubeColumn cubeValueRow)
       |> textCell content)
    |> CellCreator
 
@@ -268,11 +282,11 @@ selectedCell selection cubeValueRow cubeColumn content  =
                |> CellCreator
              
 
-normalCell : CubeRow -> CubeColumn -> Content -> CellCreator
-normalCell  cubeRow cubeColumn content =
+normalCell : CubeValueRow -> CubeColumn -> Content -> CellCreator
+normalCell  cubeValueRow cubeColumn content =
    (\attr -> 
-      attrEventEditCell cubeColumn cubeRow attr
-      |> (attrEventSelectCell cubeColumn cubeRow)
+      attrEventEditCell cubeColumn cubeValueRow attr
+      |> (attrEventSelectCell cubeColumn cubeValueRow)
       |> textCell content)
    |> CellCreator
 
@@ -290,7 +304,7 @@ associatedAbstractCell =
    )
    |> CellCreator
 
-getContentValueFromFetcher: ValueFetcher -> NList Factor -> Content
+getContentValueFromFetcher: ValueFetcher -> List Factor -> Content
 getContentValueFromFetcher (ValueFetcher vf) factors = 
       factors
          |> multiplyFactors
@@ -327,10 +341,11 @@ getContentFromRowAndMembers: CubeValueRow -> CubeColumn -> ValueFetcher -> Conte
 getContentFromRowAndMembers cubeValueRow cubeColumn valueFetcher =
          cubeValueRow
          |> factorsForCell cubeColumn
+         |> NList.toList
          |> getContentValueFromFetcher valueFetcher
 
 gridCellWithSelection: ValueFetcher -> Bool -> SelectionWithFactor -> CubeRow -> CubeColumn -> CellHtml
-gridCellWithSelection valueFetcher skip selectionFactor cubeRow cubeColumns =
+gridCellWithSelection valueFetcher skip selectionFactor cubeRow cubeColumn =
       -- calculate factor for cell
       case cubeRow of
          AbstractRow cubeAbstractRow ->
@@ -338,7 +353,7 @@ gridCellWithSelection valueFetcher skip selectionFactor cubeRow cubeColumns =
                cellHtml skip normalAbstractCell
             else 
                -- TODO calculate factor foor either row or column
-               if (modFactors selectionFactor.factor (cubeColumnSingeFactor cubeColumns) == 0) then 
+               if (modFactors selectionFactor.factor (cubeColumnAsFactor cubeColumn) == 0) then 
                   cellHtml skip associatedAbstractCell
                else
                   cellHtml skip normalAbstractCell
@@ -346,32 +361,33 @@ gridCellWithSelection valueFetcher skip selectionFactor cubeRow cubeColumns =
                let
                   content = 
                      valueFetcher
-                     |> getContentFromRowAndMembers cubeValueRow cubeColumns
+                     |> getContentFromRowAndMembers cubeValueRow cubeColumn
                in
                   if skip then
                      content
-                     |> normalCell cubeValueRow cubeColumns
+                     |> normalCell cubeValueRow cubeColumn
                      |> cellHtml skip 
                   else 
                      let
-                        cubeFactor = cubeColumnSingeFactor cubeColumns
+                        cubeColumnFactor = cubeColumnAsFactor cubeColumn
                         totalFactor = 
-                           cubeColumns 
-                           |> factorsForCell cubeValueRow 
-                           |> multiply 
+                           cubeValueRow 
+                           |> factorsForCell cubeColumn 
+                           |> NList.toList
+                           |> multiplyFactors 
                      in
                         if isFactorSelection selectionFactor.factor totalFactor then
                           content
-                           |> selectedCell selectionFactor.selection cubeValueRow cubeColumns
+                           |> selectedCell selectionFactor.selection cubeValueRow cubeColumn
                            |> cellHtml True
                         else
-                           if (modFactors selectionFactor.factor (cubeRow |> cubeValueRowFactors |> multiply) == 0) || (modFactors selectionFactor.factor cubeFactor == 0) then
+                           if (modFactors selectionFactor.factor (cubeValueRow |> cubeValueRowFactors |> NList.toList |> multiplyFactors) == 0) || (modFactors selectionFactor.factor cubeColumnFactor == 0) then
                               content
-                              |> associatedCell cubeValueRow cubeColumns
+                              |> associatedCell cubeValueRow cubeColumn
                               |> cellHtml skip 
                            else
                               content
-                              |> normalCell cubeValueRow cubeColumns
+                              |> normalCell cubeValueRow cubeColumn
                               |> cellHtml skip 
 
 gridCellWithoutSelection: ValueFetcher -> CubeRow -> CubeColumn -> CellHtml 
@@ -384,17 +400,17 @@ gridCellWithoutSelection valueFetcher cubeRow cubeColumn =
             valueFetcher
             |> getContentFromRowAndMembers cubeValueRow cubeColumn
             -- TODO split cubeRow into value and CubeRowMembers
-            |> normalCell cubeRow cubeColumn
+            |> normalCell cubeValueRow cubeColumn
             |> cellHtml False 
 
 type RowIndex = RowIndex Int
 type ColumnIndex = ColumnIndex Int
 
-createGridCell: ValueFetcher -> Bool -> Maybe SelectionWithFactor -> KonceptRow -> CubeColumn -> CellHtml
-createGridCell valueFecher skip maybeSelectionWithFactor konceptRow cubeColumns =
+createGridCell: ValueFetcher -> Bool -> Maybe SelectionWithFactor -> CubeRow -> CubeColumn -> CellHtml
+createGridCell valueFecher skip maybeSelectionWithFactor cubeRow cubeColumn =
    case maybeSelectionWithFactor of
-      Just selection ->  gridCellWithSelection valueFecher skip selection  konceptRow cubeColumns
-      Nothing -> gridCellWithoutSelection valueFecher konceptRow cubeColumns
+      Just selection ->  gridCellWithSelection valueFecher skip selection  cubeRow cubeColumn
+      Nothing -> gridCellWithoutSelection valueFecher cubeRow cubeColumn
 
 creatorCreateCell: CellCreator -> List (Attribute Msg) -> Html Msg 
 creatorCreateCell (CellCreator creator) attr =
@@ -416,15 +432,15 @@ cellAreaAttributes direction area (ColumnIndex colIndex) (RowIndex rowIndex) =
          |> attributeGridArea 
 
 
-cell: ValueFetcher -> Direction -> Area -> Maybe SelectionWithFactor -> ColumnIndex -> CubeColumn -> RowIndex -> KonceptRow -> (Bool,List (Html Msg)) -> (Bool,List (Html Msg))
-cell valueFetcher direction area maybeSelection columnIndex column rowIndex row state  =
+cell: ValueFetcher -> Direction -> Area -> Maybe SelectionWithFactor -> ColumnIndex -> CubeColumn -> RowIndex -> CubeRow -> (Bool,List (Html Msg)) -> (Bool,List (Html Msg))
+cell valueFetcher direction area maybeSelection columnIndex cubeColumn rowIndex cubeRow state  =
    let
       attr =
          cellAreaAttributes direction area columnIndex rowIndex
          |> addAttr attrCell
          |> addAttr attrBox
 
-      htmlCell =  createGridCell valueFetcher (first state) maybeSelection row column        
+      htmlCell =  createGridCell valueFetcher (first state) maybeSelection cubeRow cubeColumn        
    in  
       (htmlCell.isSelected, [ creatorCreateCell htmlCell.html attr ] ++ (second state))
 
@@ -446,7 +462,7 @@ gridCells valueFetcher direction selection cubeColumns cubeRows =
          |> Area.addHorizontalSpan Area.oneHorizontalSpan
    in  
       let    
-         cells: List KonceptRow -> ColumnIndex -> CubeColumn -> (Bool,List (List (Html Msg))) -> (Bool,List (List (Html Msg)))
+         cells: List CubeRow -> ColumnIndex -> CubeColumn -> (Bool,List (List (Html Msg))) -> (Bool,List (List (Html Msg)))
          cells rows columnIndex cubeColumn acc =
             let 
                selected = first acc
@@ -454,7 +470,7 @@ gridCells valueFetcher direction selection cubeColumns cubeRows =
                newState = 
                    -- fold over rows (KonceptRow)
                    rows
-                   |> Lists.foldi (\i state row-> cell valueFetcher direction area selectionWithFactors columnIndex cubeColumn (RowIndex (i + 1)) row state) (selected,[])
+                   |> Lists.foldi (\i state cubeRow -> cell valueFetcher direction area selectionWithFactors columnIndex cubeColumn (RowIndex (i + 1)) cubeRow state) (selected,[])
               
             in
                (first newState, [ second newState ] ++ (second acc))
@@ -476,7 +492,6 @@ viewCube valueFetcher direction hyperCube koncepts selection =
             case selection of
                Just s -> 
                  factorsInSelection s
-                 |> NList.toList
                Nothing -> []
 
          dimensions: List Dimension 
@@ -489,7 +504,7 @@ viewCube valueFetcher direction hyperCube koncepts selection =
          span = dimensions |> calculateSpanForDimensions 
 
          cubeRows: CubeRows
-         cubeRows = calculateIndentedCubeRows koncepts  
+         cubeRows = createCubeRowsIndented selection koncepts  
 
          cubeColumns: CubeColumns
          cubeColumns = 
@@ -507,7 +522,7 @@ viewCube valueFetcher direction hyperCube koncepts selection =
 
          rowHeaders: List (Html Msg)
          rowHeaders =
-               cubeRows.rows
+               cubeRows.headers
                |> List.map (\rowHeader -> rowHeaderCellIndented cubeColumns.offset factorsForSelection rowHeader)
 
          gridRows: Direction -> Span -> List CubeColumn -> GridRows

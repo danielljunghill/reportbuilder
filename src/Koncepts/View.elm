@@ -8,7 +8,7 @@ import Koncepts.Model as Koncept
 import Koncepts.Model exposing (..)
 import Msg 
 import Msg exposing (..)
-import Koncepts.CubeView exposing (..)
+import Koncepts.CubeView2 exposing (..)
 import Koncepts.Area exposing (..)
 import Model exposing (..)
 

@@ -29,8 +29,8 @@ type Selection =
 
 factorsInSelection selection =
    case selection of
-      EditValue (factors,_) -> factors
-      SelectValue (factors,_)-> factors 
+      EditValue (factors,_) -> factors |> NList.toList
+      SelectValue (factors,_)-> factors |> NList.toList
 
 abstractFactorsInSelection selection =
       case selection of

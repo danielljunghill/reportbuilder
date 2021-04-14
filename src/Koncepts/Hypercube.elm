@@ -89,7 +89,7 @@ domainCreate name members =
 
 domainAddMember : DomainMember -> Domain ->  Domain
 domainAddMember member domain  =
-      {  domain | members =  NList.append domain.members [ member ] }
+      {  domain | members =  domain.members |> NList.addList [ member ] }
 
 createDimensionWithDefault: DomainName -> NList String -> Prime -> PrimeResult Dimension
 createDimensionWithDefault name members prime  =
@@ -122,4 +122,4 @@ create name dimension =
 
 addDimension: HyperDimension -> HyperCube -> HyperCube
 addDimension dimension hyperCube  =
-   { hyperCube | dimensions = NList.append hyperCube.dimensions [ dimension ]}
+   { hyperCube | dimensions = hyperCube.dimensions |> NList.addList  [ dimension ]}

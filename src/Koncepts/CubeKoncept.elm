@@ -135,9 +135,6 @@ konceptRowItemName item =
       ValueRow vk -> valueKonceptNameToString vk.name
 
 
-
-
-
 type alias KonceptRow = 
    {
          area: Area

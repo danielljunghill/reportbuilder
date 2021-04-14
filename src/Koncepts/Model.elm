@@ -5,6 +5,7 @@ import NList exposing (..)
 import Prime exposing (..)
 import Dict 
 import Dict exposing (..)
+import Lists exposing(..)
 
 -- import Events.Custom exposing (onClickStopPropagation)
 type Factor = Factor Int
@@ -180,22 +181,20 @@ type ModelAction a =
 
 multiply (Factor a) (Factor b) = Factor (a * b)
 
-multiplyFactors: NList Factor -> Factor
-
+multiplyFactors: List Factor -> Factor
 multiplyFactors factors = 
     factors 
-    |> NList.fold multiply (Factor 1) 
+    |> Lists.fold multiply (Factor 1) 
 
 membersFactorList members =
-   members |> NList.map (\m -> m.factor)
+   members |> List.map (\m -> m.factor)
 
-membersFactor = membersFactorList >> multiplyFactors
+membersAsFactor = membersFactorList >> multiplyFactors
 
-hyperValueFactorList: ValueKoncept -> List Member  -> NList Factor
+hyperValueFactorList: ValueKoncept -> List Member  -> List Factor
 hyperValueFactorList vk members =
-    members 
-    |> List.map (\m -> m.factor)
-    |> NList.addList (NList.create vk.factor)  
+    [ vk.factor ] ++ (membersFactorList members)
+
 
 hyperValueFactor vk members =
     hyperValueFactorList vk members

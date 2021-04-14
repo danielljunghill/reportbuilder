@@ -15,6 +15,7 @@ import Model
 import Model exposing (..)
 import Msg exposing (..)
 import ResultExtension exposing (..)
+import NList
 
 
 main : Program () Model Msg
@@ -32,6 +33,7 @@ initialModel = Model.init Report.mockReport
 updateValueStore: UpdateValue -> ReportModel -> ReportModel 
 updateValueStore (UpdateValue (factors,content)) reportModel =
       factors
+      |> NList.toList
       |> multiplyFactors
       |> ReportedValueFactor
       |> insertReportedValue reportModel.values (ReportedValue content) 

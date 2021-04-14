@@ -1,5 +1,5 @@
 module Koncepts.CubeRow exposing (..)
-import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept, DimensionalKoncept(..),AbstractFactor, Factor)
+import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept, DimensionalKoncept(..),AbstractFactor, Factor, multiplyFactors)
 import Koncepts.Area exposing (..)
 import NList exposing (..)
 import Lists 
@@ -41,10 +41,17 @@ cubeAbstractRowAbstractFactors: CubeAbstractRow -> List AbstractFactor
 cubeAbstractRowAbstractFactors (CubeAbstractRow (_,context)) =
     context.abstracts |> List.map (\ak -> ak.factor)
 
-cubeValueRowFactors: CubeValueRow -> List Factor 
+cubeValueRowFactors: CubeValueRow -> NList Factor 
 cubeValueRowFactors (CubeValueRow (vk,context))  =
-    [ vk.factor] ++ (context.members |> List.map (\m -> m.factor))
+    vk.factor
+    |> NList.create 
+    |> NList.addList (context.members |> List.map (\m -> m.factor))
 
+cubeValueRowFactor cubeValueRow =
+    cubeValueRow
+    |> cubeValueRowFactors
+    |> NList.toList
+    |> multiplyFactors
     
 -- fromAbstract: AbstractKoncept -> CubeRow
 -- fromAbstract ak  =

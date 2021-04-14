@@ -88,7 +88,7 @@ memberIsSelected maybeSelection memberHeader maybeParent  =
                 Just selection ->
                     selection 
                     |> factorsInSelection 
-                    |> NList.contains member.factor
+                    |> Lists.contains member.factor
                 Nothing -> False
         isSelected parent =
             if parent.isSelected then

@@ -2,7 +2,7 @@ module Koncepts.CubeModel exposing (..)
 import Koncepts.Area exposing (..)
 import Koncepts.Area as Area 
 import NList exposing (..)
-import Koncepts.Model exposing (Factor(..),Member)
+import Koncepts.Model exposing (Factor(..),Member, membersAsFactor)
 
 type Indent = Indent Int
 incrementIndent (Indent indent) =
@@ -41,6 +41,12 @@ cubeHeaderToArea direction cubeHeader =
             |> addHorizontalSpan (cubeHeader.columnSpan |> HorizontalSpan)
 
 type CubeColumn = CubeColumn(NList Member)
+
+cubeColumnAsFactor: CubeColumn -> Factor
+cubeColumnAsFactor (CubeColumn members) =
+    members 
+    |> NList.toList 
+    |> membersAsFactor 
 
 type CubeRowOffset = CubeRowOffset Offset
 

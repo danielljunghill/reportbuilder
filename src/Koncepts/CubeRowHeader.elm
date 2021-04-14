@@ -52,7 +52,7 @@ selectionContainsValue maybeSelection vk =
         isValueInSelection selection  =
             selection
             |> factorsInSelection
-            |> NList.contains vk.factor
+            |> Lists.contains vk.factor
     in
        maybeSelection
        |> Maybe.map isValueInSelection
