@@ -62,6 +62,9 @@ selectionContainsValue maybeSelection vk =
 createIndentedHeader: Maybe Selection -> List DimensionalKoncept -> List CubeHeader
 createIndentedHeader maybeSelection dimensionalKoncepts =
     let 
+        
+        t = Debug.log "maybeSelection" 
+        
         recFirst indent koncept =
             case koncept of
                 DimensionalAbstract (ak, koncepts) -> 

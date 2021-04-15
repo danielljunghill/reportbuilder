@@ -5555,19 +5555,19 @@ var $author$project$Koncepts$Mock$addCube = function (koncept) {
 		});
 	return A2($author$project$Koncepts$Koncept$mapAbstractKoncept, f, koncept);
 };
-var $author$project$Koncepts$Model$DimensionalAbstract = function (a) {
-	return {$: 'DimensionalAbstract', a: a};
-};
 var $author$project$Koncepts$Model$AbstractFactor = function (a) {
 	return {$: 'AbstractFactor', a: a};
+};
+var $author$project$Koncepts$Model$DimensionalAbstract = function (a) {
+	return {$: 'DimensionalAbstract', a: a};
 };
 var $author$project$Koncepts$Model$AbstractKonceptId = function (a) {
 	return {$: 'AbstractKonceptId', a: a};
 };
-var $author$project$Koncepts$Model$createAbstractKonceptWithSelection = F2(
-	function (selected, name) {
+var $author$project$Koncepts$Model$createAbstractKonceptWithSelection = F3(
+	function (selected, factor, name) {
 		return {
-			factor: $author$project$Koncepts$Model$AbstractFactor(1),
+			factor: factor,
 			id: $author$project$Koncepts$Model$AbstractKonceptId(
 				$author$project$Id$create(_Utils_Tuple0)),
 			name: $author$project$Koncepts$Model$AbstractKonceptName(name),
@@ -5575,15 +5575,16 @@ var $author$project$Koncepts$Model$createAbstractKonceptWithSelection = F2(
 		};
 	});
 var $author$project$Koncepts$Model$createAbstractKoncept = $author$project$Koncepts$Model$createAbstractKonceptWithSelection(false);
-var $author$project$Koncepts$CubeKoncept$createAbstract = function (dims) {
-	return A2(
-		$elm$core$Basics$composeR,
-		$author$project$Koncepts$Model$createAbstractKoncept,
-		function (ak) {
-			return $author$project$Koncepts$Model$DimensionalAbstract(
-				_Utils_Tuple2(ak, dims));
-		});
-};
+var $author$project$Koncepts$CubeKoncept$createAbstract = F2(
+	function (abstractFactor, dims) {
+		return A2(
+			$elm$core$Basics$composeR,
+			$author$project$Koncepts$Model$createAbstractKoncept(abstractFactor),
+			function (ak) {
+				return $author$project$Koncepts$Model$DimensionalAbstract(
+					_Utils_Tuple2(ak, dims));
+			});
+	});
 var $author$project$Koncepts$Model$DimensionalValue = function (a) {
 	return {$: 'DimensionalValue', a: a};
 };
@@ -5639,13 +5640,15 @@ var $author$project$Koncepts$Koncept$mapCube = F2(
 var $author$project$Koncepts$Mock$addDimensionalKoncept = function () {
 	var dims = _List_fromArray(
 		[
-			A2(
+			A3(
 			$author$project$Koncepts$CubeKoncept$createAbstract,
+			$author$project$Koncepts$Model$AbstractFactor(4),
 			_List_fromArray(
 				[$author$project$Koncepts$Mock$dimKonceptBikes.result, $author$project$Koncepts$Mock$dimKonceptSubsidies.result]),
 			'Intäkter'),
-			A2(
+			A3(
 			$author$project$Koncepts$CubeKoncept$createAbstract,
+			$author$project$Koncepts$Model$AbstractFactor(5),
 			_List_fromArray(
 				[$author$project$Koncepts$Mock$dimKonceptLon.result, $author$project$Koncepts$Mock$dimKonceptLonMaterial.result]),
 			'Kostnader')
@@ -5832,17 +5835,24 @@ var $author$project$Koncepts$Koncept$fold = F2(
 						$elm$core$Result$Ok($elm$core$Maybe$Nothing),
 						first))));
 	});
-var $author$project$Koncepts$Koncept$createAbstract = function (name) {
-	return $author$project$Koncepts$Model$Abstract(
-		_Utils_Tuple2(
-			$author$project$Koncepts$Model$createAbstractKoncept(name),
-			_List_Nil));
-};
+var $author$project$Koncepts$Koncept$createAbstract = F2(
+	function (factor, name) {
+		return $author$project$Koncepts$Model$Abstract(
+			_Utils_Tuple2(
+				A2($author$project$Koncepts$Model$createAbstractKoncept, factor, name),
+				_List_Nil));
+	});
 var $author$project$Koncepts$Mock$head = A2(
 	$author$project$Koncepts$Koncept$add,
-	$author$project$Koncepts$Koncept$createAbstract('Intäkter'),
+	A2(
+		$author$project$Koncepts$Koncept$createAbstract,
+		$author$project$Koncepts$Model$AbstractFactor(2),
+		'Intäkter'),
 	$author$project$Koncepts$Koncept$ParentKoncept(
-		$author$project$Koncepts$Koncept$createAbstract('IORP2 nationell')));
+		A2(
+			$author$project$Koncepts$Koncept$createAbstract,
+			$author$project$Koncepts$Model$AbstractFactor(1),
+			'IORP2 nationell')));
 var $author$project$Koncepts$Mock$mockKoncept = A2(
 	$elm$core$Result$andThen,
 	$author$project$Koncepts$Koncept$fold($author$project$Koncepts$Mock$addDimensionalKoncept),
@@ -7198,6 +7208,7 @@ var $author$project$Koncepts$CubeRowHeader$selectionContainsValue = F2(
 	});
 var $author$project$Koncepts$CubeRowHeader$createIndentedHeader = F2(
 	function (maybeSelection, dimensionalKoncepts) {
+		var t = $elm$core$Debug$log('maybeSelection');
 		var recRest = F3(
 			function (indent, parent, koncept) {
 				if (koncept.$ === 'DimensionalAbstract') {

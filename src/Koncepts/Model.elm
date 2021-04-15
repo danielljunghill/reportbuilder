@@ -159,19 +159,19 @@ createValueKonceptWithSelection  selected name factor   =
             newValueKoncept
             
 
-createAbstractKonceptWithSelection: Bool -> String -> AbstractKoncept
-createAbstractKonceptWithSelection selected name  =  
+createAbstractKonceptWithSelection: Bool -> AbstractFactor  -> String -> AbstractKoncept
+createAbstractKonceptWithSelection selected factor name  =  
         {
                      id = Id.create() |> AbstractKonceptId 
                 ,    name = AbstractKonceptName name   
                 ,    selected = selected   
-                ,    factor = 1 |> AbstractFactor            
+                ,    factor = factor           
         } 
 
 createValueKoncept: String -> Factor ->  ValueKoncept
 createValueKoncept = createValueKonceptWithSelection False  
 
-createAbstractKoncept: String -> AbstractKoncept
+createAbstractKoncept: AbstractFactor -> String -> AbstractKoncept
 createAbstractKoncept = createAbstractKonceptWithSelection False
 
 type ModelAction a = 

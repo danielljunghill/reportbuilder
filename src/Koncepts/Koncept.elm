@@ -36,9 +36,9 @@ addValue k p =
                 Value _ ->  Result.Err  "ValueKoncept koncept cannot be added to a ValueKoncept"   
 
 
-createAbstract: String -> Koncept
-createAbstract name =
-        (createAbstractKoncept name, []) |> Abstract
+createAbstract: AbstractFactor -> String -> Koncept
+createAbstract factor name =
+        (createAbstractKoncept factor name, []) |> Abstract
     
 addAbstract: AbstractKoncept -> Koncept -> Result String Koncept
 addAbstract k p =

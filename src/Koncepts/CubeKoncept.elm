@@ -31,8 +31,8 @@ addValueKoncept vk parent =
       DimensionalValue _ -> Err "A Value koncept cannot be added to a dimensional value"
 
 
-createAbstract: List DimensionalKoncept  -> String -> DimensionalKoncept
-createAbstract dims  = createAbstractKoncept >>  (\ak -> DimensionalAbstract (ak,dims))
+createAbstract: AbstractFactor -> List DimensionalKoncept  -> String -> DimensionalKoncept
+createAbstract abstractFactor dims  = (createAbstractKoncept abstractFactor) >>  (\ak -> DimensionalAbstract (ak,dims))
 
 type ParentKoncept =  ParentKoncept DimensionalKoncept
 

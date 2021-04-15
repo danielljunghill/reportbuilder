@@ -25,15 +25,15 @@ firstPrime =  Prime.init
 head: Result String Koncept
 head = 
     "IORP2 nationell"  
-    |> Koncept.createAbstract 
+    |> Koncept.createAbstract (AbstractFactor 1)
     |> Koncept.ParentKoncept  
-    |> Koncept.add ("Intäkter" |> Koncept.createAbstract )
+    |> Koncept.add ("Intäkter" |> Koncept.createAbstract (AbstractFactor 2) )
 
 addAbstract: String -> Result String Koncept -> Result String Koncept
 addAbstract name koncept =
     koncept
     |> Result.map Koncept.ParentKoncept 
-    |> Result.andThen (name |> Koncept.createAbstract |> Koncept.add)
+    |> Result.andThen (name |> Koncept.createAbstract (AbstractFactor 3) |> Koncept.add)
 
 regions: PrimeResult HyperDimension
 regions = 
@@ -104,7 +104,7 @@ addDimensionalKoncept:Koncept -> Result String (Maybe Koncept)
 addDimensionalKoncept  =
    let
       dims : List DimensionalKoncept 
-      dims = [ CubeKoncept.createAbstract [ dimKonceptBikes.result , dimKonceptSubsidies.result ] "Intäkter" ,  CubeKoncept.createAbstract [ dimKonceptLon.result , dimKonceptLonMaterial.result ] "Kostnader" ]
+      dims = [ CubeKoncept.createAbstract (AbstractFactor 4)  [ dimKonceptBikes.result , dimKonceptSubsidies.result ] "Intäkter" ,  CubeKoncept.createAbstract (AbstractFactor 5) [ dimKonceptLon.result , dimKonceptLonMaterial.result ] "Kostnader" ]
    in
       let
           f: HyperCube -> List DimensionalKoncept -> Result String KonceptAction
