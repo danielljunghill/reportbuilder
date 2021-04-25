@@ -12,9 +12,6 @@ intRow (Row v) = v
 type Column = Column Int
 intColumn (Column v) = v
 
-type Orientation =
-    RowVerticalAxis
-    | RowHorizontalAxis
 
 type alias Area =
     {

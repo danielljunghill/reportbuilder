@@ -16,8 +16,12 @@ import Events.Custom exposing (..)
 import Koncepts.CubeModel exposing (..)
 import Koncepts.CubeRow exposing (..)
 import Koncepts.CubeRows exposing(..)
+import Koncepts.CubeRowHeader exposing(..)
 import Koncepts.Factorhandling exposing(..)
 
+type Orientation =
+   CubeRowsAsRows
+   | CubeRowsAsColumns
 
 factorsForCell: CubeColumn -> CubeValueRow ->  NList Factor
 factorsForCell  (CubeColumn members) (CubeValueRow (valueKoncept,rowContext)) =
@@ -78,34 +82,43 @@ type GridRows = GridRows Int
 rowsInt: GridRows -> Int
 rowsInt (GridRows rows) = rows
 
-grid: GridRows -> GridColumns -> List (Attribute msg) 
-grid (GridRows rows) (GridColumns cols)=
+-- grid: GridRows -> GridColumns -> List (Attribute msg) 
+-- grid (GridRows rows) (GridColumns cols)=
+--     let 
+      
+--         attrdisplay: Attribute msg
+--         attrdisplay = style "display" "grid"  
+--       -- Horizontal span
+--       --   attrColumns: Attribute msg
+--       --   attrColumns = gridSizeAttribute "grid-template-columns" "repeat(" cols ")"
+--       -- -- vertical span
+--       --   attrRows: Attribute msg
+--       --   attrRows = gridSizeAttribute "grid-template-rows" "repeat(" rows ", minmax(50px,100px))"
+
+--     in
+--      [  attrdisplay , attrColumns ]
+grid: List (Attribute msg) 
+grid =
     let 
       
         attrdisplay: Attribute msg
         attrdisplay = style "display" "grid"  
-      -- Horizontal span
-        attrColumns: Attribute msg
-        attrColumns = gridSizeAttribute "grid-template-columns" "repeat(" cols ")"
-      -- vertical span
-        attrRows: Attribute msg
-        attrRows = gridSizeAttribute "grid-template-rows" "repeat(" rows ", minmax(50px,100px))"
+
 
     in
-     [  attrdisplay , attrColumns ]
-
+     [  attrdisplay ]
 
 attributeGridArea: Area -> List (Attribute msg)
-attributeGridArea  area =
+attributeGridArea area =
     let 
         row: String 
-        row = area.verticalStart |> verticalStartToInt |> String.fromInt |> (\s -> s )
+        row = area.row |> intRow |> String.fromInt |> (\s -> s )
         col: String 
-        col = area.horizontalStart |> horizontalStartToInt |> String.fromInt |> (\s -> " / " ++ s)
+        col = area.column |>  intColumn |> String.fromInt |> (\s -> " / " ++ s)
         colSpan: String 
-        colSpan = area.horizontalSpan |> horizontalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s )
+        colSpan = area.columnSpan |> intColumnSpan |> String.fromInt |> (\s ->" / span " ++ s )
         rowSpan: String 
-        rowSpan = area.verticalSpan |> verticalSpanToInt |> String.fromInt |> (\s ->" / span " ++ s)
+        rowSpan = area.rowSpan |> intRowSpan |> String.fromInt |> (\s ->" / span " ++ s)
         areaAttribute: Attribute msg   
         areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
     in
@@ -141,11 +154,41 @@ attrSelected2 attr selected =
 attrColumnHeaderSelected = "grid-column-header-selected" |> createClassAttr
 attrColumnHeader = "grid-column-header" |> createClassAttr
 
-columnHeaderCell: Direction -> CubeColumnOffset -> CubeHeader -> Html Msg
-columnHeaderCell direction (CubeColumnOffset offset) cubeHeader =
-   cubeHeader
-   |> cubeHeaderToArea direction
-   |> offsetArea offset
+adjustAreaToOrientation: Orientation -> Area -> Area
+adjustAreaToOrientation orientation area =
+   case orientation of
+      CubeRowsAsRows -> area
+      CubeRowsAsColumns ->
+         {
+               row = area.column |> intColumn |> Row
+            ,  column = area.row |> intRow |> Column
+            ,  rowSpan = area.columnSpan |> intColumnSpan |> RowSpan
+            ,  columnSpan = area.rowSpan |> intRowSpan |> ColumnSpan
+         }
+
+offsetAndAdjustToOrientation: Orientation -> Offset -> Area -> Area 
+offsetAndAdjustToOrientation orientation offset area =
+   case orientation of
+      CubeRowsAsRows -> 
+         area
+         |> offsetArea offset
+      CubeRowsAsColumns ->
+         let 
+            newOffset =
+               {
+                     column = offset.row |> intRow |> Column
+                  ,  row = offset.column |> intColumn |> Row
+               }
+         in
+            area
+            |> offsetArea newOffset
+         
+
+columnHeaderCell: Orientation -> CubeColumnOffset -> CubeHeader -> Html Msg
+columnHeaderCell orientation (CubeColumnOffset offset) cubeHeader =
+   cubeHeader.area
+   |> adjustAreaToOrientation orientation
+   |> offsetAndAdjustToOrientation orientation offset
    |> attributeGridArea
    |> List.append attrColumnHeader
    |> List.append attrBox
@@ -160,6 +203,7 @@ attrRowHeaderAbstract row =
 
 attrRowHeaderSelected  =  "grid-row-header-selected" |> createClassAttr
 attrRowHeader = "grid-row-header" |> createClassAttr
+
 
 cubeHeaderAttributes: CubeHeader -> List (Attribute msg)
 cubeHeaderAttributes cubeHeader =
@@ -182,8 +226,11 @@ rowHeaderCellIndented (CubeRowOffset offset) selection (CubeRowHeader cubeHeader
         
          newArea: Area
          newArea =
-            cubeHeaderToArea Horizontal cubeHeader
-            |> Area.offsetArea offset 
+            cubeHeader.area
+            |> adjustAreaToOrientation CubeRowsAsRows
+            |> offsetAndAdjustToOrientation CubeRowsAsRows offset
+            |> addRowToArea (Row 1)
+
    in 
    
          attrCell
@@ -416,50 +463,53 @@ creatorCreateCell: CellCreator -> List (Attribute Msg) -> Html Msg
 creatorCreateCell (CellCreator creator) attr =
    creator attr
 
-cellAreaAttributes: Direction -> Area -> ColumnIndex -> RowIndex -> List (Attribute Msg)
-cellAreaAttributes direction area (ColumnIndex colIndex) (RowIndex rowIndex) =
-   case direction of
-      Horizontal ->
+cellAreaAttributes: Orientation -> Area -> ColumnIndex -> RowIndex -> List (Attribute Msg)
+cellAreaAttributes orientation area (ColumnIndex colIndex) (RowIndex rowIndex) =
+   case orientation of
+      CubeRowsAsRows  ->
          area
-         |> Area.addHorizontalStart (colIndex |> Start |> HorizontalStart)
-         |> Area.addVerticalStart (rowIndex |> Start |> VerticalStart)
+         |> Area.addColumnToArea (colIndex |> Column)
+         |> Area.addRowToArea (rowIndex |> Row)
+         |> attributeGridArea 
+      CubeRowsAsColumns ->
+         area
+         |> Area.addRowToArea (colIndex |> Row)
+         |> Area.addColumnToArea (rowIndex |> Column)
          |> attributeGridArea 
 
-      Vertical ->
-         area
-         |> Area.addVerticalStart (colIndex |> Start |> VerticalStart)
-         |> Area.addHorizontalStart (rowIndex |> Start |> HorizontalStart)
-         |> attributeGridArea 
 
-
-cell: ValueFetcher -> Direction -> Area -> Maybe SelectionWithFactor -> ColumnIndex -> CubeColumn -> RowIndex -> CubeRow -> (Bool,List (Html Msg)) -> (Bool,List (Html Msg))
-cell valueFetcher direction area maybeSelection columnIndex cubeColumn rowIndex cubeRow state  =
+cell: ValueFetcher -> Orientation -> Area -> Maybe SelectionWithFactor -> ColumnIndex -> CubeColumn -> RowIndex -> CubeRow -> (Bool,List (Html Msg)) -> (Bool,List (Html Msg))
+cell valueFetcher orientation area maybeSelection columnIndex cubeColumn rowIndex cubeRow state  =
    let
       attr =
-         cellAreaAttributes direction area columnIndex rowIndex
+         cellAreaAttributes orientation area columnIndex rowIndex
          |> addAttr attrCell
          |> addAttr attrBox
+         |> Debug.log "attribute for area"
 
       htmlCell =  createGridCell valueFetcher (first state) maybeSelection cubeRow cubeColumn        
    in  
       (htmlCell.isSelected, [ creatorCreateCell htmlCell.html attr ] ++ (second state))
 
 
-gridCells: ValueFetcher -> Direction -> Maybe Selection -> CubeColumns -> CubeRows -> List (Html Msg)
-gridCells valueFetcher direction selection cubeColumns cubeRows =
+gridCells: ValueFetcher -> Orientation -> Maybe Selection -> CubeColumns -> CubeRows -> List (Html Msg)
+gridCells valueFetcher orientation selection cubeColumns cubeRows =
    let 
       selectionWithFactors =
          selection
          |> Maybe.map createSelectionWithFactor
-                
+
+      --- BASE AREA FOR CELL row and column incremented in fold          
       area: Area 
       area = 
-         Area.emptyArea 
+         Area.zeroArea 
          -- add offset for columns and rows
          |> offsetArea (cubeRowOffsetToOffset cubeColumns.offset) 
          |> offsetArea (cubeColumnOffsetToOffset cubeRows.offset)
-         |> Area.addVerticalSpan Area.oneVerticalSpan
-         |> Area.addHorizontalSpan Area.oneHorizontalSpan
+         |> addRowSpanToArea (RowSpan 1)
+         |> addColumnSpanToArea (ColumnSpan 1)
+         -- |> Area.addRowToArea (Row 15)
+         -- |> Area.addColumnToArea (Column 15)
    in  
       let    
          cells: List CubeRow -> ColumnIndex -> CubeColumn -> (Bool,List (List (Html Msg))) -> (Bool,List (List (Html Msg)))
@@ -470,7 +520,7 @@ gridCells valueFetcher direction selection cubeColumns cubeRows =
                newState = 
                    -- fold over rows (KonceptRow)
                    rows
-                   |> Lists.foldi (\i state cubeRow -> cell valueFetcher direction area selectionWithFactors columnIndex cubeColumn (RowIndex (i + 1)) cubeRow state) (selected,[])
+                   |> Lists.foldi (\i state cubeRow -> cell valueFetcher orientation area selectionWithFactors columnIndex cubeColumn (RowIndex (i + 1)) cubeRow state) (selected,[])
               
             in
                (first newState, [ second newState ] ++ (second acc))
@@ -483,8 +533,8 @@ gridCells valueFetcher direction selection cubeColumns cubeRows =
          |> List.concat
 
 
-viewCube: ValueFetcher -> Direction -> HyperCube -> List DimensionalKoncept -> Maybe Selection -> Html Msg
-viewCube valueFetcher direction hyperCube koncepts selection =
+viewCube: ValueFetcher -> Orientation -> HyperCube -> List DimensionalKoncept -> Maybe Selection -> Html Msg
+viewCube valueFetcher orientation hyperCube koncepts selection =
     let 
 
          factorsForSelection: List Factor
@@ -500,8 +550,8 @@ viewCube valueFetcher direction hyperCube koncepts selection =
             |> NList.map hyperDimensionAsDimension
             |> NList.toList
 
-         span: Span 
-         span = dimensions |> calculateSpanForDimensions 
+         -- span: Span 
+         -- span = dimensions |> calculateSpanForDimensions 
 
          cubeRows: CubeRows
          cubeRows = createCubeRowsIndented selection koncepts  
@@ -509,40 +559,40 @@ viewCube valueFetcher direction hyperCube koncepts selection =
          cubeColumns: CubeColumns
          cubeColumns = 
             dimensions
-            |> calculateCubeColumns direction selection
+            |> calculateCubeColumns selection  
        
          columns: List (Html Msg) 
          columns = 
             cubeColumns.headers 
-            |> List.map (\header -> columnHeaderCell direction cubeRows.offset header)
+            |> List.map (\header -> columnHeaderCell orientation cubeRows.offset header)
 
          cells: List (Html Msg) 
          cells = 
-            gridCells valueFetcher direction selection cubeColumns cubeRows
+            gridCells valueFetcher orientation selection cubeColumns cubeRows
 
          rowHeaders: List (Html Msg)
          rowHeaders =
                cubeRows.headers
                |> List.map (\rowHeader -> rowHeaderCellIndented cubeColumns.offset factorsForSelection rowHeader)
 
-         gridRows: Direction -> Span -> List CubeColumn -> GridRows
-         gridRows d (Span s) cols  =
-            case d of
-               Horizontal ->
-                  GridRows s
-               Vertical ->
-                  GridRows (List.length cols)
+         -- gridRows: Direction -> Span -> List CubeColumn -> GridRows
+         -- gridRows d (Span s) cols  =
+         --    case d of
+         --       Horizontal ->
+         --          GridRows s
+         --       Vertical ->
+         --          GridRows (List.length cols)
         
-         gridColumns: Direction -> Span -> List CubeColumn -> GridColumns
-         gridColumns d (Span s) cols =
-            case d of
-               Horizontal ->
-                  GridColumns (List.length cols)
-               Vertical ->
-                  GridColumns s
+         -- gridColumns: Direction -> Span -> List CubeColumn -> GridColumns
+         -- gridColumns d (Span s) cols =
+         --    case d of
+         --       Horizontal ->
+         --          GridColumns (List.length cols)
+         --       Vertical ->
+         --          GridColumns s
 
          
                
     in
-        div (grid (gridRows direction span cubeColumns.columns) (gridColumns direction span cubeColumns.columns)) (columns ++ rowHeaders ++ cells)
+        div grid (columns ++ rowHeaders ++ cells)
 

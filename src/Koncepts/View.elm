@@ -80,7 +80,7 @@ divKoncept valueFetcher selection koncept    =
         div [] 
             [ 
                     hc.name |> Koncept.hyperCubeNameToString |> text
-                ,   viewCube valueFetcher Horizontal hc dk selection
+                ,   viewCube valueFetcher CubeRowsAsRows hc dk selection
             ]
  
 
