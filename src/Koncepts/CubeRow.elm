@@ -53,25 +53,10 @@ cubeValueRowFactor cubeValueRow =
     |> NList.toList
     |> multiplyFactors
     
--- fromAbstract: AbstractKoncept -> CubeRow
--- fromAbstract ak  =
---     {
---             konceptPath = ak  |> NList.create |> AbstractPath
---         ,   members = CubeRowMembers []
---     }
-
 fromAbstract ak =  (ak, emptyCubeRowContext) |> CubeAbstractRow |> AbstractRow
-    
+
 fromValue vk =  (vk, emptyCubeRowContext) |> CubeValueRow |> ValueRow
            
-    
--- fromValue:ValueKoncept -> CubeRow
--- fromValue vk =
---     {
---             konceptPath =  vk |> konceptValuePath |> ValuePath
---         ,   members = CubeRowMembers []
---     }
-
 addMembers: NList Member  -> CubeRow -> CubeRow 
 addMembers members cubeRow =
 
@@ -125,3 +110,24 @@ createIndented dimensionalKoncepts =
                     ]
     in 
         dimensionalKoncepts |> Lists.collect recfirst
+
+
+-- TREE
+rowSpanTree: DimensionalKoncept -> RowSpan
+rowSpanTree  =
+    let 
+        recRowSpan (koncept: DimensionalKoncept) =
+            case koncept of
+                DimensionalAbstract (_, koncepts) ->
+                    if koncepts.IsEmpty then  1
+                    else
+                        let recSpan koncepts =
+                            match koncepts with
+                            | [] -> 0
+                            | head :: tail ->
+                                rowSpan head
+                                + recSpan tail
+                        recSpan koncepts
+                DimensionalValue _ -> 1
+    in
+        rowSpan >> RowSpan

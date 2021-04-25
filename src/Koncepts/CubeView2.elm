@@ -82,21 +82,6 @@ type GridRows = GridRows Int
 rowsInt: GridRows -> Int
 rowsInt (GridRows rows) = rows
 
--- grid: GridRows -> GridColumns -> List (Attribute msg) 
--- grid (GridRows rows) (GridColumns cols)=
---     let 
-      
---         attrdisplay: Attribute msg
---         attrdisplay = style "display" "grid"  
---       -- Horizontal span
---       --   attrColumns: Attribute msg
---       --   attrColumns = gridSizeAttribute "grid-template-columns" "repeat(" cols ")"
---       -- -- vertical span
---       --   attrRows: Attribute msg
---       --   attrRows = gridSizeAttribute "grid-template-rows" "repeat(" rows ", minmax(50px,100px))"
-
---     in
---      [  attrdisplay , attrColumns ]
 grid: List (Attribute msg) 
 grid =
     let 
@@ -508,8 +493,7 @@ gridCells valueFetcher orientation selection cubeColumns cubeRows =
          |> offsetArea (cubeColumnOffsetToOffset cubeRows.offset)
          |> addRowSpanToArea (RowSpan 1)
          |> addColumnSpanToArea (ColumnSpan 1)
-         -- |> Area.addRowToArea (Row 15)
-         -- |> Area.addColumnToArea (Column 15)
+
    in  
       let    
          cells: List CubeRow -> ColumnIndex -> CubeColumn -> (Bool,List (List (Html Msg))) -> (Bool,List (List (Html Msg)))
@@ -574,25 +558,7 @@ viewCube valueFetcher orientation hyperCube koncepts selection =
          rowHeaders =
                cubeRows.headers
                |> List.map (\rowHeader -> rowHeaderCellIndented cubeColumns.offset factorsForSelection rowHeader)
-
-         -- gridRows: Direction -> Span -> List CubeColumn -> GridRows
-         -- gridRows d (Span s) cols  =
-         --    case d of
-         --       Horizontal ->
-         --          GridRows s
-         --       Vertical ->
-         --          GridRows (List.length cols)
-        
-         -- gridColumns: Direction -> Span -> List CubeColumn -> GridColumns
-         -- gridColumns d (Span s) cols =
-         --    case d of
-         --       Horizontal ->
-         --          GridColumns (List.length cols)
-         --       Vertical ->
-         --          GridColumns s
-
-         
-               
+             
     in
         div grid (columns ++ rowHeaders ++ cells)
 
