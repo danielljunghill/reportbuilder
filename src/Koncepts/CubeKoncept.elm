@@ -113,141 +113,143 @@ fold f m =
                            Nothing -> Err "Empty result from fold of koncept")
    |> ResultExtension.foldOne
 
-type KonceptRowItem =
-   AbstractRow AbstractKoncept
-   | ValueRow ValueKoncept
+-- type KonceptRowItem =
+--    AbstractRow AbstractKoncept
+--    | ValueRow ValueKoncept
 
-tryGetValueKoncept kri =
-   case kri of
-      AbstractRow _ -> Nothing
-      ValueRow vk -> Just vk
+-- tryGetValueKoncept kri =
+--    case kri of
+--       AbstractRow _ -> Nothing
+--       ValueRow vk -> Just vk
 
-konceptRowFactor: KonceptRowItem -> Maybe Factor
-konceptRowFactor item =
-   case item of
-      AbstractRow _ -> Nothing
-      ValueRow vk -> Just vk.factor
+-- konceptRowFactor: KonceptRowItem -> Maybe Factor
+-- konceptRowFactor item =
+--    case item of
+--       AbstractRow _ -> Nothing
+--       ValueRow vk -> Just vk.factor
 
-konceptRowItemName: KonceptRowItem -> String
-konceptRowItemName item =    
-   case item of
-      AbstractRow ak -> abstractKonceptNameToString ak.name
-      ValueRow vk -> valueKonceptNameToString vk.name
+-- konceptRowItemName: KonceptRowItem -> String
+-- konceptRowItemName item =    
+--    case item of
+--       AbstractRow ak -> abstractKonceptNameToString ak.name
+--       ValueRow vk -> valueKonceptNameToString vk.name
 
 
-type alias KonceptRow = 
-   {
-         area: Area
-      ,  item: KonceptRowItem
-   }
+-- type alias KonceptRow = 
+--    {
+--          area: Area
+--       ,  item: KonceptRowItem
+--    }
 
-createAbstractRow: Area -> AbstractKoncept -> KonceptRow
-createAbstractRow area item =
-   {
-            area = area
-        ,   item = AbstractRow item  
-   }
-createValueRow: Area -> ValueKoncept -> KonceptRow
-createValueRow area item =
-      {
-            area = area
-        ,   item = ValueRow item  
-      }
+-- createAbstractRow: Area -> AbstractKoncept -> KonceptRow
+-- createAbstractRow area item =
+--    {
+--             area = area
+--         ,   item = AbstractRow item  
+--    }
+-- createValueRow: Area -> ValueKoncept -> KonceptRow
+-- createValueRow area item =
+--       {
+--             area = area
+--         ,   item = ValueRow item  
+--       }
 
-indentedRowSpan: DimensionalKoncept -> List Int
-indentedRowSpan dimKoncept =
-   let 
-      recCalcForOne: Int -> DimensionalKoncept -> List Int
-      recCalcForOne stateOne koncept =
-         let
-            newStateOne: Int
-            newStateOne = 1
-         in
-            case koncept of
-               DimensionalAbstract (_,childKoncepts) ->
-                  let
-                     recCalcForMany: Int -> List DimensionalKoncept -> List Int
-                     recCalcForMany stateMany koncepts =
-                        case koncepts of
-                           [] -> [ stateMany ]
-                           head :: tail ->  (recCalcForOne stateMany head) ++ recCalcForMany stateMany tail
-                  in
-                     recCalcForMany newStateOne childKoncepts
-               DimensionalValue _ -> [ newStateOne ]
+-- indentedRowSpan: DimensionalKoncept -> List Int
+-- indentedRowSpan dimKoncept =
+--    let 
+--       recCalcForOne: Int -> DimensionalKoncept -> List Int
+--       recCalcForOne stateOne koncept =
+--          let
+--             newStateOne: Int
+--             newStateOne = 1
+--          in
+--             case koncept of
+--                DimensionalAbstract (_,childKoncepts) ->
+--                   let
+--                      recCalcForMany: Int -> List DimensionalKoncept -> List Int
+--                      recCalcForMany stateMany koncepts =
+--                         case koncepts of
+--                            [] -> [ stateMany ]
+--                            head :: tail ->  (recCalcForOne stateMany head) ++ recCalcForMany stateMany tail
+--                   in
+--                      recCalcForMany newStateOne childKoncepts
+--                DimensionalValue _ -> [ newStateOne ]
      
-   in
-      recCalcForOne 0 dimKoncept
+--    in
+--       recCalcForOne 0 dimKoncept
       
 
-calculateIndentedRows: List DimensionalKoncept -> List KonceptRow
-calculateIndentedRows koncepts =
-   let
-      maxSpan: Int
-      maxSpan = 
-         koncepts 
-         |> Lists.collect indentedRowSpan 
-         |> Lists.maxInt
-         |> Maybe.withDefault 0
+-- calculateIndentedRows: List DimensionalKoncept -> List KonceptRow
+-- calculateIndentedRows koncepts =
+--    let
+--       maxSpan: Int
+--       maxSpan = 
+--          koncepts 
+--          |> Lists.collect indentedRowSpan 
+--          |> Lists.maxInt
+--          |> Maybe.withDefault 0
 
-      area: VerticalStart -> HorizontalStart -> Area
-      area vStart hStart  = 
-         { 
-               horizontalStart =  hStart
-            ,  horizontalSpan = 
-                  maxSpan - (Area.horizontalStartToInt hStart) + 1
-                  |> Span 
-                  |> HorizontalSpan
-            ,  verticalSpan = Area.oneVerticalSpan
-            ,  verticalStart = vStart
-         }
-    in
-      let
-          recCalculateRows: HorizontalStart -> DimensionalKoncept-> List KonceptRow
-          recCalculateRows horizontalStart koncept =
-            case koncept of
-               DimensionalAbstract (ak, childKoncepts) -> 
-                  [  
-                     createAbstractRow (area Area.oneVerticalStart horizontalStart) ak
-                  ] 
-                  ++ (childKoncepts |> Lists.collect (recCalculateRows (Area.horizontalStartMap startIncrement horizontalStart))) 
-               DimensionalValue vk -> 
-                  [
-                     createValueRow (area Area.oneVerticalStart horizontalStart) vk                     
-                  ] 
+--       area: Row -> Column -> Area
+--       area row column  = 
+--          { 
+--                Row =  row
+--             ,  ColumnSpan = 
+--                   maxSpan - (intColumn column) + 1
+--                   |> ColumnSpan
+--                   -- maxSpan - (Area.horizontalStartToInt hStart) + 1
+--                   -- |> Span 
+--                   -- |> HorizontalSpan
+--             ,  RowSpan = RowSpan 1
+--             ,  Column = column
+--          }
+--     in
+--       let
+--           recCalculateRows: Column -> DimensionalKoncept-> List KonceptRow
+--           recCalculateRows column koncept =
+--             case koncept of
+--                DimensionalAbstract (ak, childKoncepts) -> 
+--                   [  
+--                      createAbstractRow (area (Row 1) column) ak
+--                   ] 
+--                   ++ (childKoncepts |> Lists.collect (recCalculateRows (Area.horizontalStartMap startIncrement horizontalStart))) 
+--                DimensionalValue vk -> 
+--                   [
+--                      createValueRow (area (Row 1) column) vk                     
+--                   ] 
 
-      in  
+--       in  
   
-         koncepts 
-         |> Lists.collect (recCalculateRows Area.oneHorizontalStart)
-         |> Lists.mapi (\i row -> { row | area = row.area |> Area.setVerticalStart (Start (i + 1)) })  
+--          koncepts 
+--          |> Lists.collect (recCalculateRows (Column 1))
+--          |> Lists.mapi (\i row -> { row | area = row.area |> Area.setVerticalStart (Start (i + 1)) })  
 
 
-type CubeColumnOffset = CubeColumnOffset Offset
+-- type CubeColumnOffset = CubeColumnOffset Offset
 
-cubeColumnOffsetToOffset: CubeColumnOffset -> Offset
-cubeColumnOffsetToOffset (CubeColumnOffset offset) = offset
+-- cubeColumnOffsetToOffset: CubeColumnOffset -> Offset
+-- cubeColumnOffsetToOffset (CubeColumnOffset offset) = offset
  
-type alias CubeRows =
-   {
-         rows: List KonceptRow
-      ,  offset: CubeColumnOffset
+-- type alias CubeRows =
+--    {
+--          rows: List KonceptRow
+--       ,  offset: CubeColumnOffset
 
-   }
+--    }
 
-calculateIndentedCubeRows: List DimensionalKoncept  -> CubeRows
-calculateIndentedCubeRows koncepts =
-   let 
-      offset: Offset
-      offset =
-            {
-                  verticalStart = zeroVerticalStart
-               ,  horizontalStart = oneHorizontalStart
-            } 
-   in
-      {
-            rows = calculateIndentedRows koncepts
-         ,  offset = offset |> CubeColumnOffset
-      }
+-- calculateIndentedCubeRows: List DimensionalKoncept  -> CubeRows
+-- calculateIndentedCubeRows koncepts =
+--    let 
+--       offset: Offset
+--       offset =
+--             {
+--                   row = Row 0
+--                ,  Column = Column 1
+--             } 
+--    in
+--       {
+--             rows = calculateIndentedRows koncepts
+--          ,  offset = offset |> CubeColumnOffset
+--       }
 
 -- let calcSpan koncept =
 --    let rec span state (koncept: DimensionalKoncept) = 

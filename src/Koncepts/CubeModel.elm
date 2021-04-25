@@ -11,10 +11,7 @@ incrementIndent (Indent indent) =
 
 type alias CubeHeader  =
     {
-            column: Start
-        ,   columnSpan: Span
-        ,   row: Start
-        ,   rowSpan: Span
+            area: Area
         ,   attributes: List String
         ,   name: String
         ,   isSelected: Bool
@@ -23,22 +20,22 @@ type alias CubeHeader  =
 
 -- depthToStart (Depth depth) = depth |> Start
 
-cubeHeaderToArea: Direction -> CubeHeader -> Area
-cubeHeaderToArea direction cubeHeader =
-    case direction of
-        Vertical ->
-            Area.emptyArea
-            |> addVerticalSpan (cubeHeader.columnSpan |> VerticalSpan)
-            |> addVerticalStart (cubeHeader.column |> VerticalStart)
-            |> addHorizontalStart (cubeHeader.row|> HorizontalStart)
-            |> addHorizontalSpan (cubeHeader.rowSpan |> HorizontalSpan)
+-- cubeHeaderToArea: Orientation -> CubeHeader -> Area
+-- cubeHeaderToArea orientation cubeHeader =
+--     case direction of
+--         Vertical ->
+--             Area.emptyArea
+--             |> addVerticalSpan (cubeHeader.columnSpan |> VerticalSpan)
+--             |> addVerticalStart (cubeHeader.column |> VerticalStart)
+--             |> addHorizontalStart (cubeHeader.row|> HorizontalStart)
+--             |> addHorizontalSpan (cubeHeader.rowSpan |> HorizontalSpan)
 
-        Horizontal ->
-            Area.emptyArea
-            |> addVerticalSpan (cubeHeader.rowSpan |> VerticalSpan)
-            |> addVerticalStart (cubeHeader.row |> VerticalStart)
-            |> addHorizontalStart (cubeHeader.column|> HorizontalStart)
-            |> addHorizontalSpan (cubeHeader.columnSpan |> HorizontalSpan)
+--         Horizontal ->
+--             Area.emptyArea
+--             |> addVerticalSpan (cubeHeader.rowSpan |> VerticalSpan)
+--             |> addVerticalStart (cubeHeader.row |> VerticalStart)
+--             |> addHorizontalStart (cubeHeader.column|> HorizontalStart)
+--             |> addHorizontalSpan (cubeHeader.columnSpan |> HorizontalSpan)
 
 type CubeColumn = CubeColumn(NList Member)
 

@@ -1,4 +1,4 @@
-module Koncepts.CubeRowHeader exposing (createIndentedHeader)
+module Koncepts.CubeRowHeader exposing (createIndentedHeader,CubeRowHeader(..))
 import Koncepts.Model exposing (Member, ValueKoncept, AbstractKoncept,abstractKonceptNameToString, valueKonceptNameToString,DimensionalKoncept(..))
 import Koncepts.Area exposing (..)
 import Koncepts.CubeModel exposing(CubeHeader,Indent(..),incrementIndent)
@@ -6,33 +6,27 @@ import Model exposing (Selection(..),abstractFactorsInSelection,factorsInSelecti
 import Lists exposing(contains)
 import NList exposing(..)
 
-
+type CubeRowHeader = CubeRowHeader CubeHeader
 
 fromAbstract:Bool -> Indent -> AbstractKoncept -> CubeHeader 
 fromAbstract isSelected indent abstractKoncept =
     {
-            column = Start 1
-        ,   columnSpan = Span 1
-        ,   row = Start 1
+            area = oneArea
         ,   attributes = [ "abstract-header" ]
-        ,   rowSpan = Span 1
         ,   name = abstractKonceptNameToString abstractKoncept.name
         ,   isSelected = isSelected
         ,   indent = Just indent
     }
 
-fromValue: Bool -> Indent -> ValueKoncept -> CubeHeader 
+fromValue: Bool -> Indent -> ValueKoncept -> CubeHeader
 fromValue isSelected indent valueKoncept =
     {
-            column = Start 1
-        ,   columnSpan = Span 1
-        ,   row = Start 1
+            area = oneArea
         ,   attributes = [ "value-header" ]
-        ,   rowSpan = Span 1
         ,   name = valueKonceptNameToString valueKoncept.name
         ,   isSelected = isSelected
         ,   indent = Just indent
-    }
+    } 
 
 selectionContainsAbstract: Maybe Selection -> AbstractKoncept -> Bool
 selectionContainsAbstract maybeSelection ak =
@@ -59,11 +53,9 @@ selectionContainsValue maybeSelection vk =
        |> Maybe.withDefault False 
 
 
-createIndentedHeader: Maybe Selection -> List DimensionalKoncept -> List CubeHeader
+createIndentedHeader: Maybe Selection -> List DimensionalKoncept -> List CubeRowHeader
 createIndentedHeader maybeSelection dimensionalKoncepts =
     let 
-        
-        t = Debug.log "maybeSelection" 
         
         recFirst indent koncept =
             case koncept of
@@ -93,8 +85,18 @@ createIndentedHeader maybeSelection dimensionalKoncepts =
                     in
                         [ fromValue isSelected indent vk ]
     in
+        let
+            createCubeRowHeder: Int -> CubeHeader -> CubeRowHeader
+            createCubeRowHeder index header =
+                let 
+                    area = header.area
+                    newArea = {  area | row = Row index }
+                in
+                    { header | area  = newArea } |> CubeRowHeader
+
+        in
               dimensionalKoncepts |> Lists.collect (recFirst (Indent 1))
-              |> Lists.mapi (\index header -> { header | row = Start (index + 1)})
+              |> Lists.mapi (\index header -> header |> createCubeRowHeder index )
 
 
 

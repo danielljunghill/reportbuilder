@@ -2,6 +2,7 @@ module Koncepts.CubeRows exposing (..)
 import Koncepts.CubeRow exposing (..)
 import Koncepts.CubeRow as CubeRow
 import Koncepts.CubeRowHeader as CubeRowHeader
+import Koncepts.CubeRowHeader exposing(..)
 import Model exposing (Selection(..))
 import Koncepts.CubeModel exposing (..)
 import Koncepts.Area exposing (..)
@@ -12,13 +13,13 @@ type CubeColumnOffset = CubeColumnOffset Offset
 cubeColumnOffsetToOffset: CubeColumnOffset -> Offset
 cubeColumnOffsetToOffset (CubeColumnOffset offset) = offset
 
-type CubeRowHeader = CubeRowHeader CubeHeader
- 
+
+
 type alias CubeRows =
    {
          rows: List CubeRow
       ,  headers: List CubeRowHeader
-      ,  offset: CubeColumnOffset 
+      ,  offset: CubeColumnOffset
 
    }
 
@@ -26,13 +27,16 @@ createCubeRowsIndented: Maybe Selection -> List DimensionalKoncept -> CubeRows
 createCubeRowsIndented selection koncepts =
     {
             rows = CubeRow.createIndented koncepts
-        ,   headers = 
+        ,   headers =
                     koncepts
-                    |> CubeRowHeader.createIndentedHeader selection 
-                    |> List.map CubeRowHeader
-        ,   offset = 
-                Start 1 
-                |> HorizontalStart 
-                |> addHorizontalStartToOffset emptyOffset 
-                |> CubeColumnOffset 
+                    |> CubeRowHeader.createIndentedHeader selection
+        ,   offset =            
+                  zeroOffset
+                  |> addColumnToOffset (Column 1)
+                  |> CubeColumnOffset
+
+               --  Start 1
+               --  |> HorizontalStart
+               --  |> addHorizontalStartToOffset zeroOffset
+               --  |> CubeColumnOffset
     }

@@ -1,298 +1,120 @@
 module Koncepts.Area exposing (..)
 
-type Span = Span Int
-spanInt: Span -> Int
-spanInt (Span span) = span
+type ColumnSpan = ColumnSpan Int
+intColumnSpan (ColumnSpan v) = v
 
-spanAdd: Span -> Span -> Span
-spanAdd (Span span1) (Span span2) = Span (span1 + span2)
+type RowSpan = RowSpan Int
+intRowSpan (RowSpan v) = v
 
-spanMap: (Int -> Int) -> Span -> Span
-spanMap f (Span span) =
-   f span
-   |> Span
+type Row = Row Int
+intRow (Row v) = v
 
-spanIncrement: Span -> Span
-spanIncrement = spanMap (\i -> i + 1) 
+type Column = Column Int
+intColumn (Column v) = v
 
-type VerticalSpan = VerticalSpan Span
-verticalSpanMap:  (Span -> Span) -> VerticalSpan -> VerticalSpan
-verticalSpanMap f (VerticalSpan span) =
-   span   
-   |> f 
-   |> VerticalSpan
-
-verticalSpanToSpan: VerticalSpan -> Span
-verticalSpanToSpan (VerticalSpan span) = span
-   
-verticalSpanToInt: VerticalSpan -> Int
-verticalSpanToInt = verticalSpanToSpan >> spanInt
-
-intToVerticalSpan: Int -> VerticalSpan
-intToVerticalSpan = Span >> VerticalSpan
-
-type HorizontalSpan = HorizontalSpan Span
-horizontalSpanMap:  (Span -> Span) -> HorizontalSpan -> HorizontalSpan
-horizontalSpanMap f (HorizontalSpan span) =
-   span   
-   |> f 
-   |> HorizontalSpan
-
-horizontalSpanToSpan: HorizontalSpan -> Span  
-horizontalSpanToSpan (HorizontalSpan span) = span
-
-horizontalSpanToInt: HorizontalSpan -> Int
-horizontalSpanToInt = horizontalSpanToSpan >> spanInt
-
-intToHorizontalSpan: Int -> HorizontalSpan
-intToHorizontalSpan = Span >> HorizontalSpan
-
-type Start = Start Int
-startInt: Start -> Int
-startInt (Start start) = start
-
-startMap: (Int -> Int) -> Start -> Start
-startMap f (Start start) =
-   f start
-   |> Start
-
-startIncrement: Start -> Start
-startIncrement = startMap (\i -> i + 1) 
-  
-startAdd: Start -> Start -> Start
-startAdd (Start start1) (Start start2) = Start (start1 + start2)
-
-startSpan: (Int -> Int -> Int) -> Start -> Span -> Int
-startSpan f (Start start) (Span span) =
-   f start span
-
-spanStart: (Int -> Int -> Int) -> Span -> Start -> Int
-spanStart f  (Span span) (Start start)=
-   f start span
-
-type VerticalStart = VerticalStart Start
-verticalStartMap:  (Start -> Start) -> VerticalStart -> VerticalStart
-verticalStartMap f (VerticalStart start) =
-   start   
-   |> f 
-   |> VerticalStart
-
-verticalStartToStart: VerticalStart -> Start
-verticalStartToStart (VerticalStart start) = start  
-   
-verticalStartToInt: VerticalStart -> Int
-verticalStartToInt = verticalStartToStart >> startInt
-
-intToVerticalStart: Int -> VerticalStart
-intToVerticalStart = Start >> VerticalStart
-
-verticalStartAdd: VerticalStart -> VerticalStart -> VerticalStart
-verticalStartAdd (VerticalStart (Start s1)) (VerticalStart (Start s2)) =
-   s1 + s2
-   |> Start
-   |> VerticalStart
-
-verticalSpanAdd: VerticalSpan -> VerticalSpan -> VerticalSpan
-verticalSpanAdd (VerticalSpan (Span s1)) (VerticalSpan (Span s2)) =
-   s1 + s2
-   |> Span
-   |> VerticalSpan
-
-type HorizontalStart = HorizontalStart Start
-horizontalStartMap:  (Start -> Start) -> HorizontalStart -> HorizontalStart
-horizontalStartMap f (HorizontalStart start) =
-   start   
-   |> f 
-   |> HorizontalStart
-
-horizontalStartToStart: HorizontalStart -> Start
-horizontalStartToStart (HorizontalStart start) = start
-
-horizontalStartToInt: HorizontalStart -> Int
-horizontalStartToInt = horizontalStartToStart >> startInt
-
-intToHorizontalStart: Int -> HorizontalStart
-intToHorizontalStart = Start >> HorizontalStart
-
-horizontalStartAdd: HorizontalStart -> HorizontalStart -> HorizontalStart
-horizontalStartAdd (HorizontalStart (Start s1)) (HorizontalStart (Start s2)) =
-   s1 + s2
-   |> Start
-   |> HorizontalStart
-
-horizontalSpanAdd: HorizontalSpan -> HorizontalSpan -> HorizontalSpan
-horizontalSpanAdd (HorizontalSpan (Span s1)) (HorizontalSpan (Span s2)) =
-   s1 + s2
-   |> Span
-   |> HorizontalSpan
+type Orientation =
+    RowVerticalAxis
+    | RowHorizontalAxis
 
 type alias Area =
-   {
-         horizontalStart: HorizontalStart
-      ,  horizontalSpan: HorizontalSpan
-      ,  verticalStart: VerticalStart
-      ,  verticalSpan: VerticalSpan
-   }
-
-
-type Direction =
-   Vertical
-   | Horizontal
-
-type Depth = Depth Int
-
-incrementDepth (Depth depth) =
-   depth + 1
-   |> Depth
-incrementVerticalStart: Area -> Area
-incrementVerticalStart area =
-   {
-       area | verticalStart = area.verticalStart |> (verticalStartMap startIncrement)
-   }
-
-incrementHorizontalStart: Area -> Area
-incrementHorizontalStart area =
-   {
-       area | horizontalStart = area.horizontalStart |> (horizontalStartMap startIncrement)
-   }
-
-
-setHorizontalStart: Start -> Area -> Area  
-setHorizontalStart start area =
-   {
-      area | horizontalStart = HorizontalStart start
-   }
-
-setVerticalStart: Start -> Area -> Area  
-setVerticalStart start area =
-   {
-      area | verticalStart = VerticalStart start
-   }
-
-setHorizontalSpan: Span -> Area -> Area  
-setHorizontalSpan span area =
-   {
-      area | horizontalSpan = HorizontalSpan span
-   }
-
-setVerticalSpan: Span -> Area -> Area  
-setVerticalSpan span area =
-   {
-      area | verticalSpan = VerticalSpan span
-   }
-
-emptyArea: Area
-emptyArea =  
-    {    
-         horizontalStart = intToHorizontalStart 0
-      ,  horizontalSpan = intToHorizontalSpan 0
-      ,  verticalStart = intToVerticalStart 0
-      ,  verticalSpan = intToVerticalSpan 0
+    {
+            row: Row
+        ,   rowSpan: RowSpan
+        ,   column: Column
+        ,   columnSpan: ColumnSpan
     }
 
-oneArea: Area
-oneArea =
-    {    
-         horizontalStart = intToHorizontalStart 1
-      ,  horizontalSpan = intToHorizontalSpan 1
-      ,  verticalStart = intToVerticalStart 1
-      ,  verticalSpan = intToVerticalSpan 1
+addRow (Row row1) (Row row2) = 
+    row1 + row2
+    |> Row
+
+addColumn (Column column1) (Column column2) = 
+    column1 + column2
+    |> Column
+
+addRowSpan (RowSpan rowSpan1) (RowSpan rowSpan2) = 
+    rowSpan1 + rowSpan2
+    |> RowSpan
+
+addColumnSpan (ColumnSpan columnSpan1) (ColumnSpan columnSpan2) = 
+    columnSpan1 + columnSpan2
+    |> ColumnSpan
+
+substractColumnSpan (ColumnSpan columnSpan1) (ColumnSpan columnSpan2) =
+    columnSpan1 - columnSpan2
+    |> ColumnSpan
+
+incColSpan = addColumnSpan (ColumnSpan 1)
+  
+incRowSpan = addRowSpan (RowSpan 1)
+
+incRow = addRow (Row 1)
+
+incColumn = addColumn (Column 1)
+
+decColSpan = addColumnSpan (ColumnSpan -1)
+  
+decRowSpan = addRowSpan (RowSpan -1)
+
+decRow = addRow (Row -1)
+
+decColumn = addColumn (Column -1)
+
+areaAllSize size =
+    {
+            row = Row size
+        ,   rowSpan = RowSpan size
+        ,   column = Column size
+        ,   columnSpan = ColumnSpan size
     }
 
-
-oneVerticalStart: VerticalStart 
-oneVerticalStart =  1 |> Start |> VerticalStart
-
-oneHorizontalStart: HorizontalStart
-oneHorizontalStart = 1 |> Start |> HorizontalStart
-
-oneVerticalSpan: VerticalSpan
-oneVerticalSpan = 1 |> Span |> VerticalSpan
-
-oneHorizontalSpan: HorizontalSpan
-oneHorizontalSpan = 1 |> Span |> HorizontalSpan
-
-
-zeroVerticalStart: VerticalStart 
-zeroVerticalStart =  0 |> Start |> VerticalStart
-
-zeroHorizontalStart: HorizontalStart
-zeroHorizontalStart = 0 |> Start |> HorizontalStart
-
-zeroVerticalSpan: VerticalSpan
-zeroVerticalSpan = 0 |> Span |> VerticalSpan
-
-zeroHorizontalSpan: HorizontalSpan
-zeroHorizontalSpan = 0 |> Span |> HorizontalSpan
-
-greaterThanZeroVerticalStart: Area -> Area
-greaterThanZeroVerticalStart area =
-      if (area.verticalStart |> verticalStartToStart) == Start 0 then 
-         area |> setVerticalStart (Start 1)
-      else area
-
-greaterThanZeroHorizonalStart: Area -> Area
-greaterThanZeroHorizonalStart area =
-      if (area.horizontalStart |> horizontalStartToStart) == Start 0 then 
-         area |> setHorizontalStart (Start 1)
-      else area
-
-greaterThanZeroStart: Area -> Area
-greaterThanZeroStart = greaterThanZeroVerticalStart >> greaterThanZeroHorizonalStart
+zeroArea = areaAllSize 0
+oneArea = areaAllSize 1
 
 type alias Offset =
    {
-         verticalStart: VerticalStart
-      ,  horizontalStart: HorizontalStart
+         row: Row
+      ,  column: Column
    }
 
-emptyOffset: Offset
-emptyOffset = 
+offsetAllSize size =
    {
-         verticalStart = zeroVerticalStart
-      ,  horizontalStart = zeroHorizontalStart
+         row = Row size
+      ,  column = Column size
    }
 
-addVerticalStartToOffset: Offset -> VerticalStart -> Offset 
-addVerticalStartToOffset offset vStart    =
-   let
-      startOffest : Start
-      startOffest = offset.verticalStart |> verticalStartToStart   
-      start : Start
-      start = vStart |> verticalStartToStart  
-   in
-      { offset | verticalStart = start |> startAdd startOffest |> VerticalStart }
-
-addHorizontalStartToOffset: Offset -> HorizontalStart -> Offset 
-addHorizontalStartToOffset offset hStart  =
-   let
-      startOffest : Start
-      startOffest = offset.horizontalStart |> horizontalStartToStart   
-      start : Start
-      start = hStart |> horizontalStartToStart  
-   in
-      { offset | horizontalStart = start |> startAdd startOffest |> HorizontalStart }
+zeroOffset = offsetAllSize 0
+oneOffset = offsetAllSize 1
 
 
-addHorizontalStart: HorizontalStart  -> Area -> Area
-addHorizontalStart hs area =
-   { area | horizontalStart = (area.horizontalStart |> horizontalStartAdd hs) }
+addRowToOffset: Row -> Offset -> Offset
+addRowToOffset row offset = { offset | row = row |> addRow offset.row }
 
-addVerticalStart: VerticalStart  -> Area -> Area
-addVerticalStart vs area =
-   { area | verticalStart = (area.verticalStart |> verticalStartAdd vs) }
+addColumnToOffset: Column -> Offset -> Offset
+addColumnToOffset column offset = { offset | column = column |> addColumn offset.column }
 
-addHorizontalSpan: HorizontalSpan -> Area -> Area
-addHorizontalSpan hs area =
-   { area | horizontalSpan = (area.horizontalSpan |> horizontalSpanAdd hs) }
+addColumnToArea: Column -> Area -> Area
+addColumnToArea column area = 
+    { area | column = column |> addColumn area.column }
 
-addVerticalSpan: VerticalSpan -> Area -> Area
-addVerticalSpan vs area =
-   { area | verticalSpan = (area.verticalSpan |> verticalSpanAdd vs) }
+addRowToArea: Row -> Area -> Area
+addRowToArea row area = 
+    { area | row = row |> addRow area.row }
+
+
+addRowSpanToArea: RowSpan -> Area -> Area
+addRowSpanToArea span area = 
+    { area | rowSpan = span |> addRowSpan area.rowSpan }
+
+
+addColumnSpanToArea: ColumnSpan -> Area -> Area
+addColumnSpanToArea span area = 
+    { area | columnSpan = span |> addColumnSpan area.columnSpan }
+
 
 offsetArea: Offset -> Area -> Area 
 offsetArea offset area =
-      area
-      |> addVerticalStart offset.verticalStart
-      |> addHorizontalStart  offset.horizontalStart
+      area 
+      |> addRowToArea offset.row
+      |> addColumnToArea  offset.column
 
