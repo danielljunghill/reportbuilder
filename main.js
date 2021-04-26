@@ -6920,17 +6920,17 @@ var $author$project$Koncepts$Area$addColumnToOffset = F2(
 var $author$project$Koncepts$CubeRow$AbstractRow = function (a) {
 	return {$: 'AbstractRow', a: a};
 };
+var $author$project$Koncepts$CubeRow$ValueRow = function (a) {
+	return {$: 'ValueRow', a: a};
+};
 var $author$project$Koncepts$CubeRow$CubeAbstractRow = function (a) {
 	return {$: 'CubeAbstractRow', a: a};
 };
 var $author$project$Koncepts$CubeRow$CubeValueRow = function (a) {
 	return {$: 'CubeValueRow', a: a};
 };
-var $author$project$Koncepts$CubeRow$ValueRow = function (a) {
-	return {$: 'ValueRow', a: a};
-};
-var $author$project$Koncepts$CubeRow$addAbstractsToContext = F2(
-	function (context, ak) {
+var $author$project$Koncepts$CubeRow$cubeRowContextAddAbstractKoncept = F2(
+	function (ak, context) {
 		return _Utils_update(
 			context,
 			{
@@ -6950,7 +6950,7 @@ var $author$project$Koncepts$CubeRow$addAbstractKoncept = F2(
 				$author$project$Koncepts$CubeRow$CubeAbstractRow(
 					_Utils_Tuple2(
 						ak,
-						A2($author$project$Koncepts$CubeRow$addAbstractsToContext, context, newAk))));
+						A2($author$project$Koncepts$CubeRow$cubeRowContextAddAbstractKoncept, newAk, context))));
 		} else {
 			var _v2 = cubeRow.a.a;
 			var ak = _v2.a;
@@ -6959,7 +6959,7 @@ var $author$project$Koncepts$CubeRow$addAbstractKoncept = F2(
 				$author$project$Koncepts$CubeRow$CubeValueRow(
 					_Utils_Tuple2(
 						ak,
-						A2($author$project$Koncepts$CubeRow$addAbstractsToContext, context, newAk))));
+						A2($author$project$Koncepts$CubeRow$cubeRowContextAddAbstractKoncept, newAk, context))));
 		}
 	});
 var $author$project$Lists$collect = F2(
@@ -6978,15 +6978,13 @@ var $author$project$Lists$collect = F2(
 		return recCollect(m);
 	});
 var $author$project$Koncepts$CubeRow$emptyCubeRowContext = {abstracts: _List_Nil, members: _List_Nil};
-var $author$project$Koncepts$CubeRow$fromAbstract = function (ak) {
-	return $author$project$Koncepts$CubeRow$AbstractRow(
-		$author$project$Koncepts$CubeRow$CubeAbstractRow(
-			_Utils_Tuple2(ak, $author$project$Koncepts$CubeRow$emptyCubeRowContext)));
+var $author$project$Koncepts$CubeRow$createCubeAbstractRow = function (ak) {
+	return $author$project$Koncepts$CubeRow$CubeAbstractRow(
+		_Utils_Tuple2(ak, $author$project$Koncepts$CubeRow$emptyCubeRowContext));
 };
-var $author$project$Koncepts$CubeRow$fromValue = function (vk) {
-	return $author$project$Koncepts$CubeRow$ValueRow(
-		$author$project$Koncepts$CubeRow$CubeValueRow(
-			_Utils_Tuple2(vk, $author$project$Koncepts$CubeRow$emptyCubeRowContext)));
+var $author$project$Koncepts$CubeRow$createCubeValueRow = function (vk) {
+	return $author$project$Koncepts$CubeRow$CubeValueRow(
+		_Utils_Tuple2(vk, $author$project$Koncepts$CubeRow$emptyCubeRowContext));
 };
 var $author$project$Koncepts$CubeRow$createIndented = function (dimensionalKoncepts) {
 	var recRest = F2(
@@ -7001,7 +6999,8 @@ var $author$project$Koncepts$CubeRow$createIndented = function (dimensionalKonce
 							A2(
 							$author$project$Koncepts$CubeRow$addAbstractKoncept,
 							parent,
-							$author$project$Koncepts$CubeRow$fromAbstract(ak))
+							$author$project$Koncepts$CubeRow$AbstractRow(
+								$author$project$Koncepts$CubeRow$createCubeAbstractRow(ak)))
 						]),
 					A2(
 						$author$project$Lists$collect,
@@ -7014,7 +7013,8 @@ var $author$project$Koncepts$CubeRow$createIndented = function (dimensionalKonce
 						A2(
 						$author$project$Koncepts$CubeRow$addAbstractKoncept,
 						parent,
-						$author$project$Koncepts$CubeRow$fromValue(vk))
+						$author$project$Koncepts$CubeRow$ValueRow(
+							$author$project$Koncepts$CubeRow$createCubeValueRow(vk)))
 					]);
 			}
 		});
@@ -7026,7 +7026,8 @@ var $author$project$Koncepts$CubeRow$createIndented = function (dimensionalKonce
 			return _Utils_ap(
 				_List_fromArray(
 					[
-						$author$project$Koncepts$CubeRow$fromAbstract(ak)
+						$author$project$Koncepts$CubeRow$AbstractRow(
+						$author$project$Koncepts$CubeRow$createCubeAbstractRow(ak))
 					]),
 				A2(
 					$author$project$Lists$collect,
@@ -7036,7 +7037,8 @@ var $author$project$Koncepts$CubeRow$createIndented = function (dimensionalKonce
 			var vk = koncept.a;
 			return _List_fromArray(
 				[
-					$author$project$Koncepts$CubeRow$fromValue(vk)
+					$author$project$Koncepts$CubeRow$ValueRow(
+					$author$project$Koncepts$CubeRow$createCubeValueRow(vk))
 				]);
 		}
 	};
