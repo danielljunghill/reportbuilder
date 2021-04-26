@@ -6940,7 +6940,7 @@ var $author$project$Koncepts$CubeRow$cubeRowContextAddAbstractKoncept = F2(
 						[ak]))
 			});
 	});
-var $author$project$Koncepts$CubeRow$addAbstractKoncept = F2(
+var $author$project$Koncepts$CubeRowIndent$addAbstractKoncept = F2(
 	function (newAk, cubeRow) {
 		if (cubeRow.$ === 'AbstractRow') {
 			var _v1 = cubeRow.a.a;
@@ -6986,7 +6986,7 @@ var $author$project$Koncepts$CubeRow$createCubeValueRow = function (vk) {
 	return $author$project$Koncepts$CubeRow$CubeValueRow(
 		_Utils_Tuple2(vk, $author$project$Koncepts$CubeRow$emptyCubeRowContext));
 };
-var $author$project$Koncepts$CubeRow$createIndented = function (dimensionalKoncepts) {
+var $author$project$Koncepts$CubeRowIndent$createIndented = function (dimensionalKoncepts) {
 	var recRest = F2(
 		function (parent, koncept) {
 			if (koncept.$ === 'DimensionalAbstract') {
@@ -6997,7 +6997,7 @@ var $author$project$Koncepts$CubeRow$createIndented = function (dimensionalKonce
 					_List_fromArray(
 						[
 							A2(
-							$author$project$Koncepts$CubeRow$addAbstractKoncept,
+							$author$project$Koncepts$CubeRowIndent$addAbstractKoncept,
 							parent,
 							$author$project$Koncepts$CubeRow$AbstractRow(
 								$author$project$Koncepts$CubeRow$createCubeAbstractRow(ak)))
@@ -7011,7 +7011,7 @@ var $author$project$Koncepts$CubeRow$createIndented = function (dimensionalKonce
 				return _List_fromArray(
 					[
 						A2(
-						$author$project$Koncepts$CubeRow$addAbstractKoncept,
+						$author$project$Koncepts$CubeRowIndent$addAbstractKoncept,
 						parent,
 						$author$project$Koncepts$CubeRow$ValueRow(
 							$author$project$Koncepts$CubeRow$createCubeValueRow(vk)))
@@ -7212,7 +7212,7 @@ var $author$project$Koncepts$CubeRows$createCubeRowsIndented = F2(
 					$author$project$Koncepts$Area$addColumnToOffset,
 					$author$project$Koncepts$Area$Column(1),
 					$author$project$Koncepts$Area$zeroOffset)),
-			rows: $author$project$Koncepts$CubeRow$createIndented(koncepts)
+			rows: $author$project$Koncepts$CubeRowIndent$createIndented(koncepts)
 		};
 	});
 var $author$project$Koncepts$CubeView2$grid = function () {
