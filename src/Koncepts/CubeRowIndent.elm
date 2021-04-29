@@ -63,53 +63,6 @@ createIndented dimensionalKoncepts =
         dimensionalKoncepts |> Lists.collect recfirst
 
 
--- Generate tree for koncepts TREE
--- 
-
-
-rowSpanTree: DimensionalKoncept -> RowSpan
-rowSpanTree  =
-    let 
-        recRowSpan koncept =
-            case koncept of
-                DimensionalAbstract (_, childKoncepts) ->
-                    case childKoncepts of
-                        [] -> 1
-                        _ ->
-                            let 
-                                recSpan koncepts =
-                                    case koncepts of
-                                        [] -> 0
-                                        head :: tail ->
-                                            (recRowSpan head) + (recSpan tail)
-                            in    
-                                recSpan childKoncepts
-                DimensionalValue _ -> 1
-    in
-        recRowSpan >> RowSpan
-
-colSpanTree  =
-    let 
-        recCalcForOne stateOne koncept =      
-            let 
-                newStateOne = stateOne + 1
-            in 
-                case koncept of
-                    DimensionalAbstract (_,childKoncepts) ->
-                        let 
-                            recCalcForMany stateMany koncepts =
-                                case koncepts of
-                                    [] -> [ stateMany ]
-                                    head :: tail ->  (recCalcForOne stateMany head) ++ recCalcForMany stateMany tail     
-                        in           
-                            recCalcForMany newStateOne childKoncepts
-                    DimensionalValue _ -> [ newStateOne ] 
-    in
-        
-        recCalcForOne 0
-        >> Lists.maxInt
-        >> Maybe.withDefault 1
-        >> ColumnSpan
 
 
 cubeRowsForTree: Maybe CubeAbstractRow -> List DimensionalKoncept -> List CubeRow
