@@ -154,7 +154,10 @@ cubeRowHeadersTree dimensionalKontexts =
         maxColSpanForTree =
             dimensionalKontexts
             |> List.map colSpanTree
-            |> Lists.maxBy intColumnSpan
+            |> List.map intColumnSpan
+            |> Lists.maxInt
+            |> Maybe.withDefault 1
+            |> ColumnSpan
    
         recCubeHeaders: ColumnSpan -> Area -> List DimensionalKoncept -> List CubeHeader
         recCubeHeaders maxColSpan arean kontexts  = 
@@ -174,11 +177,17 @@ cubeRowHeadersTree dimensionalKontexts =
                                             [] -> [{ 
                                                             area = { area | columnSpan = maxColSpanForKoncept }
                                                         ,   name = abstractKonceptNameToString ak.name 
+                                                        ,   indent = Nothing
+                                                        ,   isSelected = False
+                                                        ,   attributes = []
                                                     }]
                                             child :: children ->                       
                                                 [{ 
-                                                        area =    { area | rowSpan = rowSpan }
+                                                            area =    { area | rowSpan = rowSpan }
                                                         ,   name = abstractKonceptNameToString ak.name 
+                                                        ,   indent = Nothing
+                                                        ,   isSelected = False
+                                                        ,   attributes = []
                                                     }]
                                                 |> List.append (recCubeHeadersInner newMaxColSpan ({ area | column = incColumn area.column }) child)
                                                 |> List.append (recCubeHeaders newMaxColSpan ({ area | column = incColumn area.column , row = incRow area.row }) children)
@@ -187,10 +196,14 @@ cubeRowHeadersTree dimensionalKontexts =
                                         [{ 
                                                 area =  { area | columnSpan = maxColSpanForKoncept }
                                             ,   name = valueKonceptNameToString vk.name 
+                                            ,   indent = Nothing
+                                            ,   isSelected = False
+                                            ,   attributes = []
                                         }]
                     in
                         recCubeHeadersInner maxColSpan arean head 
                         |> List.append (recCubeHeaders maxColSpan ({arean | row = arean.row |> addRowSpanToRow rowSpan}) tail)
     in
         dimensionalKontexts
-        |> recCubeHeaders maxColSpanForTree areaOne      
+        |> recCubeHeaders maxColSpanForTree oneArea      
+        |> List.map CubeRowHeader

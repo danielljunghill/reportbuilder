@@ -41,6 +41,13 @@ substractColumnSpan (ColumnSpan columnSpan1) (ColumnSpan columnSpan2) =
     columnSpan1 - columnSpan2
     |> ColumnSpan
 
+
+addRowSpanAndRow (RowSpan rowSpan) (Row row) =  rowSpan + row
+
+addRowSpanToRow rowSpan row = 
+    addRowSpanAndRow rowSpan row
+    |> Row
+    
 incColSpan = addColumnSpan (ColumnSpan 1)
   
 incRowSpan = addRowSpan (RowSpan 1)
