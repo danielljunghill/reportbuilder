@@ -214,7 +214,7 @@ dimensionToMembers dimension =
             |> NList.map (\(DomainMember m) -> m)
 
 
-dimensionToCubeColumns dimensions = 
+         dimensions = 
     dimensions
     |> NList.cross [] dimensionToMembers
     |> List.map CubeColumn

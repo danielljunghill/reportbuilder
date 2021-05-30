@@ -103,7 +103,7 @@ attributeGridArea area =
         colSpan: String 
         colSpan = area.columnSpan |> intColumnSpan |> String.fromInt |> (\s ->" / span " ++ s )
         rowSpan: String 
-        rowSpan = area.rowSpan |> intRowSpan |> String.fromInt |> (\s ->" / span " ++ s)
+        rowSpan = area.rowSpan |> intRowSpan |> String.frfomInt |> (\s ->" / span " ++ s)
         areaAttribute: Attribute msg   
         areaAttribute = style "grid-area" (row ++ col ++ rowSpan ++ colSpan )
     in
